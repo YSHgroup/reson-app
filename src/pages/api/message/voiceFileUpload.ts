@@ -12,13 +12,16 @@ import path from 'path';
 const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
+        if (!fs.existsSync('./public/uploads/voiceMessages')) {
+            fs.mkdirSync('./public/uploads/voiceMessages', { recursive: true });
+        }
         cb(null, './public/uploads/voiceMessages')
     },
     filename: function (req, file, cb) {
         cb(null, 'voiceMessage -' + uniqueSuffix)
     }
 });
-const upload = multer({ storage: storage }).single('file');
+const upload = multer({ storage: storage });
 
 export const config = {
     api: {
@@ -28,7 +31,7 @@ export const config = {
 
 export default async function handler(req: any, res: NextApiResponse) {
     try {
-        upload(req as any, res as any, function (err: any) {
+        upload.single('file')(req as any, res as any, function (err: any) {
             console.log(err, 'err');
             if (err instanceof multer.MulterError) {
                 // A Multer error occurred when uploading.
