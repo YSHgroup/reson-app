@@ -1,0 +1,10 @@
+export const MenuData = 
+{
+    "data": [
+      { "name": ["contact","Kontakt", "контакт", "контакт"], "href": "/messages?group=2" },
+      { "name": ["calendar","Kalender","календарь","календарь"], "href": "/calendar" },
+      { "name": ["main", "hauptsächlich", "основной", "основной"], "href": "/dashboard" },
+      { "name": ["project", "Projekt", "проект", "проект"], "href": "/projects" },
+      { "name": ["create", "erstellen","проект", "проект"], "href": "/create" }
+    ]
+  }

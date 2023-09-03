@@ -1,0 +1,48 @@
+
+.reactionDropdown {
+    position: relative;
+}
+.reactionDropBtn:hover {
+    opacity: 0.8
+}
+.reactionEmodicons {
+    display: none;
+    position: absolute;
+    background-color: black;
+    left: -70px;
+    top: -36px;
+    min-width: 160px;
+    overflow: auto;
+    z-index: 1;
+    padding: 7px;
+    // max-width: 284px;
+    // flex-wrap: wrap;
+}
+
+.reactionEmodicon {
+    width: 20px !important;
+    height: 20px !important;
+    cursor: pointer;
+    transition: 0.2s;
+    &:hover {
+        transform: scale(1.4,1.4)
+    }
+}
+
+.reactionEmodiconsMore {
+    border: 1px solid #2f2f2f;
+    display: none;
+    position: absolute;
+    background-color: black;
+    left: -54px;
+    top: 14px;
+    width: 286px;
+    overflow: auto;
+    z-index: 1;
+    padding: 0 7px 7px 7px;
+}
+
+.reactedEmojis {
+    // max-width: 500px;
+    flex-wrap: wrap;
+}
