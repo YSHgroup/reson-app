@@ -220,7 +220,7 @@ export default function Chat() {
             const message = {
                 author: session?.user?.email,
                 type: 'voiceMessage',
-                content: "./uploads/voiceMessages/" + res.filename,
+                content: res.filename,
                 to: email,
                 date: timestampToFormattedDate(Date.now()),
                 time: formatTime(),
@@ -551,7 +551,7 @@ export default function Chat() {
                     )
                     : (type === "voiceMessage" ?
                         <audio controls style={{ width: "280px", height: "48px" }} >
-                            <source src={content as string} type='audio/wav' />
+                            <source src={'/api/view?name=voiceMessages/'+content} type='audio/wav' />
                         </audio>
                         :
                         <Typography className={cn('msgText')} variant="body1" >{content}</Typography>

@@ -9,16 +9,16 @@ import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 
-const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+const uniqueSuffix = Date.now()+'-'+Math.round(Math.random() * 1E9)+".wav";
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        if (!fs.existsSync('./public/uploads/voiceMessages')) {
-            fs.mkdirSync('./public/uploads/voiceMessages', { recursive: true });
+        if (!fs.existsSync('./uploads/voiceMessages')) {
+            fs.mkdirSync('./uploads/voiceMessages', { recursive: true });
         }
-        cb(null, './public/uploads/voiceMessages')
+        cb(null, './uploads/voiceMessages')
     },
     filename: function (req, file, cb) {
-        cb(null, 'voiceMessage -' + uniqueSuffix)
+        cb(null, uniqueSuffix)
     }
 });
 const upload = multer({ storage: storage });
@@ -39,7 +39,7 @@ export default async function handler(req: any, res: NextApiResponse) {
                 // An unknown error occurred when uploading.
             }
         })
-        res.status(200).send({ filename: 'voiceMessage -'+ uniqueSuffix });
+        res.status(200).send({ filename: uniqueSuffix });
     } catch (error) {
         res.status(500).send({ error: 'Failed to upload file' });
     }
