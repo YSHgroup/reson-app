@@ -11,6 +11,7 @@ import { useAtom } from 'jotai'
 import { language } from "../jotai"
 
 import FullCalendar from "@fullcalendar/react";
+import momentPlugin from '@fullcalendar/moment';
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -284,7 +285,7 @@ export default function Calendar() {
               },
             }}
             ref={calendarRef}
-            plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
+            plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin, momentPlugin]}
             initialView="timeGridWeek"
             eventDrop={handleCalendarDrop}
             eventResize={handleEventResize}
@@ -292,7 +293,7 @@ export default function Calendar() {
             events={events}
             locale={"en-gb"}
             timeZone={"EST"}
-            titleFormat={{ year: "numeric", month: "numeric", day: "numeric" }}
+            titleFormat='MM/DD/YYYY'
             allDaySlot={false}
             buttonText={{
               today: "Today",
