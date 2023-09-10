@@ -44,3 +44,28 @@
 .showItem {
   display: flex !important;
 }
+
+
+
+
+
+
+
+
+
+/* customize fullcalendar styles */
+
+.fc-toolbar-title {
+  color: white;
+}
+
+@media screen and (max-width: 800px) {
+  .fc-header-toolbar.fc-toolbar.fc-toolbar-ltr {
+    flex-wrap: wrap;
+    text-align: center;
+    justify-content: center;
+  }
+  .fc-toolbar-chunk{
+    margin-bottom: 5px;
+  }
+}

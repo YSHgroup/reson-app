@@ -28,7 +28,6 @@ import styles from '../styles/chat.module.scss';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { StyledEngineProvider } from '@mui/material/styles';
-import { encodeBase64 } from "bcryptjs";
 
 
 const cache = createCache({
@@ -181,7 +180,6 @@ export default function Chat() {
             return;
         }
         mediaRecorder.current?.addEventListener('stop', (e) => {
-            console.log(e);
         })
 
         mediaRecorder.current?.start();
@@ -665,7 +663,6 @@ export default function Chat() {
                 })
                     .then((response) => response.json())
                     .then((data) => {
-                        console.log(data)
                         // setCallId(data.newCallInfo.insertedId);
                     })
                 setSnackText(`${email} accepted your call`)
