@@ -18,8 +18,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const session = await getServerSession(req, res, authOptions)
 
     const { email } = req.body
-
-    console.log(email)
     
     const client = await connectToDatabase()
   

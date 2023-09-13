@@ -7,6 +7,15 @@ import { authOptions } from "../auth/[...nextauth]"
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
     const session = await getServerSession(req, res, authOptions)
+    var today = new Date()
+    var Y = today.getFullYear()
+    var M = today.getMonth() + 1
+    var D = today.getDate()
+    var h = today.getHours()
+    var m = today.getMinutes()
+    var s = today.getSeconds()
+    var current_date = Y + '/' + M + '/' + D
+    var current_time = h + ':' + m + ':' + s
     if (session == undefined)
         return res.status(RS.CERROR_UNAUTHORIZED).json({
             message: 'Unauthorized',
@@ -20,6 +29,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const data = req.body;
     const client = await connectToDatabase()
     const calendarCollection = client.db().collection('calendar');
+    const messagesCollection = client.db().collection('messages');
     try {
         const newSchedule = await calendarCollection.insertOne({
             author: session?.user?.email,
@@ -27,8 +37,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             startdate: data.startDate,
             enddate: data.endDate,
             bgcolor: data.bgColor,
+            to: data.user,
             description: data.description
         })
+        let messageObj: any = {};
+        messageObj['author'] = session?.user?.email;
+        messageObj['content'] = "Invitation created. You can view it on Calendar.";
+        messageObj['to'] = data.user;
+        messageObj['date'] = current_date;
+        messageObj['time'] = current_time;
+        messageObj['read'] = false;
+        messageObj['type'] = 'text';
+        await messagesCollection.insertOne(messageObj);
         client.close();
         return res.status(200).json({
             message: "Success",

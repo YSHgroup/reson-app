@@ -23,11 +23,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         const filter = { _id: string2ObjectId(data._id) }; // replace 'your_document_id' with the actual _id value
         const update = { $set: { 
-            startdate: data.initValues.startDate, 
-            enddate: data.initValues.endDate,
-            title: data.initValues.title,
-            bgcolor: data.initValues.bgColor,
-            description: data.initValues.description
+            startdate: data.startDate, 
+            enddate: data.endDate,
+            title: data.title,
+            bgcolor: data.bgColor,
+            to: data.user,
+            description: data.description
         } };
         const updateSchedule = await calendarCollection.findOneAndUpdate(
             filter,

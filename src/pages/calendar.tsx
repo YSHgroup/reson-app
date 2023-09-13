@@ -5,10 +5,11 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import { Stack } from '@mui/material'
 import { NextApiRequest } from 'next'
-import { getSession } from 'next-auth/react'
+import { useRouter } from 'next/router'
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
 import { language } from "../jotai"
+import { getSession, useSession } from 'next-auth/react'
 
 import FullCalendar from "@fullcalendar/react";
 import momentPlugin from '@fullcalendar/moment';
@@ -18,6 +19,13 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import React, { useRef, useState, useEffect } from "react";
 import Box from '@mui/material/Box'
 import { styled } from '@mui/material/styles';
+import dayjs, { Dayjs } from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
+import Autocomplete from '@mui/material/Autocomplete';
+
 
 const start = new Date();
 const end = new Date(new Date().setMinutes(start.getMinutes() + 30));
@@ -54,21 +62,40 @@ const bgColorLists = [
     label: 'Pink'
   },
 ];
+interface initValues {
+  title: string;
+  startDate: Dayjs;
+  endDate: Dayjs;
+  bgColor?: string;
+  description: string;
+  from: string;
+  to: string;
+}
+interface Option {
+  email: string;
+}
 export default function Calendar() {
-
+  const router = useRouter();
   const [lang, setLanguage] = useAtom(language)
   const [modalOpen, setModalOpen] = useState(false);
   const [events, setEvents] = useState({});
-  const [initValues, setInitValues] = useState({
+  const [users, setUsers] = useState<Option[]>([]);
+  const [initValues, setInitValues] = useState<initValues>({
     title: '',
-    startDate: '',
-    endDate: '',
+    startDate: dayjs(),
+    endDate: dayjs(),
     bgColor: 'rgb(124, 179, 66)',
     description: '',
+    from: '',
+    to: '',
   });
+  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
+
   const [isChange, setIsChange] = useState(false);
   const [objectId, setObjectId] = useState('');
   const calendarRef = useRef(null);
+  const { data: session } = useSession()
+
 
 
 
@@ -79,26 +106,49 @@ export default function Calendar() {
     setModalOpen(false);
   };
 
+  const getUserinfo = async () => {
+    const response = await fetch('/api/user/user', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    let userData = await response.json();
+    const users_options: Option[] = [];
+    userData.data.map((user: any) => {
+      users_options.push({
+        email: user.email
+      })
+    })
+    setUsers(users_options);
+  }
+
   const handleCalendarSelect = (info: any) => {
     setInitValues(prevValues => ({
       ...prevValues,
       title: "Tittle",
-      startDate: info.startStr,
-      endDate: info.endStr
+      startDate: dayjs(info.startStr),
+      endDate: dayjs(info.endStr)
     }));
+    setSelectedOption(null);
     setObjectId('');
     setIsChange(false);
     setModalOpen(true);
   }
 
   const handleEventSelect = (info: any) => {
+    setSelectedOption(
+      info.event.extendedProps.from === session?.user?.email ? { email: info.event.extendedProps.to } : { email: info.event.extendedProps.from }
+    )
     setInitValues(prevValues => ({
       ...prevValues,
       title: info.event.title,
-      startDate: info.event.startStr,
-      endDate: info.event.endStr,
+      startDate: dayjs(info.event.startStr),
+      endDate: dayjs(info.event.endStr),
       description: info.event.extendedProps.description,
       bgColor: info.event.backgroundColor,
+      from: info.event.extendedProps.from,
+      to: info.event.extendedProps.to
     }));
     setObjectId(info.event.extendedProps.id);
     setIsChange(true);
@@ -109,8 +159,8 @@ export default function Calendar() {
   const handleCalendarDrop = async (info: any) => {
     const dropData = {
       _id: info.event.extendedProps.id,
-      start: info.event.startStr,
-      end: info.event.endStr
+      start: dayjs(info.event.startStr),
+      end: dayjs(info.event.endStr)
     };
     const res = await fetch('/api/calendar/dropEvent', {
       method: 'PUT',
@@ -136,17 +186,27 @@ export default function Calendar() {
     const resData = await res.json();
     if (resData.message === "Success") {
       setEvents(resData.newSchedule);
+
     }
   }
   useEffect(() => {
+    getUserinfo();
     getSchedules();
   }, []);
 
 
   async function saveCalendarEvent() {
+    const formdata = {
+      title: initValues.title,
+      startDate: initValues.startDate,
+      endDate: initValues.endDate,
+      bgColor: initValues.bgColor,
+      description: initValues.description,
+      user: selectedOption?.email
+    }
     const res = await fetch('/api/calendar/saveCalendar', {
       method: 'POST',
-      body: JSON.stringify(initValues),
+      body: JSON.stringify(formdata),
       headers: {
         'Content-Type': 'application/json',
       }
@@ -155,24 +215,32 @@ export default function Calendar() {
     if (resData.message === "Success") {
       getSchedules();
       setModalOpen(false);
+      setSelectedOption(null);
       setInitValues({
         title: '',
-        startDate: '',
-        endDate: '',
+        startDate: dayjs(),
+        endDate: dayjs(),
         bgColor: 'rgb(124, 179, 66)',
         description: '',
+        from: '',
+        to: '',
       });
     }
   }
 
   const updateEvent = async () => {
-    const data = {
+    const updateData = {
       _id: objectId,
-      initValues
+      title: initValues.title,
+      startDate: initValues.startDate,
+      endDate: initValues.endDate,
+      bgColor: initValues.bgColor,
+      description: initValues.description,
+      user: selectedOption?.email
     }
     const res = await fetch('/api/calendar/updateEvent', {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: JSON.stringify(updateData),
       headers: {
         'Content-Type': 'application/json',
       }
@@ -183,10 +251,12 @@ export default function Calendar() {
       setModalOpen(false);
       setInitValues({
         title: '',
-        startDate: '',
-        endDate: '',
+        startDate: dayjs(),
+        endDate: dayjs(),
         bgColor: 'rgb(124, 179, 66)',
         description: '',
+        from: '',
+        to: '',
       });
     }
   }
@@ -194,8 +264,8 @@ export default function Calendar() {
   const handleEventResize = async (info: any) => {
     const resizeData = {
       _id: info.event.extendedProps.id,
-      start: info.event.startStr,
-      end: info.event.endStr
+      start: dayjs(info.event.startStr),
+      end: dayjs(info.event.endStr)
     };
     const res = await fetch('/api/calendar/dropEvent', {
       method: 'PUT',
@@ -224,16 +294,18 @@ export default function Calendar() {
       setModalOpen(false);
       setInitValues({
         title: '',
-        startDate: '',
-        endDate: '',
+        startDate: dayjs(),
+        endDate: dayjs(),
         bgColor: 'rgb(124, 179, 66)',
         description: '',
+        from: '',
+        to: '',
       });
     }
   }
 
   const handleSubmit = () => {
-    if (initValues.title !== "" && initValues.startDate !== "" && initValues.endDate !== "") {
+    if (initValues.title !== "") {
       if (!isChange) {
         saveCalendarEvent();
       } else {
@@ -249,6 +321,19 @@ export default function Calendar() {
       [name]: value
     }));
   }
+
+  const handleOptionChange = (event: any, newValue: Option | null) => {
+    setSelectedOption(newValue);
+  };
+
+  const getTitleFromOption = (option: Option): string => {
+    return option.email.toString();
+  };
+
+  const redirectToCallPage = (e: any) => {
+    let link = e.target.getAttribute('data-email');
+    router.push(`/chat?email=${link}`);
+  };
 
 
   return (
@@ -292,7 +377,7 @@ export default function Calendar() {
             select={handleCalendarSelect}
             events={events}
             locale={"en-gb"}
-            timeZone={"EST"}
+            timeZone={"local"}
             titleFormat='MM/DD/YYYY'
             allDaySlot={false}
             buttonText={{
@@ -354,21 +439,41 @@ export default function Calendar() {
               onChange={handleTextFieldChange}
               value={initValues.title}
             />
-            <TextField
-              fullWidth
-              label='Start Time'
-              name='startDate'
-              type='datetime'
-              onChange={handleTextFieldChange}
-              value={initValues.startDate}
-            />
-            <TextField
-              fullWidth
-              label='End Time'
-              name='endDate'
-              type='datetime'
-              onChange={handleTextFieldChange}
-              value={initValues.endDate}
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+              <MobileDateTimePicker
+                label="Start Time"
+                renderInput={(params) => <TextField fullWidth {...params} />}
+                value={initValues.startDate}
+                onChange={(newValue) => {
+                  setInitValues(prevValues => ({
+                    ...prevValues,
+                    startDate: dayjs(newValue),
+                  }));
+                }}
+              />
+              <MobileDateTimePicker
+                label="End Time"
+                renderInput={(params) => <TextField fullWidth {...params} />}
+                value={initValues.endDate}
+                onChange={(newValue) => {
+                  setInitValues(prevValues => ({
+                    ...prevValues,
+                    endDate: dayjs(newValue),
+                  }));
+                }}
+                minDateTime={initValues.startDate}
+              />
+            </LocalizationProvider>
+            <Autocomplete
+              disablePortal
+              id="combo-box-demo"
+              options={users}
+              sx={{ width: '100%' }}
+              getOptionLabel={getTitleFromOption}
+              value={selectedOption}
+              onChange={handleOptionChange}
+              disabled={session?.user?.email === initValues.from ? false : true}
+              renderInput={(params) => <TextField {...params} label="Guests" />}
             />
             <TextField
               select
@@ -405,13 +510,27 @@ export default function Calendar() {
         </DialogContent>
         <DialogActions>
           {
-            !isChange ? (
-              <></>
-            ) : (
-              <Button sx={{ backgroundColor: 'red' }} onClick={handleEventDelete}>Delete</Button>
+            isChange && (
+              <>
+                <Button
+                 variant="contained"
+                  onClick={redirectToCallPage}
+                  data-email={session?.user?.email === initValues.from ? initValues.to : initValues.from}
+                  color="success"
+                >
+                  Join Call
+                </Button>
+                <Button
+                 variant="contained"
+                  onClick={handleEventDelete}
+                  color="error"
+                >
+                  Delete
+                </Button>
+              </>
             )
           }
-          <Button type={'submit'} onClick={handleSubmit}>
+          <Button type={'submit'} onClick={handleSubmit} variant="contained">
             Save changes
           </Button>
         </DialogActions>

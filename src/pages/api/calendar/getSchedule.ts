@@ -23,7 +23,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const author = session?.user?.email;
     try {
         const schedules = await calendarCollection.find({
-            author: author
+            $or:[
+                {author: author},
+                {to: author}
+            ]
         }).toArray();
         const schedulesEvent = [];
 
@@ -32,6 +35,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 'title': schedules[i].title,
                 'start': schedules[i].startdate,
                 'end': schedules[i].enddate,
+                'to' : schedules[i].to,
+                'from': schedules[i].author,
                 'backgroundColor': schedules[i].bgcolor,
                 'description': schedules[i].description,
                 'extendedProps': { id: schedules[i]._id },
