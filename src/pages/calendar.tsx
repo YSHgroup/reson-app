@@ -472,7 +472,7 @@ export default function Calendar() {
               getOptionLabel={getTitleFromOption}
               value={selectedOption}
               onChange={handleOptionChange}
-              disabled={session?.user?.email === initValues.from ? false : true}
+              disabled={isChange ? true : false}
               renderInput={(params) => <TextField {...params} label="Guests" />}
             />
             <TextField
