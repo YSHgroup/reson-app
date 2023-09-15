@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect, useRef, createContext, useContext, useCallback, useMemo } from "react";
 import ReactDOM from 'react-dom';
 import FullLayout from '@layouts/FullLayout/FullLayout'
-import { AttachFile as AttachFileIcon, Close, Minimize, Mail as MailIcon, Send, Mic as MicIcon, Phone, PhoneDisabled, CallEnd, PhoneEnabled, PhoneInTalk, CallReceived, CallMade, MoreHoriz, Padding } from '@mui/icons-material'
+import { AttachFile as AttachFileIcon, Close, Minimize, Mail as MailIcon, Send, Mic as MicIcon, Phone, PhoneDisabled, CallEnd, PhoneEnabled, PhoneInTalk, CallReceived, CallMade, MoreHoriz, Padding, Flag } from '@mui/icons-material'
 import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Fab from '@mui/material/Fab';
@@ -129,6 +129,7 @@ export default function Chat() {
     // 
     const recordedChunks = useRef<Blob[]>([]);
     const mediaRecorder = useRef<MediaRecorder | null>(null);
+    const [disabledButton, setDisabledButton] = useState<boolean>(false);
     // let mediaRecorder: MediaRecorder;
 
     const myAudio = useRef<any>(null);
@@ -207,6 +208,7 @@ export default function Chat() {
         setIsUploadBlob(false);
     }
     async function asyncuploadAudio(file: any) {
+        setDisabledButton(true);
         const formData = new FormData();
         formData.append('file', file);
         const response = await fetch('/api/message/voiceFileUpload', {
@@ -240,7 +242,9 @@ export default function Chat() {
                 }
             }
             fetchData();
+            setDisabledButton(false);
         } else {
+            setDisabledButton(false);
             console.error('Failed to upload file');
         }
     }
@@ -493,6 +497,7 @@ export default function Chat() {
     };
 
     async function asyncupload(file: any) {
+        setDisabledButton(true);
         const data = await file.arrayBuffer();
         const xhr = new XMLHttpRequest();
         xhr.upload.onprogress = (event) => {
@@ -515,8 +520,10 @@ export default function Chat() {
                     read: false
                 }
                 socket.emit('sendMessage', message);
+                setDisabledButton(false);
             } else {
                 console.error('Failed to upload file');
+                setDisabledButton(false);
             }
         };
         xhr.send(JSON.stringify({
@@ -1030,6 +1037,7 @@ export default function Chat() {
                                         height: 40,
                                         ml: 2,
                                     }}
+                                    disabled={disabledButton}
                                     id="sendMessageBtn"
                                     onClick={(e) => sendMessage(e)}>
                                     <Send />
@@ -1044,6 +1052,7 @@ export default function Chat() {
                                                 height: 40,
                                                 ml: 2,
                                             }}
+                                            disabled={disabledButton}
                                             onClick={() => handleMediaRecorderInit()}
                                         >
                                             <MicIcon />
@@ -1057,6 +1066,7 @@ export default function Chat() {
                                                 height: 40,
                                                 ml: 2,
                                             }}
+                                            disabled={disabledButton}
                                             onClick={() => handleSetMessageType(true)}
                                         >
                                             <MailIcon />
@@ -1070,7 +1080,9 @@ export default function Chat() {
                                         width: 40,
                                         height: 40,
                                         ml: 1,
-                                    }}>
+                                    }}
+                                    disabled={disabledButton}
+                                    >
                                     <label htmlFor="icon-button-file">
                                         <AttachFileIcon />
                                     </label>
