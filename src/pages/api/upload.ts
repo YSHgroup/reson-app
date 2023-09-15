@@ -22,7 +22,7 @@ import path from 'path';
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '200mb'
+      sizeLimit: '3000mb'
     },
   },
 };
