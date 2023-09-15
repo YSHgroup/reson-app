@@ -201,6 +201,9 @@ export default function Messages() {
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     router.replace('/messages?group=' + newValue)
   }
+  const handleImportClick = async () => {
+    console.log("ok");
+  }
   const AddContact = (
     <Box sx={{ display: 'flex', alignItems: 'center', px: 2 }}>
       <Typography sx={{ flexGrow: 1 }}>{languagejson[lang].Newcontact}</Typography>
@@ -221,6 +224,10 @@ export default function Messages() {
           group == 1 && 
           // <Button variant="contained" sx={{marginRight: '5px', textTransform: 'none'}}>New Group Chat</Button>
           <FormModal users={users} addGroup={()=>setAddGroup((addGroup)=>!addGroup)}/>
+        }
+        {
+          group == 2 && 
+          <Button onClick={handleImportClick}>Import Contact</Button>
         }
       </Stack>
       {/* BEGIN: CHATS SECTION */}

@@ -52,6 +52,8 @@
     "formidable": "^3.5.1",
     "formik": "^2.4.4",
     "fs": "^0.0.1-security",
+    "google-auth-library": "^9.0.0",
+    "googleapis": "^126.0.1",
     "jotai": "^2.0.3",
     "mapbox-gl": "^2.13.0",
     "mime": "^3.0.0",
