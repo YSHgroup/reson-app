@@ -21,6 +21,7 @@ import { useWindowSize } from "@react-hook/window-size";
 import Link from 'next/link'
 import cn from 'classnames'
 import { ContentReactedEmojis, EmojiChildComponent } from "@elements/ContentReactedEmojis";
+import CircularProgress from '@mui/material/CircularProgress';
 // import { v4 as uuidv4 } from 'uuid';
 // import e from "cors";
 // import { useAtom } from 'jotai';
@@ -871,7 +872,7 @@ export default function Chat() {
                                         height: 70,
                                         // padding: 1,
                                     }}>
-                                    <Image src={(pic == "" || pic == undefined) ? `/images/male.png` : `/avatars/${pic}`} alt="male" width={70} height={70} />
+                                    <Image src={(pic == "" || pic == undefined) ? `/images/male.png` : `/api/view?name=chats/${pic}`} alt="male" width={70} height={70} />
                                 </Box>
                                 <Typography sx={{ flexGrow: 1 }}>{email}</Typography>
 
@@ -1040,7 +1041,7 @@ export default function Chat() {
                                     disabled={disabledButton}
                                     id="sendMessageBtn"
                                     onClick={(e) => sendMessage(e)}>
-                                    <Send />
+                                    { !disabledButton ? <Send /> : <CircularProgress /> }
                                 </IconButton>
                                 {
                                     messageType ? (
@@ -1055,7 +1056,7 @@ export default function Chat() {
                                             disabled={disabledButton}
                                             onClick={() => handleMediaRecorderInit()}
                                         >
-                                            <MicIcon />
+                                            { !disabledButton ? <MicIcon /> : <CircularProgress /> }
                                         </IconButton>
                                     ) : (
                                         <IconButton
@@ -1069,7 +1070,7 @@ export default function Chat() {
                                             disabled={disabledButton}
                                             onClick={() => handleSetMessageType(true)}
                                         >
-                                            <MailIcon />
+                                            { !disabledButton ? <MailIcon /> : <CircularProgress /> }
                                         </IconButton>
                                     )
                                 }
@@ -1084,7 +1085,7 @@ export default function Chat() {
                                     disabled={disabledButton}
                                     >
                                     <label htmlFor="icon-button-file">
-                                        <AttachFileIcon />
+                                        {!disabledButton ? <AttachFileIcon /> : <CircularProgress />}
                                     </label>
                                     <input
                                         accept="*.jpg,.jpeg,.png,.gif,.bmp,.mp4,.mov,.avi*"
@@ -1314,7 +1315,7 @@ const VideoCallWindow = ({ pic, localStream, remoteStream, videoWindowClosed, ac
                         height: '240px',
                         padding: '4px'
                     }}
-                        src={(pic == "" || pic == undefined) ? `/images/male.png` : `/avatars/${pic}`} alt="male" width={70} height={70} />
+                        src={(pic == "" || pic == undefined) ? `/images/male.png` : `/api/view?name=chats/${pic}`} alt="male" width={70} height={70} />
                 </div>
                 <div style={{
                     display: 'flex',

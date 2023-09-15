@@ -3,15 +3,15 @@ import { getSession } from 'next-auth/react'
 import RS from '@constants/ResponseStatus'
 import { connectToDatabase } from '@lib/db'
 var randomGeoHash = require('random-geohash')
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "../auth/[...nextauth]"
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return
   }
 
-  const session = await getSession({
-    req,
-  })
+  const session = await getServerSession(req, res, authOptions)
   
   
   const { picpath } = req.body
@@ -19,7 +19,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const usersCollection = client.db().collection('users')
 
-  let geoLocation = randomGeoHash()
+  let geoLocation = randomGeoHash();
 
   await usersCollection.updateOne(
     {

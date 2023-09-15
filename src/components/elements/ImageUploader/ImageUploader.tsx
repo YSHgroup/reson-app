@@ -175,7 +175,7 @@ export default function ImageUploader() {
         data: Array.from(new Uint8Array(data)),
       }),
     }).then(response => response.json()).then(data => {
-      document.getElementById('file-image').src = `api/view?name=avatars/${data.data}`;
+      document.getElementById('file-image').src = `api/view?name=chats/${data.data}`;
       avatarChange(data.data);
     }).catch(err => {
       console.error('Failed to upload file');
@@ -213,7 +213,7 @@ export default function ImageUploader() {
           document.getElementById('response').classList.remove("hidden");
           document.getElementById('notimage').classList.add("hidden");
           document.getElementById('file-image').classList.remove("hidden");
-          document.getElementById('file-image').src = `api/view?name=avatars/=${path}`;
+          document.getElementById('file-image').src = `api/view?name=chats/${path}`;
         }
 
       }

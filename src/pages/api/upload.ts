@@ -81,7 +81,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 export default handler
 
 function prepare(picpath, session, type, fileType) {
-  if (type == 'profile') {
+  if (type === 'profile') {
     savetodb(picpath, session);
   }
 }
