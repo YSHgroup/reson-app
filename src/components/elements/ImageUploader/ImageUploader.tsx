@@ -1,23 +1,23 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 
 export default function ImageUploader() {
 
 
-  useEffect(()=>{
-    getpic()
-  },[])
   useEffect(() => {
-    function ekUpload(){
+    getpic()
+  }, [])
+  useEffect(() => {
+    function ekUpload() {
       function Init() {
-    
+
         console.log("Upload Initialised");
-    
-        var fileSelect    = document.getElementById('file-upload'),
-            fileDrag      = document.getElementById('file-drag'),
-            submitButton  = document.getElementById('submit-button');
-    
+
+        var fileSelect = document.getElementById('file-upload'),
+          fileDrag = document.getElementById('file-drag'),
+          submitButton = document.getElementById('submit-button');
+
         fileSelect.addEventListener('change', fileSelectHandler, false);
-    
+
         // Is XHR2 available?
         var xhr = new XMLHttpRequest();
         if (xhr.upload) {
@@ -27,48 +27,48 @@ export default function ImageUploader() {
           fileDrag.addEventListener('drop', fileSelectHandler, false);
         }
       }
-    
+
       function fileDragHover(e) {
         var fileDrag = document.getElementById('file-drag');
-    
+
         e.stopPropagation();
         e.preventDefault();
-    
+
         fileDrag.className = (e.type === 'dragover' ? 'hover' : 'modal-body file-upload');
       }
-    
+
       function fileSelectHandler(e) {
         // Fetch FileList object
         var files = e.target.files || e.dataTransfer.files;
-    
+
         // Cancel event and hover styling
         fileDragHover(e);
-    
+
         // Process all File objects
         for (var i = 0, f; f = files[i]; i++) {
           parseFile(f);
           uploadFile(f);
         }
       }
-    
+
       // Output
       function output(msg) {
         // Response
         var m = document.getElementById('messages');
         m.innerHTML = msg;
       }
-    
+
       function parseFile(file) {
-    
+
         console.log(file.name);
         // output(
         //   '<strong>' + encodeURI(file.name) + '</strong>'
         // );
-        
+
         // var fileType = file.type;
         // console.log(fileType);
         var imageName = file.name;
-    
+
         var isGood = (/\.(?=gif|jpg|png|jpeg)/gi).test(imageName);
         if (isGood) {
           document.getElementById('start').classList.add("hidden");
@@ -86,25 +86,25 @@ export default function ImageUploader() {
           document.getElementById("file-upload-form").reset();
         }
       }
-    
+
       function setProgressMaxValue(e) {
         var pBar = document.getElementById('file-progress');
-    
+
         if (e.lengthComputable) {
           pBar.max = e.total;
         }
       }
-    
+
       function updateFileProgress(e) {
         var pBar = document.getElementById('file-progress');
-    
+
         if (e.lengthComputable) {
           pBar.value = e.loaded;
         }
       }
-    
+
       function uploadFile(file) {
-    
+
         var xhr = new XMLHttpRequest(),
           fileInput = document.getElementById('class-roster-file'),
           pBar = document.getElementById('file-progress'),
@@ -116,12 +116,12 @@ export default function ImageUploader() {
             pBar.style.display = 'inline';
             xhr.upload.addEventListener('loadstart', setProgressMaxValue, false);
             xhr.upload.addEventListener('progress', updateFileProgress, false);
-    
+
             // File received / failed
-            xhr.onreadystatechange = function(e) {
+            xhr.onreadystatechange = function (e) {
               if (xhr.readyState == 4) {
                 // Everything is good!
-    
+
                 // progress.className = (xhr.status == 200 ? "success" : "failure");
                 // document.location.reload(true);
               }
@@ -129,7 +129,7 @@ export default function ImageUploader() {
 
             // const formData = new FormData();
             // formData.append("file", file, file.name);
-    
+
             // // Start upload
             // xhr.open('POST', document.getElementById('file-upload-form').action, true);
             // xhr.setRequestHeader('X-File-Name', file.name);
@@ -144,13 +144,13 @@ export default function ImageUploader() {
             // formData.append('file', file);
 
             uploadstart(file);
-        
+
           } else {
             output('Please upload a smaller file (< ' + fileSizeLimit + ' MB).');
           }
         }
       }
-    
+
       // Check for the various File API support.
       if (window.File && window.FileList && window.FileReader) {
         Init();
@@ -161,54 +161,69 @@ export default function ImageUploader() {
     ekUpload();
   }, [])
 
-  async function asyncupload(file:any) {
+  async function asyncupload(file: any) {
     console.log(file.name);
     const data = await file.arrayBuffer();
     await fetch('/api/upload', {
       method: 'POST',
       headers: {
-        'Content-Type' : 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         name: file.name,
         type: 'profile',
         data: Array.from(new Uint8Array(data)),
       }),
-    }).then(response=>response.json()).then(data=>{
-      document.getElementById('file-image').src = `api/view?name=${data.data}`;
-    }).catch(err=>{
+    }).then(response => response.json()).then(data => {
+      document.getElementById('file-image').src = `api/view?name=avatars/${data.data}`;
+      avatarChange(data.data);
+    }).catch(err => {
       console.error('Failed to upload file');
     })
   }
 
- function uploadstart (file){
-  asyncupload(file)
- }
+  const avatarChange = async (src: string) => {
+    let userData = {
+      picpath: src
+    }
+    const response = await fetch('/api/profile/avatar', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
 
- function getpic (){
+    const data = await response.json()
+  }
+  function uploadstart(file) {
+    asyncupload(file)
+  }
+
+  function getpic() {
     loadpic()
- }
+  }
 
- async function loadpic () {
-  await fetch('api/user/currentUser').then(res=>res.json()).then(
-    res => {
-      const path:any = res.data[0].picpath;
-      if(path != null && path != ""){
-        document.getElementById('start').classList.add("hidden");
-        document.getElementById('response').classList.remove("hidden");
-        document.getElementById('notimage').classList.add("hidden");
-        document.getElementById('file-image').classList.remove("hidden");
-        document.getElementById('file-image').src = `api/view?name=${path}`;
+  async function loadpic() {
+    await fetch('api/user/currentUser').then(res => res.json()).then(
+      res => {
+        const path: any = res.data[0].picpath;
+        if (path != null && path != "") {
+          document.getElementById('start').classList.add("hidden");
+          document.getElementById('response').classList.remove("hidden");
+          document.getElementById('notimage').classList.add("hidden");
+          document.getElementById('file-image').classList.remove("hidden");
+          document.getElementById('file-image').src = `api/view?name=avatars/=${path}`;
+        }
+
       }
+    ).catch(
+      err => {
 
-    }
-  ).catch(
-    err =>{
-      
-    }
-  )
- }
-  
+      }
+    )
+  }
+
   return (
     <form id="file-upload-form" className="uploader" action="/api/upload">
       <input id="file-upload" type="file" name="fileUpload" accept="image/*" />

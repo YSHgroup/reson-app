@@ -549,7 +549,7 @@ export default function Chat() {
                     )
                     : (type === "voiceMessage" ?
                         <audio controls style={{ width: "280px", height: "48px" }} >
-                            <source src={'/api/view?name=voiceMessages/'+content} type='audio/wav' />
+                            <source src={'/api/view?name=voiceMessages/' + content} type='audio/wav' />
                         </audio>
                         :
                         <Typography className={cn('msgText')} variant="body1" >{content}</Typography>
@@ -1074,12 +1074,12 @@ export default function Chat() {
                                     <label htmlFor="icon-button-file">
                                         <AttachFileIcon />
                                     </label>
-                                    {/* <input
-                            accept="*.*"
-                            id="icon-button-file"
-                            type="file"
-                            onChange={(e) => asyncupload(e.target.files[0])}
-                            style={{ display: 'none' }} /> */}
+                                    <input
+                                        accept="*.jpg,.jpeg,.png,.gif,.bmp,.mp4,.mov,.avi*"
+                                        id="icon-button-file"
+                                        type="file"
+                                        onChange={(e) => asyncupload(e.target.files[0])}
+                                        style={{ display: 'none' }} />
                                 </IconButton>
                                 <CallButton onClick={initiateCall} isCalling={isCalling} beingCalled={beingCalled} minimizeCall={minimizeCall} setMiniCall={(value: boolean) => { setMinimizeCall(value) }} />
                             </Box>
@@ -1132,11 +1132,11 @@ export function MediaViewer({ open, handleClose, content }: MediaViewerProps) {
                     Media Viewer
                 </DialogTitle>
                 <DialogContent>
-                    {content.type == 'image' ? <img src={`/api/view?name=${content.content}`} alt={content.content} width="100%" /> : <video src={`/api/view?name=${content.content}`} width="100%" controls />}
+                    {content.type == 'image' ? <img src={`/api/view?name=chats/${content.content}`} alt={content.content} width="100%" /> : <video src={`/api/view?name=${content.content}`} width="100%" controls />}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Close</Button>
-                    <a href={`/api/view?name=${content.content}`} download>
+                    <a href={`/api/view?name=chats/${content.content}`} download>
                         <Button color="primary">Download</Button>
                     </a>
                 </DialogActions>
@@ -1168,12 +1168,13 @@ export function ChatImage({ content, filetype, handleClick }: any) {
     return (
         <div>
             <Image
-                src={`/api/view?name=${content}`}
+                src={`/api/view?name=chats/${content}`}
                 alt={content}
-                width={imageDimensions.width}
-                height={imageDimensions.height}
+                width={imageDimensions.width > 200 ? 200 : imageDimensions.width}
+                height={imageDimensions.height > 300 ? 300 : imageDimensions.height}
                 onClick={() => handleClick(content, filetype)}
-                onLoad={handleImageLoad} />
+                onLoad={handleImageLoad}    
+            />
         </div>
     )
 }

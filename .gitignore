@@ -131,4 +131,4 @@ dist
 /yarn.lock
 /package-lock.json
 /.env
-/uploads
+# /uploads

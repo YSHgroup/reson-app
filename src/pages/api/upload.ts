@@ -33,12 +33,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const session = await getSession({
       req,
     })
-  
+
     const { name, type, data } = req.body;
 
     const picpath = `${uuidv4()}${path.extname(name)}`;
-    const filepath = `./public/avatars/${picpath}`;
-    
+    if (!fs.existsSync('./uploads/chats')) {
+      fs.mkdirSync('./uploads/chats', { recursive: true });
+    }
+    const filepath = `./uploads/chats/${picpath}`;
+
 
     const buffer = Buffer.from(data)
 
@@ -67,7 +70,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         }
 
         prepare(picpath, session, type, fileType)
-        res.status(200).send({data:picpath, type:fileType});
+        res.status(200).send({ data: picpath, type: fileType });
       }
     });
   } else {
@@ -77,13 +80,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
 export default handler
 
-function prepare (picpath, session, type, fileType) {
-  if(type == 'profile'){
+function prepare(picpath, session, type, fileType) {
+  if (type == 'profile') {
     savetodb(picpath, session);
   }
 }
-async function savetodb (picpath, session) {
-  
+async function savetodb(picpath, session) {
+
   const client = await connectToDatabase()
 
   const usersCollection = client.db().collection('users')
