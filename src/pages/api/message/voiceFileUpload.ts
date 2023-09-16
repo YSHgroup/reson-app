@@ -9,7 +9,7 @@ import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 
-const uniqueSuffix = Date.now()+'-'+Math.round(Math.random() * 1E9)+".wav";
+// const uniqueSuffix = Date.now()+'-'+Math.round(Math.random() * 1E9)+".wav";
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         if (!fs.existsSync('./uploads/voiceMessages')) {
@@ -18,6 +18,7 @@ const storage = multer.diskStorage({
         cb(null, './uploads/voiceMessages')
     },
     filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now()+'-'+Math.round(Math.random() * 1E9)+".wav";
         cb(null, uniqueSuffix)
     }
 });
@@ -32,14 +33,14 @@ export const config = {
 export default async function handler(req: any, res: NextApiResponse) {
     try {
         upload.single('file')(req as any, res as any, function (err: any) {
-            console.log(err, 'err');
             if (err instanceof multer.MulterError) {
                 // A Multer error occurred when uploading.
             } else if (err) {
                 // An unknown error occurred when uploading.
             }
+            const uploadedFileName = req.file.filename;
+            res.status(200).send({ filename: uploadedFileName });
         })
-        res.status(200).send({ filename: uniqueSuffix });
     } catch (error) {
         res.status(500).send({ error: 'Failed to upload file' });
     }

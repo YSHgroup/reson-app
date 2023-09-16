@@ -228,6 +228,7 @@ export default function Chat() {
                 read: false
             }
             socket.emit('sendMessage', message);
+            setDisabledButton(false);
             const fetchData = async () => {
                 const payload = { message: message.content }
                 try {
@@ -243,7 +244,6 @@ export default function Chat() {
                 }
             }
             fetchData();
-            setDisabledButton(false);
         } else {
             setDisabledButton(false);
             console.error('Failed to upload file');
@@ -1041,7 +1041,7 @@ export default function Chat() {
                                     disabled={disabledButton}
                                     id="sendMessageBtn"
                                     onClick={(e) => sendMessage(e)}>
-                                    { !disabledButton ? <Send /> : <CircularProgress /> }
+                                    { !disabledButton ? <Send /> : <CircularProgress size={20} /> }
                                 </IconButton>
                                 {
                                     messageType ? (
@@ -1056,7 +1056,7 @@ export default function Chat() {
                                             disabled={disabledButton}
                                             onClick={() => handleMediaRecorderInit()}
                                         >
-                                            { !disabledButton ? <MicIcon /> : <CircularProgress /> }
+                                            { !disabledButton ? <MicIcon /> : <CircularProgress size={20} /> }
                                         </IconButton>
                                     ) : (
                                         <IconButton
@@ -1070,7 +1070,7 @@ export default function Chat() {
                                             disabled={disabledButton}
                                             onClick={() => handleSetMessageType(true)}
                                         >
-                                            { !disabledButton ? <MailIcon /> : <CircularProgress /> }
+                                            { !disabledButton ? <MailIcon /> : <CircularProgress size={20}/> }
                                         </IconButton>
                                     )
                                 }
@@ -1085,7 +1085,7 @@ export default function Chat() {
                                     disabled={disabledButton}
                                     >
                                     <label htmlFor="icon-button-file">
-                                        {!disabledButton ? <AttachFileIcon /> : <CircularProgress />}
+                                        {!disabledButton ? <AttachFileIcon /> : <CircularProgress size={20} />}
                                     </label>
                                     <input
                                         accept="*.jpg,.jpeg,.png,.gif,.bmp,.mp4,.mov,.avi*"
