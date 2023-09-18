@@ -73,10 +73,10 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
-# .env.development.local
-# .env.test.local
-# .env.production.local
-# .env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
 
 # lockfiles
 yarn.lock
@@ -130,5 +130,5 @@ dist
 .pnp.*
 /yarn.lock
 /package-lock.json
-# /.env
+/.env
 # /uploads
