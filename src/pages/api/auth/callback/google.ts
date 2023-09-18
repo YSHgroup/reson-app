@@ -16,7 +16,6 @@ const oAuth2Client = new google.auth.OAuth2(
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const { code } = req.query;
-  //   return res.redirect('http://localhost:3000/messages')
   try {
     const { tokens } = await oAuth2Client.getToken(code as string);
     oAuth2Client.setCredentials(tokens);
@@ -40,7 +39,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       const count = await contactsCollection.countDocuments({
         $and: [
           { author: author },
-          { emailAddress: item.emailAddresses?.values }
+          { emailAddress: (item.emailAddresses !== undefined && item.emailAddresses[0]?.value) }
         ]
       });
       if (count === 0) {
@@ -56,12 +55,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     client.close();
-
-    res.redirect('http://localhost:3000/messages?group=2');
-    // const user = await usersCollection.findOne({
-    //   email: session?.user?.email,
-    // })
-    // res.status(200).json();
+    const uri = process.env.CONTACT_REDIRECT_URI || '';
+    res.redirect(uri);
   } catch (error) {
     console.error('Error retrieving contacts:', error);
     res.status(500).end();

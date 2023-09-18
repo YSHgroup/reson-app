@@ -239,7 +239,7 @@ export default function Messages() {
         }
         {
           group == 2 &&
-          <Button onClick={handleImportClick}>Import Contact</Button>
+          <Button sx={{ marginRight: '5px', textTransform: 'none', marginBottom: '12px' }}  variant="contained" onClick={handleImportClick}>Import Contact</Button>
         }
       </Stack>
       {/* BEGIN: CHATS SECTION */}

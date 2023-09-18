@@ -1,9 +1,6 @@
 import FullLayout from '@layouts/FullLayout/FullLayout'
-import { Divider, ListSubheader, Tab, Tabs, Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Typography, TextField, MenuItem, Grid, Alert, FormHelperText } from '@mui/material'
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Typography, TextField, MenuItem, Grid, Alert, FormHelperText } from '@mui/material'
 import { Close as CloseIcon } from '@mui/icons-material'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import { Stack } from '@mui/material'
 import { NextApiRequest } from 'next'
 import { useRouter } from 'next/router'
 import languagejson from "../language.json"
@@ -22,7 +19,6 @@ import { styled } from '@mui/material/styles';
 import dayjs, { Dayjs } from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import Autocomplete from '@mui/material/Autocomplete';
 
@@ -186,7 +182,6 @@ export default function Calendar() {
     const resData = await res.json();
     if (resData.message === "Success") {
       setEvents(resData.newSchedule);
-
     }
   }
   useEffect(() => {
