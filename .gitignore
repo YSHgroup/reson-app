@@ -130,5 +130,5 @@ dist
 .pnp.*
 /yarn.lock
 /package-lock.json
-/.env
+# /.env
 # /uploads
