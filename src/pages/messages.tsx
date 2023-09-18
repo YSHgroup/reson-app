@@ -26,14 +26,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React from 'react'
-import {language} from "../jotai"
+import { language } from "../jotai"
 import languagejson from "../language.json"
 import ColorModeContext from 'context/ColorModeContext'
 import cn from 'classnames'
 import { useAtom } from 'jotai'
-import {usersAtom} from '../atoms';
+import { usersAtom } from '../atoms';
 
-let socket:any;
+let socket: any;
 import io from "socket.io-client";
 
 export default function Messages() {
@@ -45,12 +45,13 @@ export default function Messages() {
   const [addGroup, setAddGroup] = React.useState(false)
   const [usersStore, setUsersStore] = useAtom(usersAtom);
   // const [unreadGroupChats, setUnreadGroupChats] = React.useState<Array<any>>([]);
+  const [contacts, setContacts] = React.useState<Array<any>>([]);
 
   const getChatGroups = async () => {
     const response = await fetch('/api/message/groups', {
       method: 'GET',
       headers: {
-          'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
       },
     });
     const res = await response.json();
@@ -61,12 +62,12 @@ export default function Messages() {
       if (a.modified < b.modified) return 1;
       return -1;
     })
-    setChatGroups((groups)=>[...(res.groups)]);
+    setChatGroups((groups) => [...(res.groups)]);
   };
-  
-  React.useEffect(() =>{
+
+  React.useEffect(() => {
     const getUnreadMessage = async () => {
-      const response = await fetch('/api/message/getUnreadMessages',{
+      const response = await fetch('/api/message/getUnreadMessages', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -75,10 +76,7 @@ export default function Messages() {
 
       let data = await response.json()
 
-      console.log('unreadmessages', data)
-
-
-      if(data.data.count > 0){
+      if (data.data.count > 0) {
         setUnReads(data.data.messages)
         // let sorted_users = users;
         // data.data.messages.forEach((msg: any, i: number ) => {
@@ -109,10 +107,10 @@ export default function Messages() {
 
     getUnreadMessage();
     // getUnreadGroupChats();
-    
-    socket = io(String(process.env.NEXT_PUBLIC_CHAT_URI), {secure: true});
+
+    socket = io(String(process.env.NEXT_PUBLIC_CHAT_URI), { secure: true });
     socket.on('connect', () => {
-      socket.emit('register_notificationSocket', {email: session?.user?.email} )
+      socket.emit('register_notificationSocket', { email: session?.user?.email })
     });
     socket.on('newUnreadMsg', () => {
       getUnreadMessage()
@@ -121,11 +119,28 @@ export default function Messages() {
       getChatGroups();
     })
 
-  },[])
+  }, [])
 
   React.useEffect(() => {
     getChatGroups();
-  },[addGroup])
+  }, [addGroup]);
+  const getContacts = async () => {
+    const response = await fetch('/api/contact/contact', {
+      method: 'POST',
+      body: JSON.stringify({}),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    const resData = await response.json();
+    console.log(resData.data)
+    if (resData.message === "Success") {
+      setContacts(resData.data);
+    }
+  }
+  React.useEffect(() => {
+    getContacts();
+  }, []);
 
   React.useState<Array<any>>([]);
 
@@ -138,17 +153,15 @@ export default function Messages() {
         },
       })
       let userData = await response.json()
-      
+
       let users_sorted = userData.data;
-      users_sorted.sort(function( user1: any, user2: any ) {
+      users_sorted.sort(function (user1: any, user2: any) {
         if (user1.unreadCount > 0 && user2.unreadCount == 0) return -1;
         if (user1.unreadCount == 0 && user2.unreadCount > 0) return 0;
         if (user2.msgs.length == 0) return -1;
         if (user1.msgs.length == 0 && user2.msgs.length > 0) return 0;
         const msg1 = user1.msgs.slice(-1)
         const msg2 = user2.msgs.slice(-1)
-        // console.log("-----1"+JSON.stringify(user1))
-        // console.log("-----2"+JSON.stringify(user2))
         // const date1 = msg1[0].date.split("/").reverse().concat(msg1[0].time.split(":"));
         // const date2 = msg2[0].date.split("/").reverse().concat(msg2[0].time.split(":"));
         let date1 = msg1[0].date.split('/');
@@ -158,11 +171,11 @@ export default function Messages() {
         date1 = date1.concat(msg1[0].time.split(":"));
         date2 = date2.concat(msg2[0].time.split(":"));
         if (user1.msgs.length > 0 && user2.msgs.length > 0)
-        for (let i = 0; i < date1.length; i ++){
-          if (date1[i] == date2[i]) continue;;
-          if (date1[i] > date2[i]) return -1;
-          else return 0;
-        }
+          for (let i = 0; i < date1.length; i++) {
+            if (date1[i] == date2[i]) continue;;
+            if (date1[i] > date2[i]) return -1;
+            else return 0;
+          }
       })
       // let temp;
       // for (let i = 0; i < users_sorted.length - 1; i ++) {
@@ -179,8 +192,6 @@ export default function Messages() {
       //     }
       //   }
       // }
-      console.log(users_sorted);
-      console.log(userData.data);
 
       setUsers(users_sorted)
       // setUsers([...userData.data])
@@ -202,7 +213,8 @@ export default function Messages() {
     router.replace('/messages?group=' + newValue)
   }
   const handleImportClick = async () => {
-    console.log("ok");
+    window.location.href = 'api/contact/google-auth';
+
   }
   const AddContact = (
     <Box sx={{ display: 'flex', alignItems: 'center', px: 2 }}>
@@ -214,19 +226,19 @@ export default function Messages() {
   )
   return (
     <FullLayout title={languagejson[lang].Message}>
-      <Stack direction="row" sx= {{justifyContent: 'space-between', padding: '10px'}}>
+      <Stack direction="row" sx={{ justifyContent: 'space-between', padding: '10px' }}>
         <Tabs value={group} onChange={handleChange}>
           <Tab label={languagejson[lang].chats} />
           <Tab label={languagejson[lang].group} />
           <Tab label={languagejson[lang].contacts} />
         </Tabs>
         {
-          group == 1 && 
+          group == 1 &&
           // <Button variant="contained" sx={{marginRight: '5px', textTransform: 'none'}}>New Group Chat</Button>
-          <FormModal users={users} addGroup={()=>setAddGroup((addGroup)=>!addGroup)}/>
+          <FormModal users={users} addGroup={() => setAddGroup((addGroup) => !addGroup)} />
         }
         {
-          group == 2 && 
+          group == 2 &&
           <Button onClick={handleImportClick}>Import Contact</Button>
         }
       </Stack>
@@ -236,11 +248,11 @@ export default function Messages() {
           sx={{
             width: '100vw',
           }}>
-          {users.map((user:any, i:number) => (
+          {users.map((user: any, i: number) => (
             <>
               {i !== 0 && <Divider />}
               <ListItemButton
-                key={i}
+                key={user.i}
                 href={`/chat?email=${user.email}`}
                 LinkComponent={Link}>
                 <Stack sx={{ flexGrow: 1 }}>
@@ -256,9 +268,9 @@ export default function Messages() {
                     borderRadius: 2,
                     padding: 0,
                   }}>
-                  <Badge badgeContent={unReads.filter((item)=>item.author == user.email).length} color="error">
+                  <Badge badgeContent={unReads.filter((item) => item.author == user.email).length} color="error">
                     <Image
-                      src={(!user.picpath) ? `/images/${(!!user.sex ? user.sex : 'male')}.png` : `/avatars/${user.picpath}`}
+                      src={(!user.picpath) ? `/images/${(!!user.sex ? user.sex : 'male')}.png` : `/api/view?name=chats/${user.picpath}`}
                       alt={(user.sex != null ? user.sex : '')}
                       width={70}
                       height={70}
@@ -314,27 +326,28 @@ export default function Messages() {
           sx={{
             width: '100vw',
           }}
-          subheader={AddContact}>
-          {users.map((user:any, i:number) => (
+          // subheader={AddContact}
+        >
+          {contacts.map((contact: any, i: number) => (
             <>
               {i !== 0 && <Divider />}
               <ListItemButton
-                key={i}
-                href="/profile"
+                key={contact._id}
+                // href="/profile"
                 LinkComponent={Link}>
                 <Stack sx={{ flexGrow: 1 }}>
-                  <Typography variant="h4">{user.nickname}</Typography>
-                  <Typography>{user.email}</Typography>
+                  <Typography variant="h4">{contact.name}</Typography>
+                  <Typography>{contact.emailAddress}</Typography>
                 </Stack>
                 <IconButton
                   sx={{
-                    background: (user.sex != null ? (user.sex == 'male' ? 'rgb(0,176,240)' : 'rgb(255,18,239)') : 'rgb(47,255,79)'),
+                    background: (contact.sex != null ? (contact.sex == 'male' ? 'rgb(0,176,240)' : 'rgb(255,18,239)') : 'rgb(47,255,79)'),
                     borderRadius: 2,
                   }}>
                   <Badge badgeContent={0} color="error">
                     <Image
-                      src={`/images/${(user.sex != null ? user.sex : 'male')}.png`}
-                      alt={(user.sex != null ? user.sex : '')}
+                      src={contact.photo === null ? `/images/${(contact.sex != null ? contact.sex : 'male')}.png` : contact.photo}
+                      alt={(contact.sex != null ? contact.sex : '')}
                       width={50}
                       height={50}
                     />
@@ -361,7 +374,7 @@ const modalStyle = {
   p: 4,
 };
 
-export function FormModal({users, addGroup}) {
+export function FormModal({ users, addGroup }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -390,7 +403,7 @@ export function FormModal({users, addGroup}) {
         groupName
       }),
       headers: {
-          'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
       },
     });
     handleClose();
@@ -402,14 +415,14 @@ export function FormModal({users, addGroup}) {
 
   return (
     <div>
-      <Button onClick={handleOpen} variant="contained" sx={{marginRight: '5px', textTransform: 'none'}}>New Group Chat</Button>
+      <Button onClick={handleOpen} variant="contained" sx={{ marginRight: '5px', textTransform: 'none' }}>New Group Chat</Button>
       <Modal
         open={open}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={modalStyle} 
+        <Box sx={modalStyle}
           component="form"
           noValidate
           autoComplete="off"
@@ -417,9 +430,9 @@ export function FormModal({users, addGroup}) {
             newgroupchatmodal: mode === 'dark',
           })}
         >
-          <Typography variant='h6' sx={{textAlign: 'center'}}>New Group Chat</Typography>
-          <TextField fullWidth id="standard-basic" label="Group Name" variant="standard" onChange={(e)=>{setGroupName(e.target.value)}} />
-          <Typography sx={{marginTop: '20px', textDecoration: 'underline'}}>Add people</Typography>
+          <Typography variant='h6' sx={{ textAlign: 'center' }}>New Group Chat</Typography>
+          <TextField fullWidth id="standard-basic" label="Group Name" variant="standard" onChange={(e) => { setGroupName(e.target.value) }} />
+          <Typography sx={{ marginTop: '20px', textDecoration: 'underline' }}>Add people</Typography>
           <List dense component="div" role="list" sx={{
             maxHeight: '450px',
             overflow: 'auto'
@@ -450,28 +463,28 @@ export function FormModal({users, addGroup}) {
             })}
           </List>
           {
-            !groupName ? 
-            <Button onClick={newGroupChat} disabled variant="contained" color="secondary" 
-              className={cn({
-                doneBTN: mode === 'dark',
-              })}
-            >Done</Button> :
-            <Button onClick={newGroupChat} variant="contained" color="secondary" 
-              className={cn({
-                doneBTN: mode === 'dark',
-              })}
-            >Done</Button>
+            !groupName ?
+              <Button onClick={newGroupChat} disabled variant="contained" color="secondary"
+                className={cn({
+                  doneBTN: mode === 'dark',
+                })}
+              >Done</Button> :
+              <Button onClick={newGroupChat} variant="contained" color="secondary"
+                className={cn({
+                  doneBTN: mode === 'dark',
+                })}
+              >Done</Button>
           }
           <Close
             onClick={handleClose}
             style={{
-                position: 'absolute',
-                cursor: 'pointer',
-                top: '10px',
-                right: '10px',
-                color: 'white',
-                fontSize: '32px',
-          }} />
+              position: 'absolute',
+              cursor: 'pointer',
+              top: '10px',
+              right: '10px',
+              color: 'white',
+              fontSize: '32px',
+            }} />
         </Box>
       </Modal>
     </div>
