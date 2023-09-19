@@ -18,10 +18,10 @@ import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import DateFnsUtils from '@date-io/date-fns'
 import { useAtom, Provider as JotaiProvider } from 'jotai'
-import {language} from "../jotai"
+import { language } from "../jotai"
+import Worker from "../components/worker";
 
 type LanguageType = number; // Replace 'number' with the actual type of your language state
-
 
 export default function App({ Component, pageProps }: AppProps) {
   const [lang, setLanguage] = useAtom<LanguageType>(language)
@@ -88,55 +88,57 @@ export default function App({ Component, pageProps }: AppProps) {
 
 
   React.useEffect(() => {
-    const local:any = localStorage.getItem('language');
-    const storedValue:any = parseInt(local) || 0;
+    const local: any = localStorage.getItem('language');
+    const storedValue: any = parseInt(local) || 0;
     if (storedValue) {
       setLanguage(storedValue as LanguageType);
     }
+
   }, []);
 
   return (
     <LocalizationProvider dateAdapter={DateFnsUtils}>
-    <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <SessionProvider session={pageProps.session}>
-          <JotaiProvider>
-            <SnackbarContext.Provider
-              value={{
-                snack,
-                setSnack,
-              }}>
-              <Head>
-                <meta name="description" content="Reson App" />
-                <meta
-                  name="viewport"
-                  content="width=device-width, initial-scale=1"
-                />
-                <link rel="icon" href="/favicon.png" />
-              </Head>
-              <Component {...pageProps} />
-              <Snackbar
-                open={snack.open}
-                autoHideDuration={snack.autoHideDuration}
-                onClose={handleClose}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'center',
+      <ColorModeContext.Provider value={colorMode}>
+        <ThemeProvider theme={theme}>
+          <SessionProvider session={pageProps.session}>
+            <JotaiProvider>
+              <SnackbarContext.Provider
+                value={{
+                  snack,
+                  setSnack,
                 }}>
-                <Alert
+                <Head>
+                  <meta name="description" content="Reson App" />
+                  <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1"
+                  />
+                  <link rel="icon" href="/favicon.png" />
+                </Head>
+                <Component {...pageProps} />
+                <Snackbar
+                  open={snack.open}
+                  autoHideDuration={snack.autoHideDuration}
                   onClose={handleClose}
-                  severity={snack.color}
-                  sx={{
-                    width: '100%',
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
                   }}>
-                  {snack.message || 'A New Message'}
-                </Alert>
-              </Snackbar>
-            </SnackbarContext.Provider>
-          </JotaiProvider>
-        </SessionProvider>
-      </ThemeProvider>
-    </ColorModeContext.Provider>
+                  <Alert
+                    onClose={handleClose}
+                    severity={snack.color}
+                    sx={{
+                      width: '100%',
+                    }}>
+                    {snack.message || 'A New Message'}
+                  </Alert>
+                </Snackbar>
+              </SnackbarContext.Provider>
+            </JotaiProvider>
+            <Worker />
+          </SessionProvider>
+        </ThemeProvider>
+      </ColorModeContext.Provider>
     </LocalizationProvider>
   )
 }

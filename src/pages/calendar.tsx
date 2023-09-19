@@ -191,6 +191,9 @@ export default function Calendar() {
 
 
   async function saveCalendarEvent() {
+    if(selectedOption?.email === null) {
+      return;
+    }
     const formdata = {
       title: initValues.title,
       startDate: initValues.startDate,
@@ -199,6 +202,7 @@ export default function Calendar() {
       description: initValues.description,
       user: selectedOption?.email
     }
+
     const res = await fetch('/api/calendar/saveCalendar', {
       method: 'POST',
       body: JSON.stringify(formdata),

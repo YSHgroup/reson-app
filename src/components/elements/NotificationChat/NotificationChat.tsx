@@ -20,7 +20,7 @@ export default function AlignItemsList(props: any) {
     console.log(totalUnreadChats)
   },[])
   return (
-    <List sx={{ width: '100%', maxWidth: 230, bgcolor: 'background.paper', position: 'absolute', zIndex: zIndex, left: left }}>
+    <List sx={{ width: '100%', maxWidth: 300, bgcolor: 'background.paper', position: 'absolute', zIndex: zIndex, left: left }}>
       {
         totalUnreadChats.length ? totalUnreadChats.map((item: any, i: number) => {
           if (i > 2) return;
