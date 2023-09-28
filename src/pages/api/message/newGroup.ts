@@ -18,8 +18,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const session = await getServerSession(req, res, authOptions)
 
-  const { members, groupName } = req.body
+  const { people, groupName } = req.body
   const client = await connectToDatabase()
+  const members = [session?.user?.email, ...people.map((onePeople: { email: any }) => onePeople.email)];
 
   const usersCollection = client.db().collection('users')
 

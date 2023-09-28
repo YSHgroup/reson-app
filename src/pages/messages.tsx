@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import FullLayout from '@layouts/FullLayout/FullLayout'
 import {
   Badge,
@@ -17,24 +18,23 @@ import {
 } from '@mui/material'
 import { Close } from '@mui/icons-material'
 import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
 import Typography from '@mui/material/Typography'
-// import { Stack } from '@mui/system'
 import { NextApiRequest } from 'next'
 import { getSession, useSession } from 'next-auth/react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React from 'react'
 import { language } from "../jotai"
 import languagejson from "../language.json"
 import ColorModeContext from 'context/ColorModeContext'
+import Autocomplete from '@mui/material/Autocomplete'
 import cn from 'classnames'
 import { useAtom } from 'jotai'
 import { usersAtom } from '../atoms';
 
 let socket: any;
 import io from "socket.io-client";
+import { people } from 'googleapis/build/src/apis/people'
 
 export default function Messages() {
   const { data: session } = useSession()
@@ -133,7 +133,6 @@ export default function Messages() {
       }
     });
     const resData = await response.json();
-    console.log(resData.data)
     if (resData.message === "Success") {
       setContacts(resData.data);
     }
@@ -234,12 +233,11 @@ export default function Messages() {
         </Tabs>
         {
           group == 1 &&
-          // <Button variant="contained" sx={{marginRight: '5px', textTransform: 'none'}}>New Group Chat</Button>
           <FormModal users={users} addGroup={() => setAddGroup((addGroup) => !addGroup)} />
         }
         {
           group == 2 &&
-          <Button sx={{ marginRight: '5px', textTransform: 'none', marginBottom: '12px' }}  variant="contained" onClick={handleImportClick}>Import Contact</Button>
+          <Button sx={{ marginRight: '5px', textTransform: 'none', marginBottom: '12px' }} variant="contained" onClick={handleImportClick}>Import Contact</Button>
         }
       </Stack>
       {/* BEGIN: CHATS SECTION */}
@@ -326,7 +324,7 @@ export default function Messages() {
           sx={{
             width: '100vw',
           }}
-          // subheader={AddContact}
+        // subheader={AddContact}
         >
           {contacts.map((contact: any, i: number) => (
             <>
@@ -381,25 +379,17 @@ export function FormModal({ users, addGroup }) {
   const { mode, toggleColorMode } = React.useContext(ColorModeContext)
   const [groupName, setGroupName] = React.useState('');
   const { data: session } = useSession()
-  const [checked, setChecked] = React.useState<readonly number[]>([session?.user?.email]);
-  const handleToggle = (value: number) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
-    }
-
-    setChecked(newChecked);
+  const [selectedPeople, setSelectedPeople] = React.useState([]);
+  const handleAddPeople = (event: any, value: any) => {
+    setSelectedPeople(value);
   };
 
   const newGroupChat = async () => {
+    if(selectedPeople.length === 0) {return;}
     const response = await fetch('/api/message/newGroup', {
       method: 'POST',
       body: JSON.stringify({
-        members: checked,
+        people: selectedPeople,
         groupName
       }),
       headers: {
@@ -408,8 +398,10 @@ export function FormModal({ users, addGroup }) {
     });
     handleClose();
     const res = await response.json();
-    if (res.message === 'Success')
+    if (res.message === 'Success') {
       addGroup();
+      setSelectedPeople([]);
+    }
   }
 
 
@@ -430,51 +422,51 @@ export function FormModal({ users, addGroup }) {
             newgroupchatmodal: mode === 'dark',
           })}
         >
-          <Typography variant='h6' sx={{ textAlign: 'center' }}>New Group Chat</Typography>
-          <TextField fullWidth id="standard-basic" label="Group Name" variant="standard" onChange={(e) => { setGroupName(e.target.value) }} />
-          <Typography sx={{ marginTop: '20px', textDecoration: 'underline' }}>Add people</Typography>
-          <List dense component="div" role="list" sx={{
-            maxHeight: '450px',
-            overflow: 'auto'
-          }}>
-            {users.map((user: any, i: number) => {
-              const labelId = `transfer-list-item-${user.email}-label`;
+          <Typography variant='h6' sx={{ textAlign: 'center', marginBottom: '15px' }}>New Group Chat</Typography>
+          <Stack
+            sx={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: '12px'
+            }}
+          >
+            <Image
+              src={`/images/group.png`}
+              alt="group"
+              width={100}
+              height={100}
+            />
+              {/* <input
+                accept="image/*"
+                id="icon-button-file"
+                type="file"
+                onChange={(e) => asyncupload(e.target.files[0])}
+                style={{ display: 'none' }} />
+            </Image> */}
+          </Stack>
+          <TextField fullWidth id="outlined" label="Group Name" variant="outlined" onChange={(e) => { setGroupName(e.target.value) }} sx={{ marginBottom: '12px' }} />
+          <Autocomplete
+            multiple
+            id="tags-outlined"
+            options={users}
+            getOptionLabel={user => `${user?.nickname} (${user?.email})`}
+            value={selectedPeople}
+            filterSelectedOptions
+            onChange={handleAddPeople}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Add People"
+              />
+            )}
+            sx={{ marginBottom: "12px" }}
+          />
 
-              return (
-                <ListItem
-                  key={i}
-                  role="listitem"
-                  button
-                  onClick={handleToggle(user.email)}
-                >
-                  <ListItemIcon>
-                    <Checkbox
-                      checked={checked.indexOf(user.email) !== -1}
-                      tabIndex={-1}
-                      disableRipple
-                      inputProps={{
-                        'aria-labelledby': labelId,
-                      }}
-                    />
-                  </ListItemIcon>
-                  <ListItemText id={labelId} primary={`${user.nickname} (${user.email})`} />
-                </ListItem>
-              );
+          <Button onClick={newGroupChat} disabled={!groupName ? true : false} variant="contained" color="secondary"
+            className={cn({
+              doneBTN: mode === 'dark',
             })}
-          </List>
-          {
-            !groupName ?
-              <Button onClick={newGroupChat} disabled variant="contained" color="secondary"
-                className={cn({
-                  doneBTN: mode === 'dark',
-                })}
-              >Done</Button> :
-              <Button onClick={newGroupChat} variant="contained" color="secondary"
-                className={cn({
-                  doneBTN: mode === 'dark',
-                })}
-              >Done</Button>
-          }
+          >Done</Button>
           <Close
             onClick={handleClose}
             style={{

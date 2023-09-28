@@ -4,6 +4,7 @@ import FullLayout from '@layouts/FullLayout/FullLayout'
 import { Send, Close, Logout } from '@mui/icons-material'
 import { MoreHoriz } from '@mui/icons-material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Autocomplete from '@mui/material/Autocomplete'
 import { Button, IconButton, Stack, TextField, Typography, Avatar, List, ListItem, ListItemIcon, Checkbox, ListItemText, Modal, ListItemButton, Grid } from '@mui/material'
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Box from '@mui/material/Box'
@@ -92,7 +93,6 @@ export default function GroupChat() {
       socket.emit('identity_group', { groupId: groupId, email: session?.user?.email, name: session?.user?.name });
     });
     socket.on('connectToRoom', (data: any) => {
-      console.log(data)
     });
     // receive new chat with newchatId for updating read status
     socket.on('newMessage', (data: Message) => {
@@ -235,7 +235,6 @@ export default function GroupChat() {
     const reactedMsg = document.getElementById(`reactedEmojis_${msgId}`) as HTMLElement;
     const reactedEmoji = document.getElementById(`reacted_${msgId}_${emojiId}`);
     if (reactedEmoji) {
-      console.log(reactedEmoji);
       reactedMsg.removeChild(reactedEmoji);
     } else {
       const containerElement = document.createElement('div');
@@ -341,7 +340,7 @@ export default function GroupChat() {
                       (message.posterEmail != session?.user?.email) ?
                         <Stack direction="row" spacing={1} sx={{ m: 1, justifyContent: 'start' }}>
                           {(me?.picpath) ?
-                            <Avatar className={cn('avatar')} alt={`${message.posterName}`} src={`/avatars/${me?.picpath}`} /> :
+                            <Avatar className={cn('avatar')} alt={`${message.posterName}`} src={`/api/view?name=chats/${me?.picpath}`} /> :
                             <Avatar className={cn('avatar')} {...stringAvatar(`${message.posterName}`)} />}
                           <Box
                             alignSelf={'start'}
@@ -438,7 +437,7 @@ export default function GroupChat() {
                             {messageElement(message?.type, message?.content, message?.time, message.posterName, message)}
                           </Box>
                           {(session?.user?.image) ?
-                            <Avatar className={cn('avatar')} alt={`${session?.user?.name}`} src={`/avatars/${session?.user?.image}`} /> :
+                            <Avatar className={cn('avatar')} alt={`${session?.user?.name}`} src={`/api/view?name=chats/${session?.user?.image}`} /> :
                             <Avatar className={cn('avatar')} {...stringAvatar(`${session?.user?.name}`)} />}
                         </Stack>
                     }
@@ -511,8 +510,11 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
   const { mode, toggleColorMode } = React.useContext(ColorModeContext)
   const [groupName, setGroupName] = React.useState(groupInfo?.title);
   const { data: session } = useSession()
-  const [checked, setChecked] = React.useState<(string | null | undefined)[]>([]);
   const router = useRouter()
+  const [selectedPeople, setSelectedPeople] = React.useState([]);
+  const handleAddPeople = (event: any, value: any) => {
+    setSelectedPeople(value);
+  };
 
   useEffect(() => {
     setGroupName(groupInfo?.title)
@@ -520,29 +522,16 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
   }, [groupInfo]);
 
   const initMembers = () => {
-    setChecked(() => []);
-    members.map((member: any, i: number) => {
-      setChecked((previousState) => [...previousState, member.email]);
-    })
+    const people = users.filter((user: any) => members.some((member: any) => member.email === user.email));
+    setSelectedPeople(people);
   }
-  const handleToggle = (value: string) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
-    }
-
-    setChecked(() => [...newChecked]);
-  };
 
   const updateGroup = async () => {
+    if(selectedPeople.length === 0) {return;}
     const response = await fetch('/api/message/updateGroup', {
       method: 'POST',
       body: JSON.stringify({
-        members: checked,
+        people: selectedPeople,
         groupInfo,
         groupName
       }),
@@ -593,7 +582,7 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
 
   return (
     <div>
-      <Image onClick={handleOpen} src={(session?.user?.image) ? `/avatars/${session?.user?.image}` : `/images/male.png`} alt={`${session?.user?.name}`} width={70} height={70} style={{ cursor: 'pointer' }} />
+      <Image onClick={handleOpen} src={(session?.user?.image) ? `/api/view?name=chats/${session?.user?.image}` : `/images/male.png`} alt={`${session?.user?.name}`} width={70} height={70} style={{ cursor: 'pointer', padding: '5px' }} />
       {/* <Button onClick={handleOpen} variant="contained" sx={{marginRight: '5px', textTransform: 'none'}}>New Group Chat</Button> */}
       <Modal
         open={open}
@@ -611,44 +600,75 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
         >
           {
             (session?.user?.email === groupInfo?.owner) ?
-              <Typography variant='h6' sx={{ textAlign: 'center' }}>Group Settings</Typography> : <Typography variant='h6' sx={{ textAlign: 'center' }}>{groupInfo?.title}</Typography>
+              <Typography variant='h6' sx={{ textAlign: 'center', marginBottom: '15px' }}>Group Settings</Typography> : <Typography variant='h6' sx={{ textAlign: 'center' }}>{groupInfo?.title}</Typography>
           }
-          {(session?.user?.email === groupInfo?.owner) && <TextField fullWidth id="standard-basic" label="Group Name" variant="standard" autoFocus={true} value={groupName} onChange={(e) => { setGroupName(e.target.value) }} />}
           {
             (session?.user?.email === groupInfo?.owner) ?
-              <Typography sx={{ marginTop: '20px', textDecoration: 'underline' }}>Add or Remove members</Typography> : <Typography sx={{ marginTop: '20px', textDecoration: 'underline' }}>Members</Typography>
+              <Stack
+                sx={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginBottom: '12px'
+                }}
+              >
+                <Image
+                  src={`/images/group.png`}
+                  alt="group"
+                  width={100}
+                  height={100}
+                />
+                {/* <input
+                accept="image/*"
+                id="icon-button-file"
+                type="file"
+                onChange={(e) => asyncupload(e.target.files[0])}
+                style={{ display: 'none' }} />
+            </Image> */}
+              </Stack> :
+              <Stack
+                sx={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginBottom: '12px'
+                }}
+              >
+                <Image
+                  src={`/images/group.png`}
+                  alt="group"
+                  width={100}
+                  height={100}
+                />
+              </Stack>
           }
-          <List dense component="div" role="list" sx={{
-            maxHeight: '450px',
-            overflow: 'auto'
-          }}>
-            {(session?.user?.email === groupInfo?.owner) ? users.map((user: any, i: number) => {
-              const labelId = `transfer-list-item-${user.email}-label`;
+          {(session?.user?.email === groupInfo?.owner) && <TextField fullWidth id="outlined" label="Group Name" variant="outlined" autoFocus={true} value={groupName} onChange={(e) => { setGroupName(e.target.value) }} style={{ marginBottom: '12px' }} />}
+          {
+            (session?.user?.email !== groupInfo?.owner) &&
+            <Typography sx={{ marginTop: '20px', textDecoration: 'underline' }}>Members</Typography>
+          }
 
-              return (
-                <ListItem
-                  key={i}
-                  role="listitem"
-                  button
-                  onClick={handleToggle(user.email)}
-                >
-                  <ListItemIcon>
-                    <Checkbox
-                      checked={checked.indexOf(user.email) !== -1}
-                      tabIndex={-1}
-                      disableRipple
-                      inputProps={{
-                        'aria-labelledby': labelId,
-                      }}
-                    />
-                  </ListItemIcon>
-                  <ListItemText id={labelId} primary={`${user.nickname} (${user.email})`} />
-                </ListItem>
-              );
-            }) :
-              members.map((member: any, i: number) => {
+          {(session?.user?.email === groupInfo?.owner) ? (
+            <Autocomplete
+              multiple
+              id="tags-outlined"
+              options={users}
+              getOptionLabel={user => `${user?.nickname} (${user?.email})`}
+              value={selectedPeople}
+              onChange={handleAddPeople}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Add People"
+                />
+              )}
+              sx={{ marginBottom: "12px" }}
+            />
+          ) :
+            <List dense component="div" role="list" sx={{
+              maxHeight: '450px',
+              overflow: 'auto'
+            }}>
+              {members.map((member: any, i: number) => {
                 const labelId = `transfer-list-item-${member.email}-label`;
-
                 return (
                   <ListItem disablePadding key={i}>
                     <ListItemButton>
@@ -656,9 +676,9 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
                     </ListItemButton>
                   </ListItem>
                 );
-              })
-            }
-          </List>
+              })}
+            </List>
+          }
           <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="center" spacing={{ xs: 1, sm: 2, md: 4 }}>
             {
               (session?.user?.email === groupInfo?.owner) ?
