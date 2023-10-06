@@ -21,6 +21,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import Autocomplete from '@mui/material/Autocomplete';
+import { Theme } from '@fullcalendar/core/internal'
 
 
 const start = new Date();
@@ -404,7 +405,6 @@ export default function Calendar() {
           sx={{
             m: 0,
             p: 2,
-            color: 'whitesmoke'
           }}
           id="customized-dialog-title"
         >
