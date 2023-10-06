@@ -6,12 +6,17 @@
 }
 
 .create .header {
-  background-color: rgb(80, 89, 93);
+  /* background-color: rgb(80, 89, 93); */
+  padding: 20px;
+}
+
+.dark_background .main {
+  color: rgba(255, 255, 255, 0.7);
   padding: 20px;
 }
 
 .main {
-  color: black;
+  color: rgba(0, 0, 0, 0.6);
   padding: 20px;
 }
 

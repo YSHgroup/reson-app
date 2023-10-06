@@ -28,9 +28,9 @@ body {
 }
 
 .dark_background {
-  background-image: url('/images/background.jpg');
-  background-position: center;
-  background-repeat: no-repeat;
+  // background-image: url('/images/background.jpg');
+  // background-position: center;
+  // background-repeat: no-repeat;
   background-size: cover;
 }
 
@@ -66,9 +66,14 @@ a {
 
 //my style
 $theme:       #454cad;
-$dark-text:   #5f6982;
+$dark-text:   rgba(0,0,0,0.6);;
+$light-text:   rgba(255,255,255,0.7);
 
-html,body,* { box-sizing: border-box; font-size: 16px;}
+html,body,* { 
+  box-sizing: border-box; 
+  font-size: 16px;
+  z-index: 0;
+}
 
 h2 {
   font-family: "Roboto", sans-serif;
@@ -81,6 +86,9 @@ p {
   font-family: "Roboto", sans-serif;
   font-size: 18px;
   color: $dark-text;
+}
+.dark_background p {
+  color: $light-text;
 }
 // Upload Demo
 // 
@@ -201,6 +209,9 @@ p {
   div {
     margin: 0 0 .5rem 0;
     color: $dark-text;
+  }
+  .dark_background div {
+    color: $light-text;
   }
   .btn {
     display: inline-block;

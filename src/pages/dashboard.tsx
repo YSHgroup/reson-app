@@ -47,10 +47,10 @@ export default function Home() {
   const router = useRouter()
   const { isDragging } = useSwipe({
     up: () => {
-      router.push('/create')
+      router.push('/search')
     },
     down: () => {
-      router.push('/search')
+      router.push('/create')
     },
     left: () => {
       router.push('/calendar')
@@ -222,7 +222,7 @@ export default function Home() {
             position: 'relative',
             flexDirection: 'column',
           }}>
-          <ButtonBase href="/search" LinkComponent={Link}>
+          <ButtonBase href="/create" LinkComponent={Link}>
             <Typography
               variant="h4"
               sx={{
@@ -373,7 +373,7 @@ export default function Home() {
             textAlign: 'center',
             position: 'relative',
           }}>
-          <ButtonBase href="/create" LinkComponent={Link}>
+          <ButtonBase href="/search" LinkComponent={Link}>
             <Typography
               variant="h4"
               sx={{
