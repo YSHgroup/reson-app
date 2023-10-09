@@ -17,14 +17,14 @@ import { Collapse } from '@mui/material'
 import React from 'react'
 import { ArrowDropDown, ArrowLeft } from '@mui/icons-material'
 import IconButton from '@mui/material/IconButton'
-import {language} from "../jotai"
+import { language } from "../jotai"
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { type AlertColor } from '@mui/material/Alert'
 import { Fade, ListItemIcon, Menu, MenuItem } from '@mui/material'
 import * as MenuData from '@constants/Menu.json'
-import {StatusData} from '@constants/Status'
+import { StatusData } from '@constants/Status'
 import { getSession, signOut } from 'next-auth/react'
 
 const { data: MenuDatas } = MenuData
@@ -65,12 +65,12 @@ export default function Profile() {
   const handleClose = () => {
     setAnchorEl(null)
   }
-  
-  useEffect(()=>{
-      
+
+  useEffect(() => {
+
     getpic();
 
-  },[])
+  }, [])
 
   const handleChange = () => {
     setOpen(!open)
@@ -110,35 +110,35 @@ export default function Profile() {
     } catch (error) {
       console.error('There was an error signing out:', error);
     }
-    
+
     const router = useRouter();
     router.replace(`${process.env.NEXT_PUBLIC_BASE_URL}/signin`);
   };
- function getpic (){
-  loadpic()
-}
+  function getpic() {
+    loadpic()
+  }
 
-async function loadpic () {
-  await fetch('api/user/currentUser').then(res=>res.json()).then(
-    res => {
-      setEmail(res.data[0].email || "");
-      setFirstName(res.data[0].firstName || "");
-      setLastName(res.data[0].lastName || "");
-      setCompany(res.data[0].company || "");
-      setTelephone(res.data[0].telephone || "");
-      setAddress(res.data[0].address || "");
-      setProfession(res.data[0].profession || "");
-      setEducation(res.data[0].education || "");
-      setHobby(res.data[0].hobby || "");
-      setStatus(parseInt(res.data[0].status) || 0);
-      setStatus(res.data[0].carExist || "");
-    }
-  ).catch(
-    err =>{
-      
-    }
-  )
-}
+  async function loadpic() {
+    await fetch('api/user/currentUser').then(res => res.json()).then(
+      res => {
+        setEmail(res.data[0].email || "");
+        setFirstName(res.data[0].firstName || "");
+        setLastName(res.data[0].lastName || "");
+        setCompany(res.data[0].company || "");
+        setTelephone(res.data[0].telephone || "");
+        setAddress(res.data[0].address || "");
+        setProfession(res.data[0].profession || "");
+        setEducation(res.data[0].education || "");
+        setHobby(res.data[0].hobby || "");
+        setStatus(parseInt(res.data[0].status) || 0);
+        setStatus(res.data[0].carExist || "");
+      }
+    ).catch(
+      err => {
+
+      }
+    )
+  }
   async function updateUser(userData: object) {
     const response = await fetch('/api/profile/profile', {
       method: 'POST',
@@ -147,24 +147,24 @@ async function loadpic () {
         'Content-Type': 'application/json',
       },
     })
-  
+
     const data = await response.json()
-  
+
     if (!response.ok) {
       return {
         status: 'error',
         data: data.message || 'Something went wrong!',
       }
     }
-  
 
-    
+
+
     setSnack(
       new Snack({
         message: "Profile saved successfully",
         color: "success" as AlertColor,
         open: true,
-    }));
+      }));
 
     // return {
     //   status: 'success',
@@ -185,7 +185,7 @@ async function loadpic () {
             display: 'flex',
             justifyContent: 'space-between',
           }}>
-         <IconButton LinkComponent={Link} href="/settings">
+          <IconButton LinkComponent={Link} href="/settings">
             <Image
               src="/images/setting.png"
               alt="setting"
@@ -193,7 +193,7 @@ async function loadpic () {
               height={50}
             />
           </IconButton>
-          
+
           <Typography
             sx={{
               fontSize: 30,
@@ -347,75 +347,88 @@ async function loadpic () {
               {energy}%
             </Typography>
           </Box>
-
-            <Typography>{StatusData.mydata[0].name[lang]}</Typography>
+          <Typography>{StatusData.mydata[0].name[lang]}</Typography>
+          <Button
+            variant="contained"
+            color="secondary"
+            size="large"
+            sx={{
+              mt: 2,
+            }}
+            LinkComponent={Link}
+            href="/property"
+            onClick={analyze}
+          >
+            {languagejson[lang].Seeyourindividualanalysis}
+          </Button>
+          <div>
             <Button
               variant="contained"
-              color="secondary"
+              color="primary"
               size="large"
               sx={{
                 mt: 2,
               }}
               LinkComponent={Link}
-              href="/property"
-              onClick={analyze}
-              >
-              {languagejson[lang].Seeyourindividualanalysis}
+              href="/projects"
+            >
+              Show My Projects
             </Button>
-            <div>
-              <Button
-                variant="text"
-                size="large"
-                onClick={handleChange}
-                endIcon={open ? <ArrowLeft /> : <ArrowDropDown />}>
-                {languagejson[lang].Completetheinformation}
-              </Button>
-            </div>
-            <Collapse in={open}>
-              <TextField fullWidth value={email} margin="normal" label="Email" onChange={e => {setEmail(e.target.value)}}/>
-              <TextField fullWidth value={firstName} margin="normal" label="Firstname" onChange={e => {setFirstName(e.target.value)}}/>
-              <TextField fullWidth value={lastName} margin="normal" label="Surname" onChange={e => {setLastName(e.target.value)}}/>
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Firma"
-                value={company}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <LocationOnIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                onChange={e => {setCompany(e.target.value)}}
-              />
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Telephone number"
-                value={telephone}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <ChatBubbleOutlineIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                onChange={e => {setTelephone(e.target.value)}}
-              />
-              <TextField fullWidth value={address} margin="normal" label="Address" onChange={e => {setAddress(e.target.value)}}/>
-              <TextField fullWidth value={profession} margin="normal" label="Profession" onChange={e => {setProfession(e.target.value)}}/>
-              <TextField fullWidth value={education} margin="normal" label="Education" onChange={e => {setEducation(e.target.value)}}/>
-              <TextField fullWidth value={carExist} margin="normal" label="Do you have Car" onChange={e => {setCarExist(e.target.value)}}/>
-              <TextField fullWidth value={hobby} margin="normal" label="Hobby" onChange={e => {setHobby(e.target.value)}}/>
-              <ButtonGroup variant="contained" sx={{ mt: 2 }} fullWidth>
-                <Button onClick={saveProfile}>{languagejson[lang].Savechanges}</Button>
-                <Button>{languagejson[lang].Jointheclub}</Button>
-                <Button>{languagejson[lang].BuyReson}</Button>
-              </ButtonGroup>
-            </Collapse>
+          </div>
+          <div>
+            <Button
+              variant="text"
+              size="large"
+              onClick={handleChange}
+              endIcon={open ? <ArrowLeft /> : <ArrowDropDown />}>
+              {languagejson[lang].Completetheinformation}
+            </Button>
+          </div>
+          <Collapse in={open}>
+            <TextField fullWidth value={email} margin="normal" label="Email" onChange={e => { setEmail(e.target.value) }} />
+            <TextField fullWidth value={firstName} margin="normal" label="Firstname" onChange={e => { setFirstName(e.target.value) }} />
+            <TextField fullWidth value={lastName} margin="normal" label="Surname" onChange={e => { setLastName(e.target.value) }} />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Firma"
+              value={company}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <LocationOnIcon />
+                  </InputAdornment>
+                ),
+              }}
+              onChange={e => { setCompany(e.target.value) }}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Telephone number"
+              value={telephone}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <ChatBubbleOutlineIcon />
+                  </InputAdornment>
+                ),
+              }}
+              onChange={e => { setTelephone(e.target.value) }}
+            />
+            <TextField fullWidth value={address} margin="normal" label="Address" onChange={e => { setAddress(e.target.value) }} />
+            <TextField fullWidth value={profession} margin="normal" label="Profession" onChange={e => { setProfession(e.target.value) }} />
+            <TextField fullWidth value={education} margin="normal" label="Education" onChange={e => { setEducation(e.target.value) }} />
+            <TextField fullWidth value={carExist} margin="normal" label="Do you have Car" onChange={e => { setCarExist(e.target.value) }} />
+            <TextField fullWidth value={hobby} margin="normal" label="Hobby" onChange={e => { setHobby(e.target.value) }} />
+            <ButtonGroup variant="contained" sx={{ mt: 2 }} fullWidth>
+              <Button onClick={saveProfile}>{languagejson[lang].Savechanges}</Button>
+              <Button>{languagejson[lang].Jointheclub}</Button>
+              <Button>{languagejson[lang].BuyReson}</Button>
+            </ButtonGroup>
+          </Collapse>
         </Box>
-        
+
       </Box>
     </FullLayout>
   )

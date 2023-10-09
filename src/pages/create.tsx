@@ -29,7 +29,7 @@ import 'react-swipeable-list/dist/styles.css';
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 interface Can {
   title: string | null,
-  where: string | null,
+  location: string | null,
   experience: Number | 0,
   when: Date | null,
   from: Date | null,
@@ -55,7 +55,7 @@ export default function Home() {
     when: null,
     from: null,
     until: null,
-    where: "",
+    location: "",
     desc: "",
     price: '',
     payType: 'piece',
@@ -124,7 +124,7 @@ export default function Home() {
             when: null,
             from: null,
             until: null,
-            where: "",
+            location: "",
             desc: "",
             price: '',
             payType: 'piece',
@@ -234,15 +234,15 @@ export default function Home() {
               />
               <TextField
                 required
-                placeholder="Where?"
+                placeholder="Location?"
                 id="outlined-required"
                 sx={{
                   width: '100%',
                 }}
                 variant="outlined"
-                label="Where?"
-                value={can.where}
-                onChange={e => setCan({...can, where: e.target.value})}
+                label="Location?"
+                value={can.location}
+                onChange={e => setCan({...can, location: e.target.value})}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">

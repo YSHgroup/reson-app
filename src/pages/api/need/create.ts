@@ -64,7 +64,10 @@ export default async function handler(req: any, res: NextApiResponse) {
                     payType: fields.payType,
                     until: fields.until,
                     when: fields.when,
-                    file: uploadedFileName
+                    file: uploadedFileName,
+                    location:fields.location,
+                    price:fields.price,
+                    created_at: Date.now(),
                 })
                 client.close();
                 res.status(200).send({ message: "success" });

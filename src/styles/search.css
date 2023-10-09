@@ -6,7 +6,6 @@
 }
 
 .search .header {
-  background-color: rgb(80, 89, 93);
   padding: 20px;
 }
 
@@ -41,4 +40,9 @@
 .list .item .name {
   flex: 1;
   font-size: 16px;
+}
+
+.showlists {
+  margin-top: 12px;
+  width: 100%;
 }
