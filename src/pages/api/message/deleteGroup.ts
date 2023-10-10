@@ -5,6 +5,7 @@ import { connectToDatabase } from '@lib/db'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]"
 import { ObjectId } from 'mongodb';
+import fs from 'fs';
 
 var pos = require('pos');
 
@@ -18,7 +19,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { groupInfo } = req.body;
 
   const session = await getServerSession(req, res, authOptions);
-  if (session?.user?.email ==! groupInfo.owner) {
+  if (session?.user?.email !== groupInfo.owner) {
     return res.status(RS.CERROR_FORBIDDEN).json({
       message: 'You do not have the permission.'
     })
@@ -28,8 +29,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const client = await connectToDatabase()
 
   const groupchatCollection = client.db().collection('groupchat')
-
   try {
+    fs.unlinkSync(`./uploads/chats/${groupInfo.groupAvatar}`);
     await groupchatCollection.deleteOne({
         _id: new ObjectId(groupInfo._id)
     })

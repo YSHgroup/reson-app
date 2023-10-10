@@ -290,7 +290,7 @@ export default function Messages() {
           {chatGroups.length > 0 && chatGroups.map((item, i) => (
             <>
               {i !== 0 && <Divider />}
-              <ListItemButton key={i} LinkComponent={Link} href={`/groupchat/${item._id}`}>
+              <ListItemButton key={item._id} LinkComponent={Link} href={`/groupchat/${item._id}`}>
                 <ListItemText>
                   <Typography variant="h4">{item.title}</Typography>
                 </ListItemText>
@@ -304,8 +304,8 @@ export default function Messages() {
                     }}>
                     <Badge badgeContent={item.unreadchats.length} color="error">
                       <Image
-                        src={`/images/group.png`}
-                        alt="group"
+                        src={item.groupAvatar ? `/api/view?name=chats/${item.groupAvatar}` : `/images/group.png`}
+                        alt={item.title}
                         width={50}
                         height={50}
                       />
@@ -383,26 +383,71 @@ export function FormModal({ users, addGroup }) {
   const handleAddPeople = (event: any, value: any) => {
     setSelectedPeople(value);
   };
+  const [selectedImage, setSelectedImage] = React.useState<string | undefined>(undefined);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [file, setFile] = React.useState<File | undefined>(undefined);
 
   const newGroupChat = async () => {
-    if(selectedPeople.length === 0) {return;}
-    const response = await fetch('/api/message/newGroup', {
-      method: 'POST',
-      body: JSON.stringify({
+    if (selectedPeople.length === 0) { return; }
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fields', JSON.stringify({
         people: selectedPeople,
         groupName
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    handleClose();
-    const res = await response.json();
-    if (res.message === 'Success') {
-      addGroup();
-      setSelectedPeople([]);
+      }));
+
+      const response = await fetch('/api/message/newGroup_file', {
+        method: "POST",
+        body: formData
+      });
+      handleClose();
+      const res = await response.json();
+      if (res.message === 'Success') {
+        handleClose();
+        addGroup();
+        setSelectedPeople([]);
+        setSelectedImage(undefined);
+        setFile(undefined);
+      }
+    } else {
+      const response = await fetch('/api/message/newGroup', {
+        method: 'POST',
+        body: JSON.stringify({
+          people: selectedPeople,
+          groupName
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      handleClose();
+      const res = await response.json();
+      if (res.message === 'Success') {
+        addGroup();
+        setSelectedPeople([]);
+      }
     }
   }
+
+  const handleClickImage = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  }
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
 
 
   return (
@@ -431,18 +476,20 @@ export function FormModal({ users, addGroup }) {
             }}
           >
             <Image
-              src={`/images/group.png`}
-              alt="group"
-              width={100}
-              height={100}
-            />
-              {/* <input
-                accept="image/*"
-                id="icon-button-file"
-                type="file"
-                onChange={(e) => asyncupload(e.target.files[0])}
-                style={{ display: 'none' }} />
-            </Image> */}
+              src={selectedImage ? selectedImage : `/images/group.png`}
+            alt="groupAvatar"
+            width={100}
+            height={100}
+            onClick={handleClickImage}
+            style={{ cursor: 'pointer' }}
+                />
+            <input
+              accept="image/*"
+              id="icon-button-file"
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageSelect}
+              style={{ display: 'none' }} />
           </Stack>
           <TextField fullWidth id="outlined" label="Group Name" variant="outlined" onChange={(e) => { setGroupName(e.target.value) }} sx={{ marginBottom: '12px' }} />
           <Autocomplete

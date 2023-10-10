@@ -40,14 +40,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           }
         }
       },
-      // {
-      //   $lookup: {
-      //     from: 'groupMsgs',
-      //     localField: '_id',
-      //     foreignField: 'groupId',
-      //     as: 'unreadchats'
-      //   }
-      // },
       {
         $lookup: {
           from: 'groupMsgs',
@@ -75,10 +67,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         $project: {
           _id: 1,
           title: 1,
+          groupAvatar: 1,
           owner: 1,
           members: 1,
           modified: 1,
-          unreadchats: 1
+          unreadchats: 1,
         }
       }
     ]).toArray();

@@ -512,6 +512,9 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
   const { data: session } = useSession()
   const router = useRouter()
   const [selectedPeople, setSelectedPeople] = React.useState([]);
+  const [selectedImage, setSelectedImage] = React.useState<string | undefined>(undefined);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = React.useState<File | undefined>(undefined);
   const handleAddPeople = (event: any, value: any) => {
     setSelectedPeople(value);
   };
@@ -521,28 +524,69 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
     initMembers();
   }, [groupInfo]);
 
+  const handleClickImage = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  }
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const initMembers = () => {
     const people = users.filter((user: any) => members.some((member: any) => member.email === user.email));
     setSelectedPeople(people);
   }
 
   const updateGroup = async () => {
-    if(selectedPeople.length === 0) {return;}
-    const response = await fetch('/api/message/updateGroup', {
-      method: 'POST',
-      body: JSON.stringify({
+    if (selectedPeople.length === 0) { return; }
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fields', JSON.stringify({
         people: selectedPeople,
         groupInfo,
         groupName
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    handleClose();
-    const res = await response.json();
-    if (res.message === 'Success') {
-      setChangeState();
+      }));
+
+      const response = await fetch('/api/message/updateWithGroupAvatar', {
+        method: "POST",
+        body: formData
+      });
+      handleClose();
+      const res = await response.json();
+      if (res.message === 'Success') {
+        handleClose();
+        setSelectedImage(undefined);
+        setFile(undefined);
+        setChangeState();
+      }
+    } else {
+      const response = await fetch('/api/message/updateGroup', {
+        method: 'POST',
+        body: JSON.stringify({
+          people: selectedPeople,
+          groupInfo,
+          groupName
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      handleClose();
+      const res = await response.json();
+      if (res.message === 'Success') {
+        setChangeState();
+      }
     }
   }
 
@@ -582,7 +626,7 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
 
   return (
     <div>
-      <Image onClick={handleOpen} src={(session?.user?.image) ? `/api/view?name=chats/${session?.user?.image}` : `/images/male.png`} alt={`${session?.user?.name}`} width={70} height={70} style={{ cursor: 'pointer', padding: '5px' }} />
+      <Image onClick={handleOpen} src={groupInfo !== null ? (groupInfo.groupAvatar && `/api/view?name=chats/${groupInfo.groupAvatar}`) : `/images/group.png`} alt={groupInfo !== null ? groupInfo.title : "group"} width={70} height={70} style={{ cursor: 'pointer', padding: '5px' }} />
       {/* <Button onClick={handleOpen} variant="contained" sx={{marginRight: '5px', textTransform: 'none'}}>New Group Chat</Button> */}
       <Modal
         open={open}
@@ -612,18 +656,20 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
                 }}
               >
                 <Image
-                  src={`/images/group.png`}
-                  alt="group"
+                  src={selectedImage ? selectedImage : (groupInfo !== null ? (groupInfo.groupAvatar && `/api/view?name=chats/${groupInfo.groupAvatar}`) : `/images/group.png`)}
+                  alt={groupInfo?.title}
                   width={100}
                   height={100}
+                  onClick={handleClickImage}
+                  style={{ cursor: 'pointer' }}
                 />
-                {/* <input
-                accept="image/*"
-                id="icon-button-file"
-                type="file"
-                onChange={(e) => asyncupload(e.target.files[0])}
-                style={{ display: 'none' }} />
-            </Image> */}
+                <input
+                  accept="image/*"
+                  id="icon-button-file"
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageSelect}
+                  style={{ display: 'none' }} />
               </Stack> :
               <Stack
                 sx={{
@@ -633,10 +679,12 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
                 }}
               >
                 <Image
-                  src={`/images/group.png`}
-                  alt="group"
+                  src={groupInfo !== null ? (groupInfo.groupAvatar && `/api/view?name=chats/${groupInfo.groupAvatar}`) : `/images/group.png`}
+                  alt={groupInfo?.title}
                   width={100}
                   height={100}
+                  onClick={handleClickImage}
+                  style={{ cursor: 'pointer' }}
                 />
               </Stack>
           }
