@@ -30,7 +30,7 @@ export default function BasicLayout({
           color="primary"
           sx={{
             position: 'absolute',
-            bottom: 100,
+            bottom: 115,
             right: 16,
           }}
           onClick={toggleColorMode}>

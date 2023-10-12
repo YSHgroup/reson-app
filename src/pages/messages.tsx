@@ -477,12 +477,12 @@ export function FormModal({ users, addGroup }) {
           >
             <Image
               src={selectedImage ? selectedImage : `/images/group.png`}
-            alt="groupAvatar"
-            width={100}
-            height={100}
-            onClick={handleClickImage}
-            style={{ cursor: 'pointer' }}
-                />
+              alt="groupAvatar"
+              width={100}
+              height={100}
+              onClick={handleClickImage}
+              style={{ cursor: 'pointer' }}
+            />
             <input
               accept="image/*"
               id="icon-button-file"
