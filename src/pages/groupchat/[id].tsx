@@ -522,6 +522,7 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
   useEffect(() => {
     setGroupName(groupInfo?.title)
     initMembers();
+    console.log(groupInfo)
   }, [groupInfo]);
 
   const handleClickImage = () => {
@@ -626,7 +627,7 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
 
   return (
     <div>
-      <Image onClick={handleOpen} src={groupInfo !== null ? (groupInfo.groupAvatar && `/api/view?name=chats/${groupInfo.groupAvatar}`) : `/images/group.png`} alt={groupInfo !== null ? groupInfo.title : "group"} width={70} height={70} style={{ cursor: 'pointer', padding: '5px' }} />
+      <Image onClick={handleOpen} src={groupInfo !== null ? (groupInfo.groupAvatar ? `/api/view?name=chats/${groupInfo.groupAvatar}` : `/images/group.png`) : `/images/group.png`} alt={groupInfo !== null ? groupInfo.title : "group"} width={70} height={70} style={{ cursor: 'pointer', padding: '5px' }} />
       {/* <Button onClick={handleOpen} variant="contained" sx={{marginRight: '5px', textTransform: 'none'}}>New Group Chat</Button> */}
       <Modal
         open={open}

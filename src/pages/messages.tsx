@@ -728,7 +728,6 @@ export function FormModal({ users, addGroup }) {
         method: 'POST',
         body: formData,
       })
-      handleClose()
       const res = await response.json()
       if (res.message === 'Success') {
         handleClose()

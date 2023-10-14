@@ -65,7 +65,7 @@ export default async function handler(req: any, res: NextApiResponse) {
                     modified: today
                 })
                 client.close();
-                return res.status(200).send({ message: "success" });
+                return res.status(200).send({ message: "Success" });
             } catch (error) {
                 return res.status(500).send({ error: 'Failed to upload file' });
             }
