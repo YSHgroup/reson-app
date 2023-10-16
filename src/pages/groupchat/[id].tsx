@@ -563,7 +563,6 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
         method: "POST",
         body: formData
       });
-      handleClose();
       const res = await response.json();
       if (res.message === 'Success') {
         handleClose();
@@ -657,7 +656,7 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
                 }}
               >
                 <Image
-                  src={selectedImage ? selectedImage : (groupInfo !== null ? (groupInfo.groupAvatar && `/api/view?name=chats/${groupInfo.groupAvatar}`) : `/images/group.png`)}
+                  src={selectedImage ? selectedImage : (groupInfo !== null ? (groupInfo.groupAvatar ? `/api/view?name=chats/${groupInfo.groupAvatar}` : `/images/group.png`) : `/images/group.png`)}
                   alt={groupInfo?.title}
                   width={100}
                   height={100}
@@ -680,7 +679,7 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
                 }}
               >
                 <Image
-                  src={groupInfo !== null ? (groupInfo.groupAvatar && `/api/view?name=chats/${groupInfo.groupAvatar}`) : `/images/group.png`}
+                  src={groupInfo !== null ? (groupInfo.groupAvatar ? `/api/view?name=chats/${groupInfo.groupAvatar}` : `/images/group.png`) : `/images/group.png`}
                   alt={groupInfo?.title}
                   width={100}
                   height={100}

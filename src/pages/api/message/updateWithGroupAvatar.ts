@@ -52,7 +52,7 @@ export default async function handler(req: any, res: NextApiResponse) {
                 })
             }
             const {groupInfo, people, groupName} = JSON.parse(req.body.fields);
-            fs.unlinkSync(`./uploads/chats/${groupInfo.groupAvatar}`);
+            groupInfo.groupAvatar && fs.unlinkSync(`./uploads/chats/${groupInfo.groupAvatar}`);
             const members = [
                 session?.user?.email,
                 ...people.map((onePeople: { email: any }) => onePeople.email),
