@@ -5,7 +5,7 @@ import { Send, Close, Logout } from '@mui/icons-material'
 import { MoreHoriz } from '@mui/icons-material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Autocomplete from '@mui/material/Autocomplete'
-import { Button, IconButton, Stack, TextField, Typography, Avatar, List, ListItem, ListItemIcon, Checkbox, ListItemText, Modal, ListItemButton, Grid } from '@mui/material'
+import { Button, IconButton, Stack, TextField, Typography, Avatar, List, ListItem, ListItemText, Modal, ListItemButton, Grid } from '@mui/material'
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Box from '@mui/material/Box'
 import { NextApiRequest } from 'next'
@@ -96,12 +96,10 @@ export default function GroupChat() {
     });
     // receive new chat with newchatId for updating read status
     socket.on('newMessage', (data: Message) => {
-      console.log('newMessage');
       setMessages((previousMsgs) => [...previousMsgs, data]);
     });
     // receive new chat first for speedup
     socket.on('newMessageFirst', (data: Message) => {
-      console.log('newMessageFirst');
       setMessagess((previousMsgs) => [...previousMsgs, data]);
     });
 
@@ -522,7 +520,6 @@ export function FormModal({ users, groupInfo, members, setChangeState }: any) {
   useEffect(() => {
     setGroupName(groupInfo?.title)
     initMembers();
-    console.log(groupInfo)
   }, [groupInfo]);
 
   const handleClickImage = () => {

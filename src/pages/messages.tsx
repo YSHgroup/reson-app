@@ -7,8 +7,6 @@ import {
   IconButton,
   ListItemButton,
   ListItemText,
-  ListItemIcon,
-  Checkbox,
   Tab,
   Tabs,
   Stack,

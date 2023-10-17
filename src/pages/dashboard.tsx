@@ -1,4 +1,4 @@
-import { getSession, useSession, signOut, } from 'next-auth/react'
+import { getSession, useSession, signOut } from 'next-auth/react'
 import BasicLayout from '@layouts/BasicLayout'
 import Box from '@mui/material/Box'
 import Image from 'next/image'
@@ -15,13 +15,11 @@ import React, { useEffect } from 'react'
 import { MenuData } from '@constants/Menu.js'
 import { useSwipe } from 'hooks/useSwipe'
 import { useRouter } from 'next/router'
-import {language} from "../jotai"
-import languagejson from "../language.json"
+import { language } from '../jotai'
+import languagejson from '../language.json'
 import { useAtom } from 'jotai'
-import Draggable from 'react-draggable'
-import NotificationChat from '../components/elements/NotificationChat';
-import io from "socket.io-client";
-
+import NotificationChat from '../components/elements/NotificationChat'
+import io from 'socket.io-client'
 
 const { data: MenuDatas } = MenuData
 let socket: any
@@ -33,7 +31,8 @@ export default function Home() {
   const opportunity = 21
   const [unread, SetUnread] = React.useState(0)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const [notificationDropdown, setNoficationDropdown] = React.useState<boolean>(false)
+  const [notificationDropdown, setNoficationDropdown] =
+    React.useState<boolean>(false)
   const [totalUnreadChats, setTotalUnreadChats] = React.useState<any>([])
 
   const open = Boolean(anchorEl)
@@ -60,24 +59,26 @@ export default function Home() {
     },
   })
 
-  const routerToProfile = () =>{
+  const routerToProfile = () => {
     router.push('/profile')
   }
 
   const handleSignOut = async () => {
     try {
-      await signOut({ callbackUrl: process.env.NEXT_PUBLIC_BASE_URL + '/signin' });
+      await signOut({
+        callbackUrl: process.env.NEXT_PUBLIC_BASE_URL + '/signin',
+      })
     } catch (error) {
-      console.error('There was an error signing out:', error);
+      console.error('There was an error signing out:', error)
     }
-    
-    const router = useRouter();
-    router.replace(`${process.env.NEXT_PUBLIC_BASE_URL}/signin`);
-  };
+
+    const router = useRouter()
+    router.replace(`${process.env.NEXT_PUBLIC_BASE_URL}/signin`)
+  }
 
   useEffect(() => {
     // Todo
-    
+
     const getCurrentSetting = async () => {
       const response = await fetch('/api/setting/currentSetting', {
         method: 'GET',
@@ -90,14 +91,13 @@ export default function Home() {
       localStorage.setItem('language', settingData.data[0].language)
       setLanguage(settingData.data[0].language)
     }
-    
+
     getCurrentSetting()
-    
   }, [])
 
   useEffect(() => {
     // Todo
-    
+
     const getCurrentSetting = async () => {
       const response = await fetch('/api/setting/currentSetting', {
         method: 'GET',
@@ -110,39 +110,37 @@ export default function Home() {
       localStorage.setItem('language', settingData.data[0].language)
       setLanguage(settingData.data[0].language)
     }
-    
+
     getCurrentSetting()
-    
-  }, []);
-  
+  }, [])
+
   const getUnreadMessage = async () => {
-    const response = await fetch('/api/message/getUnreadMessages',{
+    const response = await fetch('/api/message/getUnreadMessages', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
     })
 
     let data = await response.json()
 
     console.log('unreadmessages', data)
 
-
-    if(data.data.count > 0){
+    if (data.data.count > 0) {
       SetUnread(data.data.count)
-      setTotalUnreadChats(()=>[...data.data.totalUnreadChats])
+      setTotalUnreadChats(() => [...data.data.totalUnreadChats])
     }
   }
 
-  useEffect(() =>{
-    socket = io(String(process.env.NEXT_PUBLIC_CHAT_URI), {secure: true});
+  useEffect(() => {
+    socket = io(String(process.env.NEXT_PUBLIC_CHAT_URI), { secure: true })
     socket.on('connect', () => {
-      socket.emit('dashboard_notification', {email: session?.user?.email} )
-    });
+      socket.emit('dashboard_notification', { email: session?.user?.email })
+    })
     socket.on('newChat', () => {
-      getUnreadMessage();
-    });
-    getUnreadMessage();
+      getUnreadMessage()
+    })
+    getUnreadMessage()
   }, [])
 
   const ImportContacts = async () => {
@@ -302,50 +300,70 @@ export default function Home() {
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
-            position: 'relative'
+            position: 'relative',
           }}>
-          <IconButton LinkComponent={Link} href="/messages" 
+          <IconButton
+            LinkComponent={Link}
+            href="/messages"
             onMouseEnter={() => setNoficationDropdown(true)}
             onMouseLeave={() => setNoficationDropdown(false)}>
-            {unread > 0 ? <Badge badgeContent={unread} color="error">
-              <Image src="/images/mail.png" alt="mail" width={50} height={50} />
-            </Badge>:<Badge color="error">
-              <Image src="/images/mail.png" alt="mail" width={50} height={50} />
-            </Badge>}
+            {unread > 0 ? (
+              <Badge badgeContent={unread} color="error">
+                <Image
+                  src="/images/mail.png"
+                  alt="mail"
+                  width={50}
+                  height={50}
+                />
+              </Badge>
+            ) : (
+              <Badge color="error">
+                <Image
+                  src="/images/mail.png"
+                  alt="mail"
+                  width={50}
+                  height={50}
+                />
+              </Badge>
+            )}
           </IconButton>
-          {
-            notificationDropdown && <NotificationChat totalUnreadChats={totalUnreadChats} zIndex={'2'} left={'67px'} />
-          }
+          {notificationDropdown && (
+            <NotificationChat
+              totalUnreadChats={totalUnreadChats}
+              zIndex={'2'}
+              left={'67px'}
+            />
+          )}
 
           {isDragging && (
             <Image src="/images/arrow.png" alt="left" width={50} height={50} />
           )}
 
-            <Box
+          <Box
+            sx={{
+              height: 50,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <IconButton onClick={() => routerToProfile()}>
+              <Image
+                src="/images/main.png"
+                alt="main"
+                width={100}
+                height={100}
+              />
+            </IconButton>
+            <Typography
+              variant="h2"
               sx={{
-                height: 50,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
+                position: 'absolute',
+                color: 'white',
               }}>
-              <IconButton onClick={()=>routerToProfile()}>
-                <Image
-                  src="/images/main.png"
-                  alt="main"
-                  width={100}
-                  height={100}
-                />
-              </IconButton>
-              <Typography
-                variant="h2"
-                sx={{
-                  position: 'absolute',
-                  color: 'white',
-                }}>
-                I
-              </Typography>
-            </Box>
+              I
+            </Typography>
+          </Box>
 
           {isDragging && (
             <Image

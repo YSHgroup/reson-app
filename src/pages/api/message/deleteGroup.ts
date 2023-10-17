@@ -30,7 +30,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const groupchatCollection = client.db().collection('groupchat')
   try {
-    fs.unlinkSync(`./uploads/chats/${groupInfo.groupAvatar}`);
+    groupInfo.groupAvatar && fs.unlinkSync(`./uploads/chats/${groupInfo.groupAvatar}`);
     await groupchatCollection.deleteOne({
         _id: new ObjectId(groupInfo._id)
     })
