@@ -18,13 +18,15 @@ import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import DateFnsUtils from '@date-io/date-fns'
 import { useAtom, Provider as JotaiProvider } from 'jotai'
-import { language } from "../jotai"
-import Worker from "../components/worker";
-import Particles from "react-tsparticles";
-import type { Container, Engine } from "tsparticles-engine";
-import { loadSlim } from "tsparticles-slim";
+import { language } from '../jotai'
+import Worker from '../components/worker'
+import Particles from 'react-tsparticles'
+import type { Container, Engine } from 'tsparticles-engine'
+import { loadSlim } from 'tsparticles-slim'
+import { VideoCallProvider } from 'context/VideoCallContext'
+import VideoCallWindow from '@elements/Chat/VideoCallWindowComponent'
 
-type LanguageType = number; // Replace 'number' with the actual type of your language state
+type LanguageType = number // Replace 'number' with the actual type of your language state
 
 export default function App({ Component, pageProps }: AppProps) {
   const [lang, setLanguage] = useAtom<LanguageType>(language)
@@ -40,43 +42,43 @@ export default function App({ Component, pageProps }: AppProps) {
       mode,
     }),
     [mode]
-  );
+  )
 
   const particlesInit = React.useCallback(async (engine: Engine) => {
     // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
     // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
     // starting from v2 you can add only the features you need reducing the bundle size
     //await loadFull(engine);
-    await loadSlim(engine);
-  }, []);
+    await loadSlim(engine)
+  }, [])
 
-  const particlesLoaded = React.useCallback(async (container: Container | undefined) => {
-    // await console.log(container);
-  }, []);
+  const particlesLoaded = React.useCallback(
+    async (container: Container | undefined) => {
+      // await console.log(container);
+    },
+    []
+  )
 
   // Update the theme only if the mode changes
-  const theme = React.useMemo(
-    () => {
-      // const customProps = (mode === "dark") ? {
-      //   background: {
-      //     default: "#b42b2b",
-      //     paper: "#b42b2b"
-      //   }
-      // } : {
-      //   background: {
-      //     default: "#222",
-      //     paper: "#222"
-      //   }
-      // };
-      return createTheme({
-        palette: {
-          mode,
-          // ...customProps
-        }
-      });
-    },
-    [mode]
-  )
+  const theme = React.useMemo(() => {
+    // const customProps = (mode === "dark") ? {
+    //   background: {
+    //     default: "#b42b2b",
+    //     paper: "#b42b2b"
+    //   }
+    // } : {
+    //   background: {
+    //     default: "#222",
+    //     paper: "#222"
+    //   }
+    // };
+    return createTheme({
+      palette: {
+        mode,
+        // ...customProps
+      },
+    })
+  }, [mode])
 
   const [snack, setSnack] = React.useState(
     new Snack({
@@ -100,15 +102,13 @@ export default function App({ Component, pageProps }: AppProps) {
     )
   }
 
-
   React.useEffect(() => {
-    const local: any = localStorage.getItem('language');
-    const storedValue: any = parseInt(local) || 0;
+    const local: any = localStorage.getItem('language')
+    const storedValue: any = parseInt(local) || 0
     if (storedValue) {
-      setLanguage(storedValue as LanguageType);
+      setLanguage(storedValue as LanguageType)
     }
-
-  }, []);
+  }, [])
 
   return (
     <LocalizationProvider dateAdapter={DateFnsUtils}>
@@ -119,18 +119,21 @@ export default function App({ Component, pageProps }: AppProps) {
           loaded={particlesLoaded}
           options={{
             background: {
-              image: mode === "dark" ? "url('/images/background.jpg')" : "radial-gradient(#F1F0F0)",
+              image:
+                mode === 'dark'
+                  ? "url('/images/background.jpg')"
+                  : 'radial-gradient(#F1F0F0)',
             },
             fpsLimit: 120,
             interactivity: {
               events: {
                 onClick: {
                   enable: true,
-                  mode: "repulse",
+                  mode: 'repulse',
                 },
                 onHover: {
                   enable: true,
-                  mode: "repulse",
+                  mode: 'repulse',
                 },
                 resize: true,
               },
@@ -146,20 +149,20 @@ export default function App({ Component, pageProps }: AppProps) {
             },
             particles: {
               color: {
-                value: mode === "dark" ? "#66B1D9" : "#828E8E",
+                value: mode === 'dark' ? '#66B1D9' : '#828E8E',
               },
               links: {
-                color: mode === "dark" ? "#66B1D9" : "#828E8E",
+                color: mode === 'dark' ? '#66B1D9' : '#828E8E',
                 distance: 150,
                 enable: true,
                 opacity: 0.5,
                 width: 1,
               },
               move: {
-                direction: "none",
+                direction: 'none',
                 enable: true,
                 outModes: {
-                  default: "bounce",
+                  default: 'bounce',
                 },
                 random: false,
                 speed: 4,
@@ -176,7 +179,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 value: 0.9,
               },
               shape: {
-                type: "circle",
+                type: 'circle',
               },
               size: {
                 value: { min: 1, max: 5 },
@@ -188,38 +191,41 @@ export default function App({ Component, pageProps }: AppProps) {
         <ThemeProvider theme={theme}>
           <SessionProvider session={pageProps.session}>
             <JotaiProvider>
-              <SnackbarContext.Provider
-                value={{
-                  snack,
-                  setSnack,
-                }}>
-                <Head>
-                  <meta name="description" content="Reson App" />
-                  <meta
-                    name="viewport"
-                    content="width=device-width, initial-scale=1"
-                  />
-                  <link rel="icon" href="/favicon.png" />
-                </Head>
-                <Component {...pageProps} />
-                <Snackbar
-                  open={snack.open}
-                  autoHideDuration={snack.autoHideDuration}
-                  onClose={handleClose}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center',
+              <VideoCallProvider>
+                <SnackbarContext.Provider
+                  value={{
+                    snack,
+                    setSnack,
                   }}>
-                  <Alert
+                  <Head>
+                    <meta name="description" content="Reson App" />
+                    <meta
+                      name="viewport"
+                      content="width=device-width, initial-scale=1"
+                    />
+                    <link rel="icon" href="/favicon.png" />
+                  </Head>
+                  <Component {...pageProps} />
+                  <VideoCallWindow />
+                  <Snackbar
+                    open={snack.open}
+                    autoHideDuration={snack.autoHideDuration}
                     onClose={handleClose}
-                    severity={snack.color}
-                    sx={{
-                      width: '100%',
+                    anchorOrigin={{
+                      vertical: 'top',
+                      horizontal: 'center',
                     }}>
-                    {snack.message || 'A New Message'}
-                  </Alert>
-                </Snackbar>
-              </SnackbarContext.Provider>
+                    <Alert
+                      onClose={handleClose}
+                      severity={snack.color}
+                      sx={{
+                        width: '100%',
+                      }}>
+                      {snack.message || 'A New Message'}
+                    </Alert>
+                  </Snackbar>
+                </SnackbarContext.Provider>
+              </VideoCallProvider>
             </JotaiProvider>
             <Worker />
           </SessionProvider>
