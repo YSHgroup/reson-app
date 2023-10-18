@@ -23,7 +23,6 @@ import {
   Avatar,
   Grid,
 } from '@mui/material'
-import Snackbar from '@mui/material/Snackbar'
 import CloseIcon from '@mui/icons-material/Close'
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -130,7 +129,7 @@ export default function Chat() {
     localStream,
     setLocalStream,
     socketId,
-    setSocketId,    
+    setSocketId,
     openSnack,
     setOpenSnack,
     callAccepted,
@@ -149,9 +148,9 @@ export default function Chat() {
     audio1,
     audio2,
     audio3,
-    audio4
+    audio4,
   } = useContext(VideoCallContext)
-  
+
   const [dropdownFlag, setDropDownFlag] = useState<boolean>(true)
 
   const [, windowHeight] = useWindowSize()
@@ -165,7 +164,6 @@ export default function Chat() {
   const mediaRecorder = useRef<MediaRecorder | null>(null)
   const [disabledButton, setDisabledButton] = useState<boolean>(false)
   // let mediaRecorder: MediaRecorder;
-
 
   const handleClick = (content: any, type: any) => {
     setSelectedContent({ content: content, type: type })
@@ -227,7 +225,9 @@ export default function Chat() {
     }
     mediaRecorder.current?.stop()
     localStream?.getTracks().forEach((track) => track.stop())
-    localStreamRef.current?.getTracks().forEach((track: { stop: () => any }) => track.stop())
+    localStreamRef.current
+      ?.getTracks()
+      .forEach((track: { stop: () => any }) => track.stop())
     setLocalStream(undefined)
     localStreamRef.current = undefined
     recordedChunks.current = []
@@ -764,7 +764,7 @@ export default function Chat() {
         })
 
         socket.on('acceptCall', (data: any) => {
-            console.log('acceptCall')
+          console.log('acceptCall')
           setCallAccepted(true)
           callStatusRef.current = 'receivedCall'
           fetch('/api/message/receivedCall', {
@@ -843,8 +843,12 @@ export default function Chat() {
   const handleCloseVideoCall = (flag: Boolean = true) => {
     localStream?.getTracks().forEach((track) => track.stop())
     remoteStream?.getTracks().forEach((track) => track.stop())
-    localStreamRef.current?.getTracks().forEach((track: { stop: () => any }) => track.stop())
-    remoteStreamRef.current?.getTracks().forEach((track: { stop: () => any }) => track.stop())
+    localStreamRef.current
+      ?.getTracks()
+      .forEach((track: { stop: () => any }) => track.stop())
+    remoteStreamRef.current
+      ?.getTracks()
+      .forEach((track: { stop: () => any }) => track.stop())
     audio1.current.pause()
     audio2.current.pause()
     audio4.current.play()
@@ -1029,7 +1033,7 @@ export default function Chat() {
                             p: 1,
                             px: 2,
                             m: 1,
-                            maxWidth: '80%',
+                            maxWidth: '80vw',
                           }}>
                           {/* <Typography>{typeof message._id}</Typography>
                                             <Typography sx={{fontSize:'10px'}}>{message.time}</Typography> */}
@@ -1306,7 +1310,7 @@ export default function Chat() {
                           p: 1,
                           px: 2,
                           m: 1,
-                          maxWidth: '80%',
+                          maxWidth: '80vw',
                         }}>
                         {messageElement(
                           message?.type,
@@ -1442,22 +1446,6 @@ export default function Chat() {
               handleClose={handleClose}
               content={selectedContent}
             />
-            <Snackbar
-              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-              open={openSnack}
-              autoHideDuration={6000}
-              onClose={handleCloseSnack}>
-              <Alert
-                onClose={handleCloseSnack}
-                severity="success"
-                sx={{ width: '100%' }}>
-                {snackText}
-              </Alert>
-            </Snackbar>
-
-            {callAccepted ? (
-              <audio playsInline ref={myAudio} autoPlay hidden />
-            ) : null}
           </FullLayout>
         </IsCallingContext.Provider>
       </CacheProvider>

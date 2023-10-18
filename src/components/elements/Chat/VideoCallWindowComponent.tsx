@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import { Minimize, CallEnd, PhoneEnabled } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
-import {
-  Close,
-} from '@mui/icons-material'
+import { Close } from '@mui/icons-material'
 import LinearProgress, {
   LinearProgressProps,
 } from '@mui/material/LinearProgress'
-import {
-  Stack,
-} from '@mui/material'
+import Snackbar from '@mui/material/Snackbar'
+
+import { Stack } from '@mui/material'
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import { getSession, useSession } from 'next-auth/react'
 import Image from 'next/image'
@@ -68,6 +66,10 @@ const beaks = [
 //   audio3: HTMLAudioElement,
 //   audio4: HTMLAudioElement
 
+let callLabel = ['Canceled call', 'Declined call', 'Outgoing call']
+
+let callLabel_ = ['Missed call', 'Declined call', 'Incoming call']
+
 const VideoCallWindow = () => {
   const router = useRouter()
   const { email } = router.query
@@ -95,7 +97,7 @@ const VideoCallWindow = () => {
     localStream,
     setLocalStream,
     socketId,
-    setSocketId,    
+    setSocketId,
     openSnack,
     setOpenSnack,
     callAccepted,
@@ -114,7 +116,7 @@ const VideoCallWindow = () => {
     audio1,
     audio2,
     audio3,
-    audio4
+    audio4,
   } = useContext(VideoCallContext)
 
   const [, windowHeight] = useWindowSize()
@@ -146,6 +148,7 @@ const VideoCallWindow = () => {
   // }, [remoteStream]);
   const IsCallingContextValiable = useContext(IsCallingContext)
   const getMsgs = async () => {
+    console.log(email, '==================')
     const res = await fetch('/api/message/getMsgs', {
       method: 'POST',
       body: JSON.stringify({ OppositeEmail: email }),
@@ -155,6 +158,17 @@ const VideoCallWindow = () => {
     })
     const resData = await res.json()
     setMessages(resData.msgs)
+  }
+
+  const handleCloseSnack = (
+    event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setSnackText('')
+    setOpenSnack(false)
   }
   useEffect(() => {
     getMsgs()
@@ -263,6 +277,7 @@ const VideoCallWindow = () => {
   }, [])
 
   const acceptCall = () => {
+    console.log('accept button click')
     navigator.mediaDevices
       .getUserMedia({ video: false, audio: true })
       .then((stream: any) => {
@@ -305,8 +320,12 @@ const VideoCallWindow = () => {
   const handleCloseVideoCall = (flag: Boolean = true) => {
     localStream?.getTracks().forEach((track) => track.stop())
     remoteStream?.getTracks().forEach((track) => track.stop())
-    localStreamRef.current?.getTracks().forEach((track: { stop: () => any }) => track.stop())
-    remoteStreamRef.current?.getTracks().forEach((track: { stop: () => any }) => track.stop())
+    localStreamRef.current
+      ?.getTracks()
+      .forEach((track: { stop: () => any }) => track.stop())
+    remoteStreamRef.current
+      ?.getTracks()
+      .forEach((track: { stop: () => any }) => track.stop())
     audio1.current.pause()
     audio2.current.pause()
     audio4.current.play()
@@ -346,21 +365,21 @@ const VideoCallWindow = () => {
 
   return (
     <>
-    {(isCalling || beingCalled) && !minimizeCall && 
-    (<div
-      style={{
-        position: 'fixed',
-        zIndex: 1000,
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-      {/* <video
+      {(isCalling || beingCalled) && !minimizeCall && (
+        <div
+          style={{
+            position: 'fixed',
+            zIndex: 1000,
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          {/* <video
                 ref={localVideoRef}
                 muted
                 autoPlay
@@ -376,82 +395,101 @@ const VideoCallWindow = () => {
                     border: '2px solid white',
                 }}>
             </video> */}
-      <div
-        style={{
-          width: '640px',
-          height: '480px',
-          objectFit: 'cover',
-          borderRadius: '4px',
-          border: '2px solid #312f41',
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: '#18151c',
-        }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'Center',
-            flexGrow: 1,
-          }}>
-          <Image
+          <div
             style={{
-              alignSelf: 'center',
-              border: '1px solid #6e6a91',
-              borderRadius: '50%',
-              width: '240px',
-              height: '240px',
-              padding: '4px',
-            }}
-            src={
-              pic == '' || pic == undefined
-                ? `/images/male.png`
-                : `/api/view?name=chats/${pic}`
-            }
-            alt="male"
-            width={70}
-            height={70}
-          />
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'Center',
-          }}>
-          {!callAccepted && !isCalling && (
-            <Fab
-              style={{ backgroundColor: 'green', marginRight: '25px' }}
-              aria-label="add">
-              <PhoneEnabled
-                onClick={answerCall}
-                sx={{ color: 'white', fontSize: '45px' }}
+              width: '640px',
+              height: '480px',
+              objectFit: 'cover',
+              borderRadius: '4px',
+              border: '2px solid #312f41',
+              display: 'flex',
+              flexDirection: 'column',
+              backgroundColor: '#18151c',
+            }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'Center',
+                flexGrow: 1,
+              }}>
+              <Image
+                style={{
+                  alignSelf: 'center',
+                  border: '1px solid #6e6a91',
+                  borderRadius: '50%',
+                  width: '240px',
+                  height: '240px',
+                  padding: '4px',
+                }}
+                src={
+                  pic == '' || pic == undefined
+                    ? `/images/male.png`
+                    : `/api/view?name=chats/${pic}`
+                }
+                alt="male"
+                width={70}
+                height={70}
               />
-            </Fab>
-          )}
-          <Fab style={{ backgroundColor: '#af0000' }} aria-label="add">
-            <CallEnd
-              onClick={onCallEnd}
-              sx={{ color: 'white', fontSize: '45px' }}
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'Center',
+              }}>
+              {!callAccepted && !isCalling && (
+                <Fab
+                  style={{ backgroundColor: 'green', marginRight: '25px' }}
+                  aria-label="add">
+                  <PhoneEnabled
+                    onClick={answerCall}
+                    sx={{ color: 'white', fontSize: '45px' }}
+                  />
+                </Fab>
+              )}
+              <Fab style={{ backgroundColor: '#af0000' }} aria-label="add">
+                <CallEnd
+                  onClick={onCallEnd}
+                  sx={{ color: 'white', fontSize: '45px' }}
+                />
+              </Fab>
+            </div>
+            <div style={{ marginTop: '20px' }}>
+              {callAccepted || <LinearProgress color="success" />}
+            </div>
+          </div>
+          <Stack
+            direction="row"
+            style={{
+              position: 'absolute',
+              cursor: 'pointer',
+              top: '10px',
+              right: '10px',
+              color: 'white',
+            }}>
+            <Minimize
+              onClick={() => setMinimizeCall(true)}
+              sx={{ fontSize: '32px' }}
             />
-          </Fab>
+            <Close onClick={onCallEnd} sx={{ fontSize: '32px' }} />
+          </Stack>
+          <Snackbar
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            open={openSnack}
+            autoHideDuration={6000}
+            onClose={handleCloseSnack}>
+            <Alert
+              onClose={handleCloseSnack}
+              severity="success"
+              sx={{ width: '100%' }}>
+              {snackText}
+            </Alert>
+          </Snackbar>
+
+          {callAccepted ? (
+            <audio playsInline ref={myAudio} autoPlay hidden />
+          ) : null}
         </div>
-        <div style={{ marginTop: '20px' }}>
-          {callAccepted || <LinearProgress color="success" />}
-        </div>
-      </div>
-      <Stack
-        direction="row"
-        style={{
-          position: 'absolute',
-          cursor: 'pointer',
-          top: '10px',
-          right: '10px',
-          color: 'white',
-        }}>
-        <Minimize onClick={() => setMinimizeCall(true)} sx={{ fontSize: '32px' }} />
-        <Close onClick={onCallEnd} sx={{ fontSize: '32px' }} />
-      </Stack>
-    </div>)
-    }
+      )}
     </>
   )
 }
