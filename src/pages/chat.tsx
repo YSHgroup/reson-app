@@ -50,6 +50,7 @@ import IsCallingContext from 'context/IsCallingContext'
 import MediaViewer from '@elements/Chat/MediaViewerComponent'
 import ChatImage from '@elements/Chat/ChangeImageComponent'
 import { VideoCallContext } from 'context/VideoCallContext'
+import PageSocket from '@constants/PageSocket'
 
 const cache = createCache({
   key: 'css',
@@ -343,7 +344,7 @@ export default function Chat() {
     audio2.current = new Audio(beaks[1])
     audio3.current = new Audio(beaks[2])
     audio4.current = new Audio(beaks[3])
-    socket = io(String(process.env.NEXT_PUBLIC_CHAT_URI), { secure: true })
+    socket = PageSocket
     socket.on('connect', () => {
       // Fetch existing messages from the server
       socket.emit('emailMapId', { email: session?.user?.email })

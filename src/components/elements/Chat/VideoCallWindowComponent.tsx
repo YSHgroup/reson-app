@@ -18,6 +18,7 @@ import { useWindowSize } from '@react-hook/window-size'
 import createCache from '@emotion/cache'
 import IsCallingContext from 'context/IsCallingContext'
 import { VideoCallContext } from 'context/VideoCallContext'
+import PageSocket from '@constants/PageSocket'
 
 const cache = createCache({
   key: 'css',
@@ -148,7 +149,6 @@ const VideoCallWindow = () => {
   // }, [remoteStream]);
   const IsCallingContextValiable = useContext(IsCallingContext)
   const getMsgs = async () => {
-    console.log(email, '==================')
     const res = await fetch('/api/message/getMsgs', {
       method: 'POST',
       body: JSON.stringify({ OppositeEmail: email }),
@@ -176,7 +176,7 @@ const VideoCallWindow = () => {
     audio2.current = new Audio(beaks[1])
     audio3.current = new Audio(beaks[2])
     audio4.current = new Audio(beaks[3])
-    socket = io(String(process.env.NEXT_PUBLIC_CHAT_URI), { secure: true })
+    socket = PageSocket
     socket.on('connect', () => {
       // Fetch existing messages from the server
       socket.emit('emailMapId', { email: session?.user?.email })
@@ -184,6 +184,7 @@ const VideoCallWindow = () => {
     })
     socket.on('getid', (sockId: string) => {
       setSocketId(sockId)
+      console.log(sockId, "video_component");
     })
     socket.on('callingMe', (data: any) => {
       if (isCallingRef.current) {

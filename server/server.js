@@ -121,11 +121,13 @@ io.on('connection', (socket) => {
   });
 
   socket.on('callUser', async (data) => {
+    console.log(sockets, "callUser")
     // socket.to(data.to).emit('callUser', { signal: data.signal, from: socket.id });
     io.to(sockets[data.to]).emit('callingMe', { signal: data.signal, from: data.from, to: data.to });
   });
 
   socket.on('acceptCall', async (data) => {
+    console.log(sockets, "acceptcall")
     // socket.to(data.to).emit('acceptCall', { signal: data.signal });
     io.to(sockets[data.to]).emit('acceptCall', { signal: data.signal, from: data.from, to: data.to });
   });
