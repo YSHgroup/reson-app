@@ -306,7 +306,8 @@ export default function Home() {
             LinkComponent={Link}
             href="/messages"
             onMouseEnter={() => setNoficationDropdown(true)}
-            onMouseLeave={() => setNoficationDropdown(false)}>
+            onMouseLeave={() => setNoficationDropdown(false)}
+            >
             {unread > 0 ? (
               <Badge badgeContent={unread} color="error">
                 <Image
