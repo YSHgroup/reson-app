@@ -68,13 +68,8 @@ let socket: any
 
 let peer: any
 
-// type Message = {
-//     author: string;
-//     message: string;
-// };
 
 const ICE_SERVERS = [
-  // Add more STUN and TURN servers here
   { urls: 'stun:stun.l.google.com:19302' },
 ]
 
@@ -88,17 +83,6 @@ const VIDEO_CONSTRAINTS = {
   },
 }
 
-const beaks = [
-  '/audios/ring1.mp3',
-  '/audios/ring2.mp3',
-  '/audios/ring3.mp3',
-  '/audios/ring4.mp3',
-]
-// let audio1: HTMLAudioElement,
-//   audio2: HTMLAudioElement,
-//   audio3: HTMLAudioElement,
-//   audio4: HTMLAudioElement
-
 let callLabel = ['Canceled call', 'Declined call', 'Outgoing call']
 
 let callLabel_ = ['Missed call', 'Declined call', 'Incoming call']
@@ -110,7 +94,6 @@ export default function Chat() {
   const [pic, setPic] = useState('')
   const [inputValue, setInputValue] = useState<string>('')
   const [messages, setMessages] = useState<Array<any>>([])
-  // const [playBeak, setPlayBeak] = useState<Boolean>(false);
   const chatWindowRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const [selectedContent, setSelectedContent] = useState({
@@ -125,36 +108,31 @@ export default function Chat() {
     setBeingCalled,
     minimizeCall,
     setMinimizeCall,
-    remoteStream,
-    setRemoteStream,
-    localStream,
-    setLocalStream,
-    socketId,
-    setSocketId,
+    setEmail,
     openSnack,
     setOpenSnack,
-    callAccepted,
-    setCallAccepted,
-    callerSignal,
-    setCallerSignal,
-    setSnackText,
     snackText,
-    myAudio,
-    connectionPeer,
-    isCallingRef,
-    localStreamRef,
-    remoteStreamRef,
-    callStatusRef,
-    callIdRef,
-    audio1,
-    audio2,
-    audio3,
-    audio4,
+    setSnackText,
   } = useContext(VideoCallContext)
 
   const [dropdownFlag, setDropDownFlag] = useState<boolean>(true)
 
   const [, windowHeight] = useWindowSize()
+
+  const [localStream, setLocalStream] = useState<MediaStream | undefined>(
+    undefined
+  )
+  const [remoteStream, setRemoteStream] = useState<MediaStream | undefined>(
+    undefined
+  )
+  const [socketId, setSocketId] = useState<string | null>(null)
+  const myAudio = useRef<any>(null)
+
+  const localStreamRef = useRef<any | undefined>(undefined)
+  const remoteStreamRef = useRef<any | undefined>(undefined)
+  const callStatusRef = useRef<any | undefined>(undefined)
+  const callIdRef = useRef<any | undefined>(undefined)
+
   // voice message : false, general message: true
   const [messageType, setMessageType] = useState(true)
   // recoding time max: 5min
@@ -169,6 +147,10 @@ export default function Chat() {
   const handleClick = (content: any, type: any) => {
     setSelectedContent({ content: content, type: type })
     setOpen(true)
+  }
+
+  const handleChangeInput = (e: any) => {
+    setInputValue(e.target.value)
   }
 
   const handleSetMessageType = (value: boolean) => {
@@ -338,13 +320,14 @@ export default function Chat() {
     setOpen(false)
   }
 
+  const initiateCall = () => {
+    setIsCalling(true)
+  }
+
   useEffect(() => {
     getMsgs()
-    audio1.current = new Audio(beaks[0])
-    audio2.current = new Audio(beaks[1])
-    audio3.current = new Audio(beaks[2])
-    audio4.current = new Audio(beaks[3])
-    socket = PageSocket
+    setEmail(session?.user?.email)
+    socket = io(`${String(process.env.NEXT_PUBLIC_CHAT_URI)}`, { secure: true })
     socket.on('connect', () => {
       // Fetch existing messages from the server
       socket.emit('emailMapId', { email: session?.user?.email })
@@ -353,21 +336,6 @@ export default function Chat() {
     socket.on('getid', (sockId: string) => {
       setSocketId(sockId)
     })
-    socket.on('callingMe', (data: any) => {
-      if (isCallingRef.current) {
-        socket.emit('Iambusy', { from: data.to, to: data.from })
-      } else {
-        callStatusRef.current = 'callee'
-        setBeingCalled(true)
-        setSnackText(`${data.from} is calling you.`)
-        setOpenSnack(true)
-        setCallerSignal(data.signal)
-        audio2.current.play()
-        audio2.current.loop = true
-      }
-    })
-    // return () => socket.disconnect();
-
     // Close the dropdown if the user clicks outside of it
     window.onclick = function (event: Event) {
       // setDropDownFlag(true);
@@ -399,29 +367,6 @@ export default function Chat() {
         setMessages((prevState) => [...prevState, msg])
     })
 
-    socket.on('destroyP2P', (data: any) => {
-      if (callStatusRef.current == 'caller') {
-        fetch('/api/message/declinedCall', {
-          method: 'POST',
-          body: JSON.stringify({ callId: callIdRef.current }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            // setCallId(data.newCallInfo.insertedId);
-          })
-      }
-      handleCloseVideoCall(false)
-    })
-
-    // navigator.mediaDevices.getUserMedia({ video: false, audio: true }).then((stream) => {
-    //     setLocalStream(stream);
-    // }).catch((error) => {
-    //     console.error("Error accessing media devices....", error)
-    //     alert(error)
-    // });
 
     socket.on(
       'newReactEmoji',
@@ -689,196 +634,6 @@ export default function Chat() {
       chatWindow.scrollTop = chatWindow?.scrollHeight
     }
   }, [messages])
-
-  const initiateCall = () => {
-    // setIsCalling(()=>{return true});
-    // setTimeout(()=> {console.log(isCalling)}, 3000)
-    // navigator.mediaDevices.enumerateDevices()
-    // .then(devices => {
-    //     console.log(devices)
-    //     const audioInputDevice = devices.find(device => device.kind === 'audioinput');
-    //     const videoInputDevice = devices.find(device => device.kind === 'videoinput');
-
-    //     // if (videoInputDevice) {
-    //     //     VIDEO_CONSTRAINTS.video = {
-    //     //         deviceId: {
-    //     //             exact: videoInputDevice.deviceId
-    //     //         }
-    //     //     };
-    //     // }
-    // }).catch(error => {
-    //     console.error('Error enumerating devices:', error);
-    //     // setSnack(
-    //     //   new Snack({
-    //     //     message: error,
-    //     //     color: 'error',
-    //     //     open: true,
-    //     //   })
-    //     // )
-    // });
-
-    navigator.mediaDevices
-      .getUserMedia({ video: false, audio: true })
-      .then((stream: any) => {
-        setLocalStream(stream)
-        localStreamRef.current = stream
-        audio1.current.play()
-        audio1.current.loop = true
-        setIsCalling(true)
-        isCallingRef.current = true
-        const from = session?.user?.email
-        peer = new Peer({
-          initiator: true,
-          trickle: false,
-          stream: localStreamRef.current,
-          config: { iceServers: ICE_SERVERS },
-        })
-        peer.on('signal', async (signal: any) => {
-          if (isCallingRef.current) {
-            socket.emit('callUser', { signal: signal, to: email, from })
-            // New Call Record
-            callStatusRef.current = 'caller'
-            const payload = {
-              to: email,
-            }
-            const res = await fetch('/api/message/newCall', {
-              method: 'POST',
-              body: JSON.stringify(payload),
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            })
-            const resData = await res.json()
-            callIdRef.current = resData.newCallInfo.insertedId
-          }
-        })
-
-        peer.on('stream', (stream: MediaStream) => {
-          setRemoteStream(stream)
-          remoteStreamRef.current = stream
-          myAudio.current.srcObject = stream
-        })
-
-        peer.on('close', () => {
-          handleCloseVideoCall()
-          alert('opposite user ended the call.')
-        })
-
-        socket.on('acceptCall', (data: any) => {
-          console.log('acceptCall')
-          setCallAccepted(true)
-          callStatusRef.current = 'receivedCall'
-          fetch('/api/message/receivedCall', {
-            method: 'POST',
-            body: JSON.stringify({ callId: callIdRef.current }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              // setCallId(data.newCallInfo.insertedId);
-            })
-          setSnackText(`${email} accepted your call`)
-          setOpenSnack(true)
-          // alert(`${email} accepted your call`)
-          peer.signal(data.signal)
-          audio1.current.pause()
-          audio3.current.play()
-        })
-        socket.on('busy', (data: any) => {
-          handleCloseVideoCall(false)
-          setSnackText(`${data.from} is busy now.`)
-          setOpenSnack(true)
-        })
-        connectionPeer.current = peer
-      })
-      .catch((error) => {
-        console.error('Error accessing media devices....', error)
-        // alert(error)
-        setSnackText(`${error}`)
-        setOpenSnack(true)
-      })
-  }
-
-  const acceptCall = () => {
-    navigator.mediaDevices
-      .getUserMedia({ video: false, audio: true })
-      .then((stream: any) => {
-        setLocalStream(stream)
-        localStreamRef.current = stream
-        setCallAccepted(true)
-        audio2.current.pause()
-        audio3.current.play()
-        peer = new Peer({
-          initiator: false,
-          trickle: false,
-          stream: localStreamRef.current,
-        })
-        const from = session?.user?.email
-        peer.on('signal', (signal: any) => {
-          socket.emit('acceptCall', { signal: signal, to: email, from })
-        })
-        peer.on('stream', (stream: any) => {
-          setRemoteStream(stream)
-          remoteStreamRef.current = stream
-          myAudio.current.srcObject = stream
-        })
-
-        peer.on('close', () => {
-          handleCloseVideoCall()
-          alert('opposite user ended the call.')
-        })
-
-        if (callerSignal) peer.signal(callerSignal)
-        connectionPeer.current = peer
-      })
-      .catch((error) => {
-        console.error('Error accessing media devices....', error)
-        // alert(error)
-        setSnackText(`${error}`)
-        setOpenSnack(true)
-      })
-  }
-
-  const handleCloseVideoCall = (flag: Boolean = true) => {
-    localStream?.getTracks().forEach((track) => track.stop())
-    remoteStream?.getTracks().forEach((track) => track.stop())
-    localStreamRef.current
-      ?.getTracks()
-      .forEach((track: { stop: () => any }) => track.stop())
-    remoteStreamRef.current
-      ?.getTracks()
-      .forEach((track: { stop: () => any }) => track.stop())
-    audio1.current.pause()
-    audio2.current.pause()
-    audio4.current.play()
-    localStream?.getAudioTracks()[0].stop()
-    remoteStream?.getAudioTracks()[0].stop()
-    localStreamRef.current?.getAudioTracks()[0].stop()
-    remoteStreamRef.current?.getAudioTracks()[0].stop()
-    localStreamRef.current = undefined
-    remoteStreamRef.current = undefined
-    setLocalStream(undefined)
-    setRemoteStream(undefined)
-    setIsCalling(false)
-    setMinimizeCall(false)
-    isCallingRef.current = false
-    setCallAccepted(false)
-    setBeingCalled(false)
-    if (callStatusRef.current) {
-      getMsgs()
-    }
-    if (callStatusRef.current == 'caller') {
-      socket.emit('missedCall', { to: email })
-    }
-    callStatusRef.current = undefined
-    if (flag) {
-      const from = session?.user?.email
-      socket.emit('destroyP2P', { to: email, from })
-    }
-    // peer.destroy();
-  }
 
   const handleCloseSnack = (
     event: React.SyntheticEvent | Event,
@@ -1337,7 +1092,7 @@ export default function Chat() {
                     value={inputValue}
                     sx={{ flexGrow: 1 }}
                     variant="standard"
-                    onChange={(e) => setInputValue(e.target.value)}
+                    onChange={handleChangeInput}
                     onPaste={handleClipboardPaste}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {

@@ -27,11 +27,13 @@ interface VideoContextProps {
   localStreamRef: any | undefined
   remoteStreamRef: any | undefined
   callStatusRef: any | undefined
-  callIdRef: any | undefined,
-  audio1: any | null,
-  audio2: any | null,
-  audio3: any | null,
-  audio4: any | null,
+  callIdRef: any | undefined
+  audio1: any | null
+  audio2: any | null
+  audio3: any | null
+  audio4: any | null
+  email: string
+  setEmail: (value: string) => void
 }
 
 export const VideoCallContext = createContext<VideoContextProps>({
@@ -85,7 +87,11 @@ export const VideoCallContext = createContext<VideoContextProps>({
   audio1: null,
   audio2: null,
   audio3: null,
-  audio4: null
+  audio4: null,
+  email: '',
+  setEmail: function (value: string): void {
+    throw new Error('Function not implemented.')
+  }
 })
 
 export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -100,11 +106,13 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
   const [remoteStream, setRemoteStream] = useState<MediaStream | undefined>(
     undefined
   )
-  const [socketId, setSocketId] = useState<string | null>(null)
   const [openSnack, setOpenSnack] = useState(false)
+  const [snackText, setSnackText] = useState<string | ''>('')
+  const [email, setEmail] = useState<string>('')
+
+  const [socketId, setSocketId] = useState<string | null>(null)
   const [callAccepted, setCallAccepted] = useState(false)
   const [callerSignal, setCallerSignal] = useState<string | null>(null)
-  const [snackText, setSnackText] = useState<string | ''>('')
   const myAudio = useRef<any>(null)
 
   const connectionPeer = useRef<any>(undefined)
@@ -118,11 +126,11 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
   const audio3 = useRef<any>(null)
   const audio4 = useRef<any>(null)
 
-
-
   return (
     <VideoCallContext.Provider
       value={{
+        email,
+        setEmail,
         connectionPeer,
         isCallingRef,
         localStreamRef,

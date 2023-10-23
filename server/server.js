@@ -121,7 +121,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('callUser', async (data) => {
-    console.log(sockets, "callUser")
+    console.log(sockets, 'callUser')
     // socket.to(data.to).emit('callUser', { signal: data.signal, from: socket.id });
     io.to(sockets[data.to]).emit('callingMe', {
       signal: data.signal,
@@ -131,7 +131,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('acceptCall', async (data) => {
-    console.log(sockets, "acceptcall")
+    console.log(sockets, 'acceptcall')
     // socket.to(data.to).emit('acceptCall', { signal: data.signal });
     io.to(sockets[data.to]).emit('acceptCall', {
       signal: data.signal,
@@ -154,6 +154,83 @@ io.on('connection', (socket) => {
   })
 })
 
+const chatCallSockets = {}
+let chatCallSockets_notify = {}
+const chatCall = io.of('/chatCall')
+chatCall.on('connection', (socket) => {
+  socket.emit('getid', socket.id)
+
+  socket.on('disconnect', () => {
+    for (const [email, socketId] of Object.entries(chatCallSockets)) {
+      if (socketId == socket.id) {
+        delete chatCallSockets[email]
+        return
+      }
+    }
+    for (const [email, socketId] of Object.entries(chatCallSockets_notify)) {
+      if (socketId == socket.id) {
+        delete chatCallSockets_notify[email]
+        return
+      }
+    }
+    for (const [email, socketId] of Object.entries(dashboard_notify)) {
+      if (socketId == socket.id) {
+        delete dashboard_notify[email]
+        break
+      }
+    }
+  })
+
+  // chatCallSockets' events for notification
+  socket.on('register_notificationSocket', (data) => {
+    chatCallSockets_notify[data.email] = socket.id
+  })
+
+  socket.on('dashboard_notification', (data) => {
+    dashboard_notify[data.email] = socket.id
+  })
+
+  // Socket's events for text and voice chat
+  socket.on('emailMapId', ({ email }) => {
+    chatCallSockets[email] = socket.id
+    socket['email'] = email
+    console.log(`${email} is connected as socket ${chatCallSockets[email]}`)
+  })
+
+  socket.on('callUser', async (data) => {
+    console.log(chatCallSockets, 'callUser')
+    // socket.to(data.to).emit('callUser', { signal: data.signal, from: socket.id });
+    chatCall.to(chatCallSockets[data.to]).emit('callingMe', {
+      signal: data.signal,
+      from: data.from,
+      to: data.to,
+    })
+  })
+
+  socket.on('acceptCall', async (data) => {
+    console.log(chatCallSockets, 'acceptcall')
+    // socket.to(data.to).emit('acceptCall', { signal: data.signal });
+    chatCall.to(chatCallSockets[data.to]).emit('acceptCall', {
+      signal: data.signal,
+      from: data.from,
+      to: data.to,
+    })
+  })
+
+  socket.on('Iambusy', (data) => {
+    chatCall.to(chatCallSockets[data.to]).emit('busy', { from: data.from, to: data.to })
+  })
+
+  socket.on('destroyP2P', async (data) => {
+    chatCall.to(chatCallSockets[data.to]).emit('destroyP2P', { from: data.from })
+  })
+
+  socket.on('missedCall', (data) => {
+    chatCall.to(chatCallSockets_notify[data.to]).emit('newUnreadMsg')
+    chatCall.to(dashboard_notify[data.to]).emit('newChat')
+  })
+})
+
 let users = {}
 let socketToRoom = {}
 const maximum = process.env.MAXIMUM || 6
@@ -167,9 +244,15 @@ gCall.on('connection', (socket) => {
         gCall.to(socket.id).emit('room_full')
         return
       }
-      users[data.room].push({ id: socket.id, email: data.email, nickname: data.nickname })
+      users[data.room].push({
+        id: socket.id,
+        email: data.email,
+        nickname: data.nickname,
+      })
     } else {
-      users[data.room] = [{ id: socket.id, email: data.email, nickname: data.nickname }]
+      users[data.room] = [
+        { id: socket.id, email: data.email, nickname: data.nickname },
+      ]
     }
     socketToRoom[socket.id] = data.room
 
@@ -187,7 +270,7 @@ gCall.on('connection', (socket) => {
       sdp: data.sdp,
       offerSendID: data.offerSendID,
       offerSendEmail: data.offerSendEmail,
-      offerSendNickName:data.offerSendNickName
+      offerSendNickName: data.offerSendNickName,
     })
   })
 
@@ -228,7 +311,6 @@ const gchat = io.of('/groupchat')
 gchat.on('connection', (socket) => {
   socket.on('identity_group', (data) => {
     socket.join(`room-${data.groupId}`)
-    console.log(`${socket.id} connected in ${data.groupId}`)
     gchat
       .to(`room-${data.groupId}`)
       .emit('connectToRoom', { email: data.email, name: data.name })
@@ -243,7 +325,6 @@ gchat.on('connection', (socket) => {
   })
 
   socket.on('sendMessageFirst', (data) => {
-    console.log(data)
     gchat.to(`room-${data.groupId}`).emit('newMessageFirst', data)
   })
 

@@ -93,27 +93,10 @@ const VideoCallWindow = () => {
     setBeingCalled,
     minimizeCall,
     setMinimizeCall,
-    remoteStream,
-    setRemoteStream,
-    localStream,
-    setLocalStream,
-    socketId,
-    setSocketId,
     openSnack,
     setOpenSnack,
-    callAccepted,
-    setCallAccepted,
-    callerSignal,
-    setCallerSignal,
-    setSnackText,
     snackText,
-    myAudio,
-    connectionPeer,
-    isCallingRef,
-    localStreamRef,
-    remoteStreamRef,
-    callStatusRef,
-    callIdRef,
+    setSnackText,
     audio1,
     audio2,
     audio3,
@@ -121,33 +104,24 @@ const VideoCallWindow = () => {
   } = useContext(VideoCallContext)
 
   const [, windowHeight] = useWindowSize()
-  // voice message : false, general message: true
-  const [messageType, setMessageType] = useState(true)
-  // recoding time max: 5min
-  const [recordingTime, setRecordingTime] = useState(0)
-  const [isUploadBlob, setIsUploadBlob] = useState(false)
-  //
-  const recordedChunks = useRef<Blob[]>([])
-  const mediaRecorder = useRef<MediaRecorder | null>(null)
-  const [disabledButton, setDisabledButton] = useState<boolean>(false)
-  // let mediaRecorder: MediaRecorder;
+  const [localStream, setLocalStream] = useState<MediaStream | undefined>(
+    undefined
+  )
+  const [remoteStream, setRemoteStream] = useState<MediaStream | undefined>(
+    undefined
+  )
+  const [socketId, setSocketId] = useState<string | null>(null)
+  const [callAccepted, setCallAccepted] = useState(false)
+  const [callerSignal, setCallerSignal] = useState<string | null>(null)
+  const myAudio = useRef<any>(null)
 
-  const [dropdownFlag, setDropDownFlag] = useState<boolean>(true)
-  // const localVideoRef = useRef<HTMLVideoElement>(null);
-  // const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const connectionPeer = useRef<any>(undefined)
+  const isCallingRef = useRef<any>(false)
+  const localStreamRef = useRef<any | undefined>(undefined)
+  const remoteStreamRef = useRef<any | undefined>(undefined)
+  const callStatusRef = useRef<any | undefined>(undefined)
+  const callIdRef = useRef<any | undefined>(undefined)
 
-  // useEffect(() => {
-  //     if (localStream && localVideoRef.current) {
-  //         localVideoRef.current.srcObject = localStream;
-  //     }
-  // }, [localStream]);
-
-  // useEffect(() => {
-  //     if (remoteStream && remoteVideoRef.current) {
-  //         remoteVideoRef.current.srcObject = remoteStream;
-  //     }
-  // }, [remoteStream]);
-  const IsCallingContextValiable = useContext(IsCallingContext)
   const getMsgs = async () => {
     const res = await fetch('/api/message/getMsgs', {
       method: 'POST',
@@ -170,13 +144,130 @@ const VideoCallWindow = () => {
     setSnackText('')
     setOpenSnack(false)
   }
+  const initiateCall = () => {
+    // setIsCalling(()=>{return true});
+    // setTimeout(()=> {console.log(isCalling)}, 3000)
+    // navigator.mediaDevices.enumerateDevices()
+    // .then(devices => {
+    //     console.log(devices)
+    //     const audioInputDevice = devices.find(device => device.kind === 'audioinput');
+    //     const videoInputDevice = devices.find(device => device.kind === 'videoinput');
+
+    //     // if (videoInputDevice) {
+    //     //     VIDEO_CONSTRAINTS.video = {
+    //     //         deviceId: {
+    //     //             exact: videoInputDevice.deviceId
+    //     //         }
+    //     //     };
+    //     // }
+    // }).catch(error => {
+    //     console.error('Error enumerating devices:', error);
+    //     // setSnack(
+    //     //   new Snack({
+    //     //     message: error,
+    //     //     color: 'error',
+    //     //     open: true,
+    //     //   })
+    //     // )
+    // });
+
+    navigator.mediaDevices
+      .getUserMedia({ video: false, audio: true })
+      .then((stream: any) => {
+        setLocalStream(stream)
+        localStreamRef.current = stream
+        audio1.current.play()
+        audio1.current.loop = true
+        setIsCalling(true)
+        isCallingRef.current = true
+        const from = session?.user?.email
+        peer = new Peer({
+          initiator: true,
+          trickle: false,
+          stream: localStreamRef.current,
+          config: { iceServers: ICE_SERVERS },
+        })
+        peer.on('signal', async (signal: any) => {
+          if (isCallingRef.current) {
+            socket.emit('callUser', { signal: signal, to: email, from })
+            // New Call Record
+            callStatusRef.current = 'caller'
+            const payload = {
+              to: email,
+            }
+            const res = await fetch('/api/message/newCall', {
+              method: 'POST',
+              body: JSON.stringify(payload),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            })
+            const resData = await res.json()
+            callIdRef.current = resData.newCallInfo.insertedId
+          }
+        })
+
+        peer.on('stream', (stream: MediaStream) => {
+          setRemoteStream(stream)
+          remoteStreamRef.current = stream
+          myAudio.current.srcObject = stream
+        })
+
+        peer.on('close', () => {
+          handleCloseVideoCall()
+          alert('opposite user ended the call.')
+        })
+
+        socket.on('acceptCall', (data: any) => {
+          console.log('acceptCall')
+          setCallAccepted(true)
+          callStatusRef.current = 'receivedCall'
+          fetch('/api/message/receivedCall', {
+            method: 'POST',
+            body: JSON.stringify({ callId: callIdRef.current }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // setCallId(data.newCallInfo.insertedId);
+            })
+          setSnackText(`${email} accepted your call`)
+          setOpenSnack(true)
+          // alert(`${email} accepted your call`)
+          peer.signal(data.signal)
+          audio1.current.pause()
+          audio3.current.play()
+        })
+        socket.on('busy', (data: any) => {
+          handleCloseVideoCall(false)
+          setSnackText(`${data.from} is busy now.`)
+          setOpenSnack(true)
+        })
+        connectionPeer.current = peer
+      })
+      .catch((error) => {
+        console.error('Error accessing media devices....', error)
+        // alert(error)
+        setSnackText(`${error}`)
+        setOpenSnack(true)
+      })
+  }
+  useEffect(() => {
+    if (isCalling) {
+      initiateCall()
+    }
+  }, [isCalling])
   useEffect(() => {
     getMsgs()
     audio1.current = new Audio(beaks[0])
     audio2.current = new Audio(beaks[1])
     audio3.current = new Audio(beaks[2])
     audio4.current = new Audio(beaks[3])
-    socket = PageSocket
+    socket = io(`${String(process.env.NEXT_PUBLIC_CHAT_URI)}/chatCall`, {
+      secure: true,
+    })
     socket.on('connect', () => {
       // Fetch existing messages from the server
       socket.emit('emailMapId', { email: session?.user?.email })
@@ -184,7 +275,7 @@ const VideoCallWindow = () => {
     })
     socket.on('getid', (sockId: string) => {
       setSocketId(sockId)
-      console.log(sockId, "video_component");
+      console.log(sockId, 'video_component')
     })
     socket.on('callingMe', (data: any) => {
       if (isCallingRef.current) {
@@ -307,7 +398,9 @@ const VideoCallWindow = () => {
           alert('opposite user ended the call.')
         })
 
-        if (callerSignal) peer.signal(callerSignal)
+        if (callerSignal) {
+          peer.signal(callerSignal)
+        }
         connectionPeer.current = peer
       })
       .catch((error) => {
@@ -354,6 +447,10 @@ const VideoCallWindow = () => {
       const from = session?.user?.email
       socket.emit('destroyP2P', { to: email, from })
     }
+    setSnackText('')
+    setOpenSnack(false)
+    peer = undefined
+    connectionPeer.current = undefined
     // peer.destroy();
   }
 
