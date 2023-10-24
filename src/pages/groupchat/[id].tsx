@@ -233,6 +233,43 @@ export default function GroupChat() {
   }
 
   const handleIsCallRoom = (value: boolean) => {
+    const message = {
+      posterName: session?.user?.name,
+      posterEmail: session?.user?.email,
+      type: 'text',
+      content: value
+        ? `${session?.user?.name} has joined the call room.`
+        : `${session?.user?.name} has left the call room.`,
+      groupId: groupId,
+      date: timestampToFormattedDate(Date.now()),
+      time: formatTime(),
+      readers: [session?.user?.email],
+    }
+    if (!message) return
+    socket.emit('sendMessageFirst', { ...message })
+
+    const saveMsg = async () => {
+      const payload = { message: message }
+      try {
+        const response = await fetch('/api/message/newGroupMsg', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        const res = await response.json()
+        if (res.message === 'Success') {
+          socket.emit('sendMessage', {
+            message: { ...message, _id: res.newChatInfo.insertedId },
+            groupInfo: group,
+          })
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    saveMsg()
     setIsCallRoom(value)
   }
 

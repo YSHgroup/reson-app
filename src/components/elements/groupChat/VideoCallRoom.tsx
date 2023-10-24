@@ -1,5 +1,12 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
-import { Minimize, CallEnd, VolumeOff, VolumeUp } from '@mui/icons-material'
+import {
+  Minimize,
+  CallEnd,
+  VolumeOff,
+  VolumeUp,
+  Videocam,
+  VideocamOff,
+} from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 import { io } from 'socket.io-client'
 import Video from './Video'
@@ -34,7 +41,9 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
   const localStreamRef = useRef<MediaStream>()
   const [users, setUsers] = useState<WebRTCUser[]>([])
   const { data: session } = useSession()
-  const [isMuted, setIsMuted] = useState<boolean>(false)
+  const [isAudio, setIsAudio] = useState<boolean>(true)
+  const [isVideo, setIsVideo] = useState<boolean>(true)
+
   const getLocalStream = useCallback(async () => {
     try {
       const localStream = await navigator.mediaDevices.getUserMedia({
@@ -107,6 +116,20 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
     },
     []
   )
+
+  const handleSetIsMuted = (value: boolean) => {
+    setIsAudio(value)
+    localStreamRef.current
+      .getAudioTracks()
+      .forEach((track) => (track.enabled = !isAudio))
+  }
+
+  const handleSeIsVideo = (value: boolean) => {
+    setIsVideo(value)
+    localStreamRef.current
+      .getVideoTracks()
+      .forEach((track) => (track.enabled = !isVideo))
+  }
 
   const handleCallEnd = () => {
     socketRef.current.disconnect()
@@ -244,8 +267,8 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
         zIndex: 1000,
         top: 0,
         left: 0,
-        width: '100%',
-        height: '100%',
+        width: '100vw',
+        height: '100vh',
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         display: 'flex',
         justifyContent: 'center',
@@ -254,7 +277,7 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
       <div
         style={{
           width: '765px',
-          height: '540px',
+          height: '500px',
           objectFit: 'cover',
           borderRadius: '4px',
           border: '2px solid #312f41',
@@ -268,7 +291,7 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
             justifyContent: 'Center',
             flexGrow: 1,
             flexWrap: 'wrap',
-            overflowY: 'scroll',
+            overflowY: 'auto',
           }}>
           <div style={{}}>
             <video
@@ -278,7 +301,6 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
                 margin: 5,
                 backgroundColor: 'black',
               }}
-              muted={isMuted}
               ref={localVideoRef}
               autoPlay
             />
@@ -290,7 +312,6 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
               email={user.email}
               nickname={user.nickname}
               stream={user.stream}
-              muted={isMuted}
             />
           ))}
         </div>
@@ -299,31 +320,57 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
             display: 'flex',
             justifyContent: 'Center',
           }}>
-          <Fab
-            style={{
-              backgroundColor: isMuted ? '#29b6f6' : '#af0000',
-              marginRight: '5px',
-            }}
-            aria-label="add">
-            {isMuted ? (
-              <VolumeUp
-                onClick={(e) => setIsMuted(false)}
-                sx={{ color: 'white', fontSize: '45px' }}
-              />
-            ) : (
-              <VolumeOff
-                onClick={(e) => setIsMuted(true)}
-                sx={{ color: 'white', fontSize: '45px' }}
-              />
-            )}
-          </Fab>
-          <Fab style={{ backgroundColor: '#af0000' }} aria-label="add">
-            <CallEnd
-              onClick={(e) => {
-                handleCallEnd()
+          {!isVideo ? (
+            <Fab
+              style={{
+                backgroundColor: '#29b6f6',
+                marginRight: '10px',
               }}
-              sx={{ color: 'white', fontSize: '45px' }}
-            />
+              onClick={(e) => handleSeIsVideo(true)}
+              aria-label="add">
+              <Videocam sx={{ color: 'white', fontSize: '24px' }} />
+            </Fab>
+          ) : (
+            <Fab
+              style={{
+                backgroundColor: '#af0000',
+                marginRight: '10px',
+              }}
+              onClick={(e) => handleSeIsVideo(false)}
+              aria-label="add">
+              <VideocamOff sx={{ color: 'white', fontSize: '24px' }} />
+            </Fab>
+          )}
+
+          {!isAudio ? (
+            <Fab
+              style={{
+                backgroundColor: '#29b6f6',
+                marginRight: '10px',
+              }}
+              onClick={(e) => handleSetIsMuted(true)}
+              aria-label="add">
+              <VolumeUp sx={{ color: 'white', fontSize: '24px' }} />
+            </Fab>
+          ) : (
+            <Fab
+              style={{
+                backgroundColor: '#af0000',
+                marginRight: '10px',
+              }}
+              onClick={(e) => handleSetIsMuted(false)}
+              aria-label="add">
+              <VolumeOff sx={{ color: 'white', fontSize: '24px' }} />
+            </Fab>
+          )}
+
+          <Fab
+            style={{ backgroundColor: '#af0000' }}
+            aria-label="add"
+            onClick={(e) => {
+              handleCallEnd()
+            }}>
+            <CallEnd sx={{ color: 'white', fontSize: '24px' }} />
           </Fab>
         </div>
       </div>

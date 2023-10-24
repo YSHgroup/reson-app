@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 interface Props {
   email: string
   stream: MediaStream
-  muted: boolean
+  muted?: boolean
   nickname: string
 }
 
@@ -22,7 +22,6 @@ const Video = ({ nickname, email, stream, muted }: Props) => {
       }}>
       <video
         ref={ref}
-        muted={isMuted}
         autoPlay
         style={{
           width: 240,
