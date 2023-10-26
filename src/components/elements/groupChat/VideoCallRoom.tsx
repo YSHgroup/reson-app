@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react'
+import React, { useEffect, useState, useRef, useCallback, useContext } from 'react'
 import {
   Minimize,
   CallEnd,
@@ -11,6 +11,7 @@ import Fab from '@mui/material/Fab'
 import { io } from 'socket.io-client'
 import Video from './Video'
 import { getSession, useSession } from 'next-auth/react'
+import SnackbarContext, { Snack } from 'context/SnackbarContext'
 
 type WebRTCUser = {
   id: string
@@ -43,6 +44,7 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
   const { data: session } = useSession()
   const [isAudio, setIsAudio] = useState<boolean>(true)
   const [isVideo, setIsVideo] = useState<boolean>(true)
+  const { setSnack } = useContext(SnackbarContext)
 
   const getLocalStream = useCallback(async () => {
     try {
@@ -62,7 +64,13 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
         nickname: session?.user?.name,
       })
     } catch (e) {
-      console.log(`getUserMedia error: ${e}`)
+      setSnack(
+        new Snack({
+          message: e,
+          color: 'error',
+          open: true,
+        })
+      )
     }
   }, [])
 
