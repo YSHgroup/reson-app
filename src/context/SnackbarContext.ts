@@ -1,7 +1,7 @@
 import React from 'react'
 import { type AlertColor } from '@mui/material/Alert'
 
-const AUTOHIDE_DURATION = 6000
+const AUTOHIDE_DURATION = 2000
 
 class Snack {
   message?: string

@@ -50,7 +50,7 @@ import IsCallingContext from 'context/IsCallingContext'
 import MediaViewer from '@elements/Chat/MediaViewerComponent'
 import ChatImage from '@elements/Chat/ChangeImageComponent'
 import { VideoCallContext } from 'context/VideoCallContext'
-import PageSocket from '@constants/PageSocket'
+import SnackbarContext, { Snack } from 'context/SnackbarContext'
 
 const cache = createCache({
   key: 'css',
@@ -68,10 +68,7 @@ let socket: any
 
 let peer: any
 
-
-const ICE_SERVERS = [
-  { urls: 'stun:stun.l.google.com:19302' },
-]
+const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }]
 
 const AUDIO_CONSTRAINTS = { audio: true, video: false }
 const VIDEO_CONSTRAINTS = {
@@ -108,13 +105,13 @@ export default function Chat() {
     setBeingCalled,
     minimizeCall,
     setMinimizeCall,
-    setEmail,
-    openSnack,
-    setOpenSnack,
     snackText,
     setSnackText,
+    setToChat,
+    setFromChat,
   } = useContext(VideoCallContext)
 
+  const { setSnack } = useContext(SnackbarContext)
   const [dropdownFlag, setDropDownFlag] = useState<boolean>(true)
 
   const [, windowHeight] = useWindowSize()
@@ -170,8 +167,13 @@ export default function Chat() {
       localStreamRef.current = stream
       startVoiceRecording()
     } catch (error) {
-      setSnackText(`${error}`)
-      setOpenSnack(true)
+      setSnack(
+        new Snack({
+          message: error,
+          color: 'error',
+          open: true,
+        })
+      )
     }
   }
 
@@ -185,8 +187,13 @@ export default function Chat() {
         mediaRecorder.current = new MediaRecorder(stream as MediaStream)
       }
     } catch (error) {
-      setSnackText(`${error}`)
-      setOpenSnack(true)
+      setSnack(
+        new Snack({
+          message: error,
+          color: 'error',
+          open: true,
+        })
+      )
       return
     }
     mediaRecorder.current?.addEventListener('stop', (e) => {})
@@ -316,17 +323,24 @@ export default function Chat() {
     setMessages(resData.msgs)
   }
 
+  useEffect(() => {
+    if(!isCalling) {
+      getMsgs()
+    }
+  }, [isCalling])
+
   const handleClose = () => {
     setOpen(false)
   }
 
   const initiateCall = () => {
+    setToChat(email)
+    setFromChat(session?.user?.email)
     setIsCalling(true)
   }
 
   useEffect(() => {
     getMsgs()
-    setEmail(session?.user?.email)
     socket = io(`${String(process.env.NEXT_PUBLIC_CHAT_URI)}`, { secure: true })
     socket.on('connect', () => {
       // Fetch existing messages from the server
@@ -366,7 +380,6 @@ export default function Chat() {
       if (msg.author == email || msg.author == session?.user?.email)
         setMessages((prevState) => [...prevState, msg])
     })
-
 
     socket.on(
       'newReactEmoji',
@@ -642,8 +655,13 @@ export default function Chat() {
     if (reason === 'clickaway') {
       return
     }
-    setSnackText('')
-    setOpenSnack(false)
+    setSnack(
+      new Snack({
+        message: '',
+        color: 'error',
+        open: false,
+      })
+    )
   }
 
   const handleReactionDropdown = (index: number) => {
