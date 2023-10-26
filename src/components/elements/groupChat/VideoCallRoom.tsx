@@ -301,6 +301,7 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
                 margin: 5,
                 backgroundColor: 'black',
               }}
+              muted
               ref={localVideoRef}
               autoPlay
             />
