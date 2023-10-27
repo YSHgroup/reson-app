@@ -8,7 +8,18 @@
 .search .header {
   padding: 20px;
 }
+.page .search {
+  width: 700px;
+}
 
+@media screen and (max-width: 700px) {
+  .page {
+    width: 100%;
+  }
+  .page .search {
+    width: 100%;
+  }
+}
 .main {
   color: black;
   padding: 20px;

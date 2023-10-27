@@ -1,159 +1,269 @@
+import { useState, useContext } from 'react'
 import BasicLayout from '@layouts/BasicLayout'
-import AvTimerIcon from '@mui/icons-material/AvTimer'
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
-import CameraAltIcon from '@mui/icons-material/CameraAlt'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen'
-import KeyboardVoiceIcon from '@mui/icons-material/KeyboardVoice'
-import LocationOnIcon from '@mui/icons-material/LocationOn'
-import SendIcon from '@mui/icons-material/Send'
-import SearchIcon from '@mui/icons-material/Search'
-import PaymentIcon from '@mui/icons-material/Payment';
 import Button from '@mui/material/Button'
 import InputAdornment from '@mui/material/InputAdornment'
-import Slider from '@mui/material/Slider'
 import TextField from '@mui/material/TextField'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import Box from '@mui/material/Box'
 import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
-import { language } from "../jotai"
-import languagejson from "../language.json"
-import { useAtom } from 'jotai'
-import { useState, useContext } from 'react'
+import Search from '@mui/icons-material/Search'
+import {
+  Box,
+  IconButton,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from '@mui/material'
 import { DatePicker, TimePicker } from '@mui/x-date-pickers'
-import { FormControl, IconButton, InputLabel, MenuItem, Select, Typography } from '@mui/material'
+import Image from 'next/image'
+import { language } from '../jotai'
+import languagejson from '../language.json'
+import { useAtom } from 'jotai'
+import { useEffect, useRef } from 'react'
+import mapboxgl from 'mapbox-gl'
 import { useRouter } from 'next/router'
-import { SelectChangeEvent } from '@mui/material/Select';
-import 'react-swipeable-list/dist/styles.css';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import {
+  CalendarMonth as CalendarMonthIcon,
+  CloudUpload as CloudUploadIcon,
+  LocationOn as LocationOnIcon,
+  AvTimer as AvTimerIcon,
+  Payment as PaymentIcon,
+} from '@mui/icons-material'
+import 'react-swipeable-list/dist/styles.css'
+import GoogleMaps from '@elements/Need/GoogleLocation'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
-interface Can {
-  title: string | null,
-  location: string | null,
-  experience: Number | 0,
-  when: Date | null,
-  from: Date | null,
-  until: Date | null,
-  desc: string | null,
-  price: string | null,
-  payType: string,
-  often: string | null,
+
+mapboxgl.accessToken = 'pk.eyJ1IjoicmVkMzAxMSIsImEiOiJjbGdjOXp0enAwOXZ5M2hzeGl6ank5Y29yIn0.NaiYYAmHiHFDJ6SRcqrmkg'
+interface NeedFormType {
+  title: string | null
+  startLine: Date | null
+  deadLine: Date | null
+  price: number | null
+  payType: string
+  description: string | null
+  payUnit: string
+  role: string
 }
-export default function Home() {
+interface MainTextMatchedSubstrings {
+  offset: number
+  length: number
+}
+interface StructuredFormatting {
+  main_text: string
+  secondary_text: string
+  main_text_matched_substrings?: readonly MainTextMatchedSubstrings[]
+}
+interface PlaceType {
+  description: string
+  structured_formatting: StructuredFormatting
+}
+export default function Need() {
   const [lang, setLanguage] = useAtom(language)
-  const [data, setData] = useState([])
-  const router = useRouter();
-  const [file, setFile] = useState<File | null>(null);
+  const [value, setValue] = useState(0)
   const { setSnack } = useContext(SnackbarContext)
 
-  const [value, setValue] = useState(0)
-
-
-  const [can, setCan] = useState<Can>({
-    title: "",
-    experience: 0,
-    when: null,
-    from: null,
-    until: null,
-    location: "",
-    desc: "",
-    price: '',
+  const [map, setMap] = useState(null)
+  const [ip, setIp] = useState<string | null>(null)
+  const [zoom, setZoom] = useState(8)
+  const [location, setLocation] = useState<String | null>('')
+  const [lists, setLists] = useState([])
+  const [file, setFile] = useState<File | null>(null)
+  const [need, setNeed] = useState<NeedFormType>({
+    title: '',
+    startLine: null,
+    deadLine: null,
+    price: null,
+    description: '',
     payType: 'piece',
-    often: '',
-  });
+    payUnit: 'usd',
+    role: 'onsite',
+  })
+  const [where, setWhere] = useState<PlaceType | null>(null)
+  const router = useRouter()
 
-  const handleChangeUpload = (e: any) => {
-    setFile(e.target.files[0]);
+  useEffect(() => {
+    showMapBox()
+    getCountry()
+  }, [map, where])
+
+  useEffect(() => {
+    initializeMap()
+  }, [])
+  console.log(where)
+  const getCountry = async () => {
+    const response = await fetch(`https://ipapi.co/json`)
+    const countryCode = await response.json()
+    setIp(countryCode.city)
   }
-  const handleWhenDateChange = (date: any) => {
-    setCan({ ...can, when: date })
+  const initializeMap = () => {
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+    })
+    setMap(map)
   }
-  const handleFromTimeChange = (time: any) => {
-    setCan({ ...can, from: time })
+  const showMapBox = async () => {
+    const select = where ? where.structured_formatting.main_text : ip
+    console.log(select)
+    fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${select}.json?access_token=${mapboxgl.accessToken}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.features.length > 0) {
+          const [longitude, latitude] = data.features[0].center
+          const { center } = data.features[0]
+          if (map != null) {
+            map.flyTo({
+              center: [longitude, latitude],
+              zoom: zoom,
+            })
+            new mapboxgl.Marker().setLngLat(center).addTo(map)
+          }
+        }
+      })
   }
-  const handleUntilTimeChange = (time: any) => {
-    setCan({ ...can, until: time })
-  }
-  const handlePayTypeChange = (e: SelectChangeEvent) => {
-    setCan({ ...can, payType: e.target.value })
-  }
+  useEffect(() => {
+    const elements = document.getElementsByClassName(
+      'mapboxgl-control-container'
+    )
+    if (elements.length > 0) {
+      elements[0].remove()
+    }
+  })
 
   const handleClose = () => {
     router.back()
   }
 
-
-  const handleChange = (
-    event: React.SyntheticEvent | Event,
-    newValue: number
-  ) => {
-    setValue(newValue)
+  const handleChangeUpload = (e: any) => {
+    setFile(e.target.files[0])
   }
 
-  const submitpublishorsave = async () => {
-    if (can.desc === "" || can.title === "" || file === null) {
+  const handleChangeNeedForm = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNeed((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }))
+  }
+
+  const CreateDataAndFile = async () => {
+    const formdata = new FormData()
+    formdata.append('file', file)
+    formdata.append(
+      'fields',
+      JSON.stringify({
+        ...need,
+        where: where ? where.structured_formatting.main_text : null,
+      })
+    )
+    try {
+      const response = await fetch('/api/need/create_file', {
+        method: 'POST',
+        body: formdata,
+      })
+      if (response.ok) {
+        setSnack(
+          new Snack({
+            message: 'Successful ',
+            color: 'success',
+            open: true,
+          })
+        )
+        setFile(null)
+        setNeed({
+          title: '',
+          startLine: null,
+          deadLine: null,
+          price: null,
+          description: '',
+          payType: 'piece',
+          payUnit: 'usd',
+          role: 'onsite',
+        })
+        setWhere(null)
+      }
+    } catch (err) {
       setSnack(
         new Snack({
-          message: 'Title, description, and example file are required items.',
+          message: err,
           color: 'error',
           open: true,
         })
       )
-    } else {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fields', JSON.stringify(can));
+    }
+  }
 
-      try {
-        const response = await fetch('/api/need/create', {
-          method: "POST",
-          body: formData
-        });
-        if (response.ok) {
-          setSnack(
-            new Snack({
-              message: "Successful ",
-              color: 'success',
-              open: true,
-            })
-          );
-          setFile(null);
-          setCan({
-            title: "",
-            experience: 0,
-            when: null,
-            from: null,
-            until: null,
-            location: "",
-            desc: "",
-            price: '',
-            payType: 'piece',
-            often: '',
-          })
-        }
-      } catch (err) {
+  const CreateData = async () => {
+    const data = {
+      ...need,
+      where: where ? where.structured_formatting.main_text : null,
+    }
+    try {
+      const response = await fetch('/api/need/create', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      })
+      if (response.ok) {
         setSnack(
           new Snack({
-            message: err,
-            color: 'error',
+            message: 'Successful ',
+            color: 'success',
             open: true,
           })
         )
+        setNeed({
+          title: '',
+          startLine: null,
+          deadLine: null,
+          price: null,
+          description: '',
+          payType: 'piece',
+          payUnit: 'usd',
+          role: 'onsite',
+        })
+        setWhere(null)
       }
-
+    } catch (err) {
+      setSnack(
+        new Snack({
+          message: err,
+          color: 'error',
+          open: true,
+        })
+      )
     }
   }
+
+  const submitPublish = async () => {
+    if (need.title === '' || need.description === '') {
+      setSnack(
+        new Snack({
+          message: 'Title and description are required items.',
+          color: 'error',
+          open: true,
+        })
+      )
+    } else if (file) {
+      CreateDataAndFile()
+    } else {
+      CreateData()
+    }
+  }
+
   return (
-    <BasicLayout title={languagejson[lang].CAN}>
+    <BasicLayout title={languagejson[lang].NEED}>
       <div className="page">
-        <div className="create">
+        <div className="search">
           <div className="header">
             <Box
               sx={{
                 display: 'flex',
-                justifyContent: 'flex-end'
-              }}
-            >
+                justifyContent: 'flex-end',
+              }}>
               <IconButton
                 size="large"
                 edge="end"
@@ -162,54 +272,35 @@ export default function Home() {
                 <ArrowBackIcon />
               </IconButton>
             </Box>
+          </div>
+          <div className="main">
             <TextField
-              required
-              id="outlined-required"
-              placeholder="What can you do?"
               sx={{
                 width: '100%',
               }}
               variant="outlined"
-              label="What can you do?"
-              value={can.title}
-              onChange={e => setCan({ ...can, title: e.target.value })}
+              name="title"
+              label={languagejson[lang].WhatDoYouNeed}
+              value={need.title}
+              onChange={handleChangeNeedForm}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon />
+                    <Search />
                   </InputAdornment>
                 ),
               }}
             />
-
-          </div>
-          <div className="main">
-            <div className="feeling">
-              <Typography>{languagejson[lang].Bad}</Typography>
-              <Slider
-                value={can.experience}
-                color="secondary"
-                valueLabelDisplay='auto'
-                sx={{
-                  display: 'inline',
-                  flex: 1,
-                  margin: '0 30px',
-                }}
-                onChange={e => {
-                  if (e && e.target) {
-                    setCan({ ...can, experience: e.target.value })
-                  }
-                }}
-              />
-              <Typography>{languagejson[lang].Verygood}</Typography>
-            </div>
             <div className="example">
               <Typography>{languagejson[lang].Showexample}:</Typography>
               <Typography>{file !== null && file.name}</Typography>
-              <Button component="label" variant='contained' startIcon={<CloudUploadIcon />}>
+              <Button
+                component="label"
+                variant="contained"
+                startIcon={<CloudUploadIcon />}>
                 Upload File
                 <input
-                  type='file'
+                  type="file"
                   style={{
                     clip: 'rect(0 0 0 0)',
                     clipPath: 'inset(50%)',
@@ -225,33 +316,6 @@ export default function Home() {
                 />
               </Button>
             </div>
-            <div className="location">
-              <LocationOnIcon
-                sx={{
-                  fontSize: 50,
-                  marginRight: '20px',
-                }}
-              />
-              <TextField
-                required
-                placeholder="Location?"
-                id="outlined-required"
-                sx={{
-                  width: '100%',
-                }}
-                variant="outlined"
-                label="Location?"
-                value={can.location}
-                onChange={e => setCan({...can, location: e.target.value})}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </div>
             <div className="calendar">
               <Box>
                 <CalendarMonthIcon
@@ -265,65 +329,33 @@ export default function Home() {
                 sx={{
                   width: '100%',
                   display: 'flex',
-                  justifyContent: 'space-between'
-                }}
-              >
+                  justifyContent: 'space-between',
+                }}>
                 <DatePicker
-                  label="When"
-                  value={can.when}
-                  onChange={handleWhenDateChange}
-                  renderInput={(props) => <TextField sx={{ width: '45%' }} {...props} />}
-                />
-                <TextField
-                  sx={{ width: '45%' }}
-                  placeholder="how often"
-                  id="input-with-icon-textfield"
-                  variant="outlined"
-                  label="How often?"
-                  type="number"
-                  inputProps={{
-                    min: 0
+                  label="StartLine"
+                  value={need.startLine}
+                  onChange={(value) => {
+                    setNeed((prevState) => ({
+                      ...prevState,
+                      startLine: value,
+                    }))
                   }}
-                  value={can.often}
-                  onChange={e => setCan({ ...can, often: e.target.value })}
+                  renderInput={(props) => (
+                    <TextField sx={{ width: '45%' }} {...props} />
+                  )}
                 />
-              </Box>
-            </div>
-            <div className="timer">
-              <Box>
-                <AvTimerIcon
-                  sx={{
-                    fontSize: 50,
-                    marginRight: '20px',
+                <DatePicker
+                  label="DeadLine"
+                  value={need.deadLine}
+                  onChange={(value) => {
+                    setNeed((prevState) => ({
+                      ...prevState,
+                      deadLine: value,
+                    }))
                   }}
-                />
-              </Box>
-              <Box
-                sx={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between'
-                }}
-              >
-                <TimePicker
-                  value={can.from}
-                  onChange={handleFromTimeChange}
-                  id="input-with-icon-textfield"
-                  variant="outlined"
-                  label="From"
-                  renderInput={(props) => <TextField sx={{
-                    width: '45%',
-                  }} {...props} />}
-                />
-                <TimePicker
-                  value={can.until}
-                  onChange={handleUntilTimeChange}
-                  id="input-with-icon-textfield"
-                  variant="outlined"
-                  label="Until"
-                  renderInput={(props) => <TextField sx={{
-                    width: '45%',
-                  }} {...props} />}
+                  renderInput={(props) => (
+                    <TextField sx={{ width: '45%' }} {...props} />
+                  )}
                 />
               </Box>
             </div>
@@ -340,44 +372,102 @@ export default function Home() {
                 sx={{
                   width: '100%',
                   display: 'flex',
-                  justifyContent: 'space-between'
-                }}
-              >
+                  justifyContent: 'space-between',
+                }}>
                 <TextField
-                  value={can.price}
+                  value={need.price}
                   sx={{
-                    width: '45%'
+                    width: '45%',
                   }}
+                  name="price"
                   label="Price"
                   type="number"
                   inputProps={{
-                    min: 0
+                    min: 0,
                   }}
                   placeholder="Price"
-                  onChange={e => setCan({ ...can, price: e.target.value })}
+                  onChange={handleChangeNeedForm}
                 />
                 <FormControl sx={{ width: '45%' }}>
                   <InputLabel id="per-price-select-label">Per Price</InputLabel>
                   <Select
-                    value={can.payType}
-                    id='outlined'
-                    onChange={handlePayTypeChange}
+                    value={need.payType}
+                    onChange={handleChangeNeedForm}
+                    id="outlined"
                     displayEmpty
                     inputProps={{ 'aria-label': 'Without label' }}
                     label="Per Price"
                     labelId="per-price-select-label"
-                  >
+                    name="payType">
                     <MenuItem value={'piece'}>per Piece</MenuItem>
                     <MenuItem value={'hour'}>per Hour</MenuItem>
+                    <MenuItem value={'month'}>per Month</MenuItem>
+                    <MenuItem value={'year'}>per Year</MenuItem>
                     <MenuItem value={'unit'}>per Unit</MenuItem>
                     <MenuItem value={'free'}>for Free</MenuItem>
                   </Select>
                 </FormControl>
               </Box>
             </div>
+            <div className="timer">
+              <Box>
+                <PaymentIcon
+                  sx={{
+                    fontSize: 50,
+                    marginRight: '20px',
+                  }}
+                />
+              </Box>
+              <Box
+                sx={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                }}>
+                <FormControl sx={{ width: '45%' }}>
+                  <InputLabel id="per-price-select-label">Pay Unit</InputLabel>
+                  <Select
+                    value={need.payUnit}
+                    onChange={handleChangeNeedForm}
+                    id="outlined"
+                    displayEmpty
+                    inputProps={{ 'aria-label': 'Without label' }}
+                    label="Pay Unit"
+                    labelId="pay-unit-select-label"
+                    name="payUnit">
+                    <MenuItem value={'usd'}>USD</MenuItem>
+                    <MenuItem value={'uah'}>UAH</MenuItem>
+                    <MenuItem value={'eur'}>EUR</MenuItem>
+                    <MenuItem value={'gbp'}>GBP</MenuItem>
+                    <MenuItem value={'cad'}>CAD</MenuItem>
+                    <MenuItem value={'aud'}>AUD</MenuItem>
+                    <MenuItem value={'cny'}>CNY</MenuItem>
+                    <MenuItem value={'inr'}>INR</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl sx={{ width: '45%' }}>
+                  <InputLabel id="per-price-select-label">Role</InputLabel>
+                  <Select
+                    value={need.role}
+                    onChange={handleChangeNeedForm}
+                    id="outlined"
+                    displayEmpty
+                    inputProps={{ 'aria-label': 'Without label' }}
+                    label="Role"
+                    labelId="role-select-label"
+                    name="role">
+                    <MenuItem value={'onsite'}>Onsite</MenuItem>
+                    <MenuItem value={'hybrid'}>Hybrid</MenuItem>
+                    <MenuItem value={'remote'}>Remote</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+            </div>
+
             <TextField
-              value={can.desc}
-              onChange={e => { setCan({ ...can, desc: e.target.value }) }}
+              value={need.description}
+              onChange={handleChangeNeedForm}
+              name="description"
               id="outlined-required"
               required
               multiline
@@ -389,14 +479,17 @@ export default function Home() {
               placeholder="Description..."
               label="Description"
             />
+            <GoogleMaps
+              where={where}
+              setWhere={(value: PlaceType) => setWhere(value)}
+            />
+            <div className="maps">
+              <div id="map" style={{ height: '300px', overflow: 'hidden' }} />
+            </div>
+
             <div className="actions">
-              <Button
-                sx={{
-                  width: '150px',
-                }}
-                onClick={() => { submitpublishorsave() }}
-                variant="contained">
-                {languagejson[lang].Publish}
+              <Button variant="contained" onClick={submitPublish}>
+                PUBLISH
               </Button>
             </div>
           </div>
