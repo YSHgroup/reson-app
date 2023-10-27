@@ -36,7 +36,9 @@ import GoogleMaps from '@elements/Need/GoogleLocation'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 
-mapboxgl.accessToken = 'pk.eyJ1IjoicmVkMzAxMSIsImEiOiJjbGdjOXp0enAwOXZ5M2hzeGl6ank5Y29yIn0.NaiYYAmHiHFDJ6SRcqrmkg'
+mapboxgl.accessToken =
+  'pk.eyJ1IjoicmVkMzAxMSIsImEiOiJjbGdjOXp0enAwOXZ5M2hzeGl6ank5Y29yIn0.NaiYYAmHiHFDJ6SRcqrmkg'
+
 interface NeedFormType {
   title: string | null
   startLine: Date | null

@@ -13,6 +13,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import { Link } from '@mui/material'
+import SnackbarContext, { Snack } from 'context/SnackbarContext'
 
 interface ListObject {
   _id: string | null
@@ -32,6 +33,7 @@ interface ListObject {
 }
 export default function GutterlessList(props: any) {
   const router = useRouter()
+  const { setSnack } = React.useContext(SnackbarContext)
   const [selectList, setSelectList] = React.useState<ListObject>({
     _id: null,
     author: null,
@@ -53,13 +55,46 @@ export default function GutterlessList(props: any) {
     router.push(`/chat?email=${list.author}`)
   }
 
-  const handleApply = (list: ListObject) => {
-    
+  const handleApply = async (list: ListObject) => {
+    const response = await fetch('/api/can/apply', {
+      method: 'POST',
+      body: JSON.stringify({
+        need_id: list._id,
+        poster: list.author,
+      }),
+    })
+    const results = await response.json()
+    if (results.message === 'Success') {
+      setSnack(
+        new Snack({
+          message: 'Successful Apply',
+          color: 'error',
+          open: true,
+        })
+      )
+      setOpen(false)
+      setSelectList({
+        _id: null,
+        author: null,
+        title: null,
+        startLine: null,
+        deadLine: null,
+        price: null,
+        description: null,
+        payType: null,
+        file: null,
+        where: null,
+        exist: null,
+        created_at: null,
+        payUnit: null,
+        role: null,
+      })
+    }
   }
 
   const handleClickOpen = (list: ListObject) => {
-      const startLineString = new Date(list.startLine)
-      const startLine = startLineString.toLocaleDateString('en-US', {
+    const startLineString = new Date(list.startLine)
+    const startLine = startLineString.toLocaleDateString('en-US', {
       month: '2-digit',
       day: '2-digit',
       year: 'numeric',
@@ -72,8 +107,8 @@ export default function GutterlessList(props: any) {
     })
     console.log(deadLine)
     Object.assign(list, {
-        startLine: startLine,
-        deadLine: deadLine
+      startLine: startLine,
+      deadLine: deadLine,
     })
     setSelectList(list)
     setOpen(true)
@@ -109,7 +144,7 @@ export default function GutterlessList(props: any) {
               textAlign: 'center',
               cursor: 'pointer',
             }}>
-            <ListItemText primary={'No result'} />
+            <ListItemText secondary={'No result'} />
           </ListItem>
         ) : (
           props.lists.map((list: ListObject) => (
@@ -154,11 +189,8 @@ export default function GutterlessList(props: any) {
             {selectList.payUnit} Per {selectList.payType}
           </DialogContentText>
           <DialogContentText id="alert-dialog-description">
-            {selectList.startLine &&
-              `StartLine: ${selectList.startLine}`}{' '}
-            -{' '}
-            {selectList.deadLine &&
-              `DeadLine: ${selectList.deadLine}`}
+            {selectList.startLine && `StartLine: ${selectList.startLine}`} -{' '}
+            {selectList.deadLine && `DeadLine: ${selectList.deadLine}`}
           </DialogContentText>
           <DialogContentText id="alert-dialog-description">
             Description:
@@ -174,8 +206,12 @@ export default function GutterlessList(props: any) {
           </DialogContentText> */}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="error">Close</Button>
-          <Button onClick={() => startChatting(selectList)} color="success">Chatting</Button>
+          <Button onClick={handleClose} color="error">
+            Close
+          </Button>
+          <Button onClick={() => startChatting(selectList)} color="success">
+            Chatting
+          </Button>
           <Button onClick={() => handleApply(selectList)}>Apply</Button>
         </DialogActions>
       </Dialog>
