@@ -21,7 +21,6 @@ import { language } from '../jotai'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import { useEffect, useRef } from 'react'
-import mapboxgl from 'mapbox-gl'
 import { useRouter } from 'next/router'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import {
@@ -33,6 +32,8 @@ import {
 } from '@mui/icons-material'
 import 'react-swipeable-list/dist/styles.css'
 import GoogleMaps from '@elements/Need/GoogleLocation'
+//@ts-ignore
+import mapboxgl from '!mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 

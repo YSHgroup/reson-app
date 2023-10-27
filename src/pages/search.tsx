@@ -19,7 +19,8 @@ import { language } from '../jotai'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import { useEffect, useRef } from 'react'
-import mapboxgl from 'mapbox-gl'
+//@ts-ignore
+import mapboxgl from '!mapbox-gl'
 import { useRouter } from 'next/router'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { Payment as PaymentIcon } from '@mui/icons-material'
@@ -167,7 +168,7 @@ export default function Can() {
   }
 
   const handleSearch = async () => {
-    if (can.title !== "") {
+    if (can.title !== '') {
       const response = await fetch('/api/can/getResults', {
         method: 'POST',
         body: JSON.stringify({
@@ -179,7 +180,6 @@ export default function Can() {
       })
       const results = await response.json()
       if (results.message === 'Success') {
-        console.log(results.results)
         setLists(results.results)
       }
     } else {
