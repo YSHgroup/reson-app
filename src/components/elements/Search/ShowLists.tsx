@@ -68,7 +68,7 @@ export default function GutterlessList(props: any) {
       setSnack(
         new Snack({
           message: 'Successful Apply',
-          color: 'error',
+          color: 'success',
           open: true,
         })
       )
@@ -105,7 +105,6 @@ export default function GutterlessList(props: any) {
       day: '2-digit',
       year: 'numeric',
     })
-    console.log(deadLine)
     Object.assign(list, {
       startLine: startLine,
       deadLine: deadLine,

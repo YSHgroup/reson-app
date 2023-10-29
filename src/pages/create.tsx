@@ -32,8 +32,7 @@ import {
 } from '@mui/icons-material'
 import 'react-swipeable-list/dist/styles.css'
 import GoogleMaps from '@elements/Need/GoogleLocation'
-//@ts-ignore
-import mapboxgl from '!mapbox-gl'
+import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 

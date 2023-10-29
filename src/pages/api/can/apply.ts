@@ -24,8 +24,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const cansCallection = client.db().collection('cans');
 
-  let data = req.body;
-
+  let data = JSON.parse(req.body);
   try {
     const newApply = await cansCallection.insertOne({
       author: session?.user?.email,

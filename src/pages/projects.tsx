@@ -7,9 +7,11 @@ import {
   InputAdornment,
   ListItemButton,
   TextField,
+  Tabs,
+  Tab,
+  Typography,
 } from '@mui/material'
 import List from '@mui/material/List'
-import Typography from '@mui/material/Typography'
 import { Stack } from '@mui/system'
 import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
@@ -18,43 +20,27 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { Search as SearchIcon } from '@mui/icons-material'
-import {language} from "../jotai"
-import languagejson from "../language.json"
+import { language } from '../jotai'
+import languagejson from '../language.json'
 import { useAtom } from 'jotai'
+import CustomTabPanel from '@elements/Projects/CustomTabPanel'
+
+function a11yProps(index: number) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  }
+}
 
 export default function Projects() {
   const [lang, setLanguage] = useAtom(language)
-  const list = [
-    {
-      name: 'RESON App',
-      date: '21.12.2022',
-      members: 2,
-    },
-    {
-      name: 'Project 2',
-      date: '20.12.2022',
-      members: 12,
-    },
-    {
-      name: 'Project 3',
-      date: '12.12.2022',
-      members: 5,
-    },
-    {
-      name: 'Project 4',
-      date: '11.12.2022',
-      members: 6,
-    },
-    {
-      name: 'Project 5',
-      date: '23.02.2022',
-      members: 6,
-    },
-  ]
-
+  const [value, setValue] = React.useState(0)
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue)
+  }
   const router = useRouter()
   return (
-    <FullLayout title="Projects" appbar={false}>
+    <FullLayout title={'PROJECT'} appbar={false}>
       <Box
         sx={{
           p: 2,
@@ -69,73 +55,18 @@ export default function Projects() {
         <IconButton size="large" edge="end" onClick={router.back}>
           <Image src="/images/back.png" alt="back" width={32} height={32} />
         </IconButton>
-        <IconButton
-          size="large"
-          edge="end"
-          href="/copyproject"
-          LinkComponent={Link}>
-          <Image src="/images/right.png" alt="right" width={32} height={32} />
-        </IconButton>
-        <IconButton
-          size="large"
-          edge="end"
-          href="/newproject"
-          LinkComponent={Link}>
-          <Image src="/images/start.png" alt="start" width={32} height={32} />
-        </IconButton>
       </Box>
-      <Box sx={{ p: 2 }}>
-        <TextField
-          fullWidth
-          margin="normal"
-          placeholder={`${languagejson[lang].search}...`}
-          sx={{
-            'background-color': 'white',
-          }}
-          variant="outlined"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          aria-label="basic tabs example">
+          <Tab label="Projects" {...a11yProps(0)} />
+          <Tab label="Applying" {...a11yProps(1)} />
+        </Tabs>
       </Box>
-      <List
-        sx={{
-          width: '100vw',
-        }}>
-        {list.map(({ name, date, members }, i) => (
-          <>
-            {i !== 0 && <Divider />}
-            <ListItemButton key={name} href="/project" LinkComponent={Link}>
-              <Stack sx={{ flexGrow: 1 }}>
-                <Typography variant="h4">{name}</Typography>
-                <Typography variant="h6">{languagejson[lang].Lastupdate}: {date}</Typography>
-              </Stack>
-
-              <Badge badgeContent={members} color="success">
-                <Image
-                  src="/images/group.png"
-                  alt="group"
-                  width={50}
-                  height={50}
-                />
-              </Badge>
-
-              <IconButton href="/newproject" LinkComponent={Link}>
-                <Image
-                  src="/images/turnon.png"
-                  alt="turnon"
-                  width={50}
-                  height={50}
-                />
-              </IconButton>
-            </ListItemButton>
-          </>
-        ))}
-      </List>
+      <CustomTabPanel value={value} index={0} />
+      <CustomTabPanel value={value} index={1} />
     </FullLayout>
   )
 }
