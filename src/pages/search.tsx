@@ -19,18 +19,18 @@ import { language } from '../jotai'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import { useEffect, useRef } from 'react'
-import mapboxgl from '!mapbox-gl'
+import mapboxgl from 'mapbox-gl'
 import { useRouter } from 'next/router'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { Payment as PaymentIcon } from '@mui/icons-material'
 import 'react-swipeable-list/dist/styles.css'
 import GoogleMaps from '@elements/Need/GoogleLocation'
-// import 'mapbox-gl/dist/mapbox-gl.css'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import ShowLists from 'components/elements/Search/ShowLists'
 import Head from 'next/head'
 // eslint-disable-next-line import/no-webpack-loader-syntax
-mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
+// mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoiYW50b25pb2dzdW55ZSIsImEiOiJjbGxub3g5em4wMnoxM2ZvYWNiZXA5dWUyIn0.cw7jmzNVcCy5vQq3iOGEZw'
@@ -197,12 +197,12 @@ export default function Can() {
 
   return (
     <BasicLayout title={languagejson[lang].NEED}>
-      <Head>
+      {/* <Head>
         <link
           href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css"
           rel="stylesheet"
         />
-      </Head>
+      </Head> */}
       <div className="page">
         <div className="search">
           <div className="header">
