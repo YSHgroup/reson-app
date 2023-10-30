@@ -19,7 +19,7 @@ import { language } from '../jotai'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import { useEffect, useRef } from 'react'
-import mapboxgl from 'mapbox-gl'
+import mapboxgl from '!mapbox-gl'
 import { useRouter } from 'next/router'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { Payment as PaymentIcon } from '@mui/icons-material'
@@ -29,6 +29,8 @@ import GoogleMaps from '@elements/Need/GoogleLocation'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import ShowLists from 'components/elements/Search/ShowLists'
 import Head from 'next/head'
+// eslint-disable-next-line import/no-webpack-loader-syntax
+mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoicmVkMzAxMSIsImEiOiJjbGdjOXp0enAwOXZ5M2hzeGl6ank5Y29yIn0.NaiYYAmHiHFDJ6SRcqrmkg'
