@@ -332,24 +332,3 @@ export default function Can() {
     </BasicLayout>
   )
 }
-
-export async function getServerSideProps({ req }: { req: NextApiRequest }) {
-  const session = await getSession({
-    req,
-  })
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: '/signin',
-        permanent: false,
-      },
-    }
-  }
-
-  return {
-    props: {
-      session,
-    },
-  }
-}
