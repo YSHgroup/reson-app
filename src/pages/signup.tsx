@@ -217,7 +217,7 @@ export default function SignUp() {
       })
     )
     if (res.status === 'success') {
-      router.replace('/verification')
+      router.replace('/signin')
     }
   }
   const [birthday, setBirthday] = React.useState<Dayjs | null>(
