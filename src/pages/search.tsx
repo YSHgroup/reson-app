@@ -25,9 +25,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { Payment as PaymentIcon } from '@mui/icons-material'
 import 'react-swipeable-list/dist/styles.css'
 import GoogleMaps from '@elements/Need/GoogleLocation'
-import 'mapbox-gl/dist/mapbox-gl.css'
+// import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import ShowLists from 'components/elements/Search/ShowLists'
+import Head from 'next/head'
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoicmVkMzAxMSIsImEiOiJjbGdjOXp0enAwOXZ5M2hzeGl6ank5Y29yIn0.NaiYYAmHiHFDJ6SRcqrmkg'
@@ -194,6 +195,12 @@ export default function Can() {
 
   return (
     <BasicLayout title={languagejson[lang].NEED}>
+      <Head>
+        <link
+          href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css"
+          rel="stylesheet"
+        />
+      </Head>
       <div className="page">
         <div className="search">
           <div className="header">
