@@ -230,7 +230,7 @@ const VideoCallWindow = () => {
         // alert(error)
         setSnack(
           new Snack({
-            message: error,
+            message: "Not found media device",
             color: 'error',
             open: true,
           })
@@ -340,7 +340,7 @@ const VideoCallWindow = () => {
         // alert(error)
         setSnack(
           new Snack({
-            message: error,
+            message: "Not found media device",
             color: 'error',
             open: true,
           })

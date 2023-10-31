@@ -56,30 +56,7 @@ const cache = createCache({
   key: 'css',
   prepend: true,
 })
-
-const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
-  props,
-  ref
-) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
-})
-
 let socket: any
-
-let peer: any
-
-const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }]
-
-const AUDIO_CONSTRAINTS = { audio: true, video: false }
-const VIDEO_CONSTRAINTS = {
-  audio: false,
-  video: {
-    deviceId: {
-      exact: 'a3537551792d9bbb19b8de90745903edf56fecc1f175b3a988b7b537421469eb',
-    },
-  },
-}
-
 let callLabel = ['Canceled call', 'Declined call', 'Outgoing call']
 
 let callLabel_ = ['Missed call', 'Declined call', 'Incoming call']
@@ -102,34 +79,20 @@ export default function Chat() {
     isCalling,
     setIsCalling,
     beingCalled,
-    setBeingCalled,
     minimizeCall,
     setMinimizeCall,
-    snackText,
-    setSnackText,
     setToChat,
     setFromChat,
   } = useContext(VideoCallContext)
 
   const { setSnack } = useContext(SnackbarContext)
-  const [dropdownFlag, setDropDownFlag] = useState<boolean>(true)
-
-  const [, windowHeight] = useWindowSize()
 
   const [localStream, setLocalStream] = useState<MediaStream | undefined>(
     undefined
   )
-  const [remoteStream, setRemoteStream] = useState<MediaStream | undefined>(
-    undefined
-  )
   const [socketId, setSocketId] = useState<string | null>(null)
-  const myAudio = useRef<any>(null)
 
   const localStreamRef = useRef<any | undefined>(undefined)
-  const remoteStreamRef = useRef<any | undefined>(undefined)
-  const callStatusRef = useRef<any | undefined>(undefined)
-  const callIdRef = useRef<any | undefined>(undefined)
-
   // voice message : false, general message: true
   const [messageType, setMessageType] = useState(true)
   // recoding time max: 5min
@@ -147,6 +110,8 @@ export default function Chat() {
   }
 
   const handleChangeInput = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation()
     setInputValue(e.target.value)
   }
 
@@ -169,7 +134,7 @@ export default function Chat() {
     } catch (error) {
       setSnack(
         new Snack({
-          message: error,
+          message: "Not found media device",
           color: 'error',
           open: true,
         })
@@ -196,7 +161,7 @@ export default function Chat() {
       )
       return
     }
-    mediaRecorder.current?.addEventListener('stop', (e) => {})
+    mediaRecorder.current?.addEventListener('stop', (e) => { })
 
     mediaRecorder.current?.start()
   }
@@ -280,11 +245,10 @@ export default function Chat() {
         <Box sx={{ minWidth: 35 }}>
           <Typography variant="body2" color="text.secondary">
             {`${Math.floor(props.value / 60)}`} :
-            {`${
-              Math.floor(props.value % 60) < 10
+            {`${Math.floor(props.value % 60) < 10
                 ? `0${Math.floor(props.value % 60)}`
                 : Math.floor(props.value % 60)
-            }`}
+              }`}
           </Typography>
         </Box>
       </Box>
@@ -324,7 +288,7 @@ export default function Chat() {
   }
 
   useEffect(() => {
-    if(!isCalling) {
+    if (!isCalling) {
       getMsgs()
     }
   }, [isCalling])
@@ -634,7 +598,6 @@ export default function Chat() {
     const unreadMessages = messages.filter(
       (item) => item?.to === session?.user?.email && !item?.read
     )
-
     if (unreadMessages.length > 0) {
       unreadMessages.map((item) => {
         socket.emit('readMessage', { ...item, read: true })
@@ -702,23 +665,10 @@ export default function Chat() {
     const resData = await res.json()
     showReactedEmoji(msgId, emojiId)
     socket.emit('reactEmoji', { msgId, emojiId, to: email })
-    // if (resData.message == 'success') {
-    //     showReactedEmoji(msgId, emojiId);
-    //     socket.emit('reactEmoji', { msgId, emojiId, to: email });
-    // }
   }
 
   const reactEmojiMore = (index: number) => {
     const element = document.getElementById(`reactDropdownContentMore-${index}`)
-    // let dropdowns = document.getElementsByClassName("reactionEmodiconsMore");
-    // let i: number;
-    // for (i = 0; i < dropdowns.length; i++) {
-    //     let openDropdown = dropdowns[i];
-    //     if (openDropdown.classList.contains('showDropdownContent')) {
-    //         openDropdown.classList.remove('showDropdownContent');
-    //     }
-    // }
-    // console.log(element)
     element?.classList.toggle('showDropdownContent')
   }
 
@@ -809,8 +759,6 @@ export default function Chat() {
                             m: 1,
                             maxWidth: '80vw',
                           }}>
-                          {/* <Typography>{typeof message._id}</Typography>
-                                            <Typography sx={{fontSize:'10px'}}>{message.time}</Typography> */}
                           {messageElement(
                             message?.type,
                             message?.content,

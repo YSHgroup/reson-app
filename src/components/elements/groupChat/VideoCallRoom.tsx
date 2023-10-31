@@ -66,7 +66,7 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
     } catch (e) {
       setSnack(
         new Snack({
-          message: e,
+          message: "Not found media device",
           color: 'error',
           open: true,
         })

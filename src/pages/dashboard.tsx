@@ -123,9 +123,6 @@ export default function Home() {
     })
 
     let data = await response.json()
-
-    console.log('unreadmessages', data)
-
     if (data.data.count > 0) {
       SetUnread(data.data.count)
       setTotalUnreadChats(() => [...data.data.totalUnreadChats])
