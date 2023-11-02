@@ -96,30 +96,6 @@ export default function Messages() {
   const [usersStore, setUsersStore] = useAtom(usersAtom)
   // const [unreadGroupChats, setUnreadGroupChats] = React.useState<Array<any>>([]);
   const [contacts, setContacts] = React.useState<Array<any>>([])
-
-  const [userInfo, setUserInfo] = React.useState<UserObject>({
-    code_send_time: '',
-    picpath: '',
-    day: '',
-    day_birth: '',
-    email: '',
-    enable: '',
-    hour: '',
-    min: '',
-    month: '',
-    month_birth: '',
-    msgs: '',
-    nickname: '',
-    password: '',
-    sec: '',
-    sex: '',
-    status: '',
-    unreadCount: '',
-    verify_code: '',
-    year: '',
-    year_birth: '',
-    _id: '',
-  })
   const [showUserModal, setShowUserModal] = React.useState<boolean>(false)
 
   const [contactInfo, setContactInfo] = React.useState<ContactObject>({
@@ -313,35 +289,7 @@ export default function Messages() {
   )
 
   const handleShowProfile = (user: any) => {
-    setUserInfo(user)
-    setShowUserModal(true)
-  }
-
-  const handleShowUserModalClose = () => {
-    setShowUserModal(false)
-    setUserInfo({
-      code_send_time: '',
-      picpath: '',
-      day: '',
-      day_birth: '',
-      email: '',
-      enable: '',
-      hour: '',
-      min: '',
-      month: '',
-      month_birth: '',
-      msgs: '',
-      nickname: '',
-      password: '',
-      sec: '',
-      sex: '',
-      status: '',
-      unreadCount: '',
-      verify_code: '',
-      year: '',
-      year_birth: '',
-      _id: '',
-    })
+    router.replace(`/profiles/${user._id}`)
   }
 
   const handleShowContact = (contact: any) => {
@@ -443,71 +391,6 @@ export default function Messages() {
               </>
             ))}
           </List>
-          <BootstrapDialog
-            onClose={handleShowUserModalClose}
-            aria-labelledby="customized-dialog-title"
-            open={showUserModal}>
-            <DialogTitle
-              sx={{
-                m: 0,
-                p: 2,
-              }}
-              id="customized-dialog-title">
-              {userInfo?.email}
-            </DialogTitle>
-            <IconButton
-              aria-label="close"
-              onClick={handleShowUserModalClose}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}>
-              <Close />
-            </IconButton>
-            <DialogContent dividers>
-              <Box
-                sx={{
-                  '& .MuiTextField-root': { m: 1 },
-                }}
-                component="form"
-                noValidate
-                autoComplete="false">
-                <Stack sx={{ flexGrow: 1 }}>
-                  <Image
-                    src={
-                      userInfo?.picpath
-                        ? `/api/view?name=chats/${userInfo.picpath}`
-                        : `/images/${userInfo.sex ? userInfo.sex : 'male'}.png`
-                    }
-                    alt={userInfo.sex != null ? userInfo.sex : ''}
-                    width={150}
-                    height={150}
-                    style={{
-                      margin: 'auto',
-                      borderRadius: '5px',
-                    }}
-                  />
-                  <Typography variant="subtitle1">
-                    Username: {userInfo?.nickname}
-                  </Typography>
-                  <Typography variant="subtitle1">
-                    Gender: {userInfo?.sex}
-                  </Typography>
-                  <Typography variant="subtitle1">
-                    Birthday:
-                    {`${userInfo?.year_birth}-${userInfo?.month_birth}-${userInfo?.day_birth}`}
-                  </Typography>
-                </Stack>
-              </Box>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleShowUserModalClose} variant="contained">
-                Close
-              </Button>
-            </DialogActions>
-          </BootstrapDialog>
         </>
       )}
       {/* END: CHATS SECTION */}

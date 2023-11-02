@@ -5,6 +5,7 @@ export const MenuData =
       { "name": ["calendar","Kalender","календарь","календарь"], "href": "/calendar" },
       { "name": ["main", "hauptsächlich", "основной", "основной"], "href": "/dashboard" },
       { "name": ["project", "Projekt", "проект", "проект"], "href": "/projects" },
-      { "name": ["create", "erstellen","проект", "проект"], "href": "/create" }
+      { "name": ["create", "erstellen","проект", "проект"], "href": "/create" },
+      { "name": ["profile", "profil", "профил", "профил"], "href": "/profile"},
     ]
   }

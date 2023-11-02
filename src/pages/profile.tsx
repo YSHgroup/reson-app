@@ -119,7 +119,7 @@ export default function Profile() {
   }
 
   async function loadpic() {
-    await fetch('api/user/currentUser').then(res => res.json()).then(
+    await fetch('/api/user/currentUser').then(res => res.json()).then(
       res => {
         setEmail(res.data[0].email || "");
         setFirstName(res.data[0].firstName || "");

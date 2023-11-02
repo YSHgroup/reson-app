@@ -27,6 +27,8 @@ import { language } from '../../jotai'
 import languagejson from 'language.json'
 import { useAtom } from 'jotai'
 import { BulkResult } from 'mongodb'
+import dayjs from 'dayjs'
+import advancedFormat from 'dayjs/plugin/advancedFormat'
 
 interface ListObject {
   _id: string | null
@@ -52,6 +54,7 @@ interface Result {
   _id: string | null
 }
 const ProjectPage = () => {
+  dayjs.extend(advancedFormat)
   const router = useRouter()
   const projectId = router.query.id
   const [lang, setLanguage] = useAtom(language)
@@ -132,8 +135,9 @@ const ProjectPage = () => {
             }}>
             <Stack sx={{ flexGrow: 1 }}>
               <Typography variant="h5">{list.author}</Typography>
-              {/* <Typography variant="h6">
-              </Typography> */}
+              <Typography variant="h6">{
+                dayjs(list.created_at).format('MM/DD/YYYY')
+              }</Typography>
             </Stack>
           </ListItem>
         ))}

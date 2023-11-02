@@ -101,18 +101,6 @@ const VideoCallWindow = () => {
   const initiatorPeerRef = useRef<any | undefined>(undefined)
   const receiverPeerRef = useRef<any | undefined>(undefined)
 
-  const getMsgs = async () => {
-    if (toChat === '' || fromChat === '') return
-    const res = await fetch('/api/message/getMsgs', {
-      method: 'POST',
-      body: JSON.stringify({ OppositeEmail: toChat }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    const resData = await res.json()
-    setMessages(resData.msgs)
-  }
   const fetchData = async () => {
     if (toChat === '' || fromChat === '') return
     const responseData = { email: toChat }
@@ -228,6 +216,7 @@ const VideoCallWindow = () => {
       .catch((error) => {
         console.error('Error accessing media devices....', error)
         // alert(error)
+        setIsCalling(false)
         setSnack(
           new Snack({
             message: "Not found media device",
@@ -240,7 +229,6 @@ const VideoCallWindow = () => {
 
   useEffect(() => {
     if (isCalling && fromChat !== '' && toChat !== '') {
-      getMsgs()
       fetchData()
       initiateCall()
     }
@@ -367,9 +355,6 @@ const VideoCallWindow = () => {
     isCallingRef.current = false
     setCallAccepted(false)
     setBeingCalled(false)
-    if (callStatusRef.current) {
-      getMsgs()
-    }
     if (callStatusRef.current == 'caller') {
       socket.emit('missedCall', { to: toChat })
     }
