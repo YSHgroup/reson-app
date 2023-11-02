@@ -90,6 +90,10 @@ const ProjectPage = () => {
     setProjectLists(data.project)
     setResults(data.results)
   }
+
+  const handleClickOpen = (author: string) => {
+    router.replace(`/profiles/${author}`)
+  }
   useEffect(() => {
     getLists()
   }, [])
@@ -119,6 +123,7 @@ const ProjectPage = () => {
               <IconButton
                 aria-label="comment"
                 onClick={(e) => {
+                  e.preventDefault()
                   e.stopPropagation()
                   startChatting(list)
                 }}>
@@ -131,7 +136,8 @@ const ProjectPage = () => {
               cursor: 'pointer',
             }}
             onClick={(e) => {
-              //   handleClickOpen(list)
+                e.preventDefault();
+                handleClickOpen(list.author)
             }}>
             <Stack sx={{ flexGrow: 1 }}>
               <Typography variant="h5">{list.author}</Typography>

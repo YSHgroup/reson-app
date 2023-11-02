@@ -21,9 +21,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const client = await connectToDatabase()
   
   const usersCollection = client.db().collection('users')
-  const {userId} = JSON.parse(req.body)
+  const {email} = JSON.parse(req.body)
   const user = await usersCollection.findOne({
-    _id: string2ObjectId(userId)
+    email: email
   })
 
   client.close()

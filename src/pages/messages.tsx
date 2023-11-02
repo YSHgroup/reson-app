@@ -289,7 +289,7 @@ export default function Messages() {
   )
 
   const handleShowProfile = (user: any) => {
-    router.replace(`/profiles/${user._id}`)
+    router.replace(`/profiles/${user.email}`)
   }
 
   const handleShowContact = (contact: any) => {

@@ -204,6 +204,22 @@ export default function Home() {
                   </MenuItem>
                 )
             )}
+            <MenuItem key={'profile'} dense>
+              <Box
+                component={Link}
+                href={"/profile"}
+                sx={{ display: 'inherit' }}>
+                <ListItemIcon>
+                  <Image
+                    src={`/images/profile.png`}
+                    alt={name[lang]}
+                    width={20}
+                    height={20}
+                  />
+                </ListItemIcon>
+                Profile
+              </Box>
+            </MenuItem>
             <MenuItem dense onClick={() => handleSignOut()}>
               {languagejson[lang].signOut}
             </MenuItem>
@@ -304,7 +320,7 @@ export default function Home() {
             href="/messages"
             onMouseEnter={() => setNoficationDropdown(true)}
             onMouseLeave={() => setNoficationDropdown(false)}
-            >
+          >
             {unread > 0 ? (
               <Badge badgeContent={unread} color="error">
                 <Image

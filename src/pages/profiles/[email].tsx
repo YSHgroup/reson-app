@@ -41,7 +41,7 @@ export default function ProfileItem() {
   const opportunity = 21
 
   const router = useRouter()
-  const userId = router.query.id
+  const userEmail = router.query.email
 
   const { setSnack } = React.useContext(SnackbarContext)
   const [open, setOpen] = React.useState(false)
@@ -103,10 +103,9 @@ export default function ProfileItem() {
   }
 
   async function loadpic() {
-    console.log(userId, "userId")
-    await fetch('/api/user/getUserById', {
+    await fetch('/api/user/getUserByEmail', {
       method: "POST",
-      body: JSON.stringify({ userId })
+      body: JSON.stringify({ email: userEmail })
     }).then(res => res.json()).then(
       res => {
         setEmail(res.data.email || "");
