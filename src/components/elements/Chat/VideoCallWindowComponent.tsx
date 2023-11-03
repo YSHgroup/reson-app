@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react'
+import React, { useState, useEffect, useRef, useContext, useCallback } from 'react'
 import { Minimize, CallEnd, PhoneEnabled } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 import { Close } from '@mui/icons-material'
@@ -31,10 +31,13 @@ let socket: any
 //     message: string;
 // };
 
-const ICE_SERVERS = [
-  // Add more STUN and TURN servers here
-  { urls: 'stun:stun.l.google.com:19302' },
-]
+const pc_config = {
+  iceServers: [
+    {
+      urls: 'stun:stun.l.google.com:19302',
+    },
+  ],
+}
 
 const AUDIO_CONSTRAINTS = { audio: true, video: false }
 const VIDEO_CONSTRAINTS = {
@@ -45,6 +48,7 @@ const VIDEO_CONSTRAINTS = {
     },
   },
 }
+const SOCKETIOSERVER = `${String(process.env.NEXT_PUBLIC_CHAT_URI)}/groupCall`
 
 const beaks = [
   '/audios/ring1.mp3',
@@ -87,6 +91,14 @@ const VideoCallWindow = () => {
     setFromChat,
   } = useContext(VideoCallContext)
 
+  type WebRTCUser = {
+    id: string
+    email: string
+    stream: MediaStream
+    nickname: string
+  }
+
+
   const [socketId, setSocketId] = useState<string | null>(null)
   const [callAccepted, setCallAccepted] = useState(false)
   const [callerSignal, setCallerSignal] = useState<any | null>(null)
@@ -94,12 +106,19 @@ const VideoCallWindow = () => {
   const myAudio = useRef<any>(null)
 
   const isCallingRef = useRef<any>(false)
-  const localStreamRef = useRef<any | undefined>(undefined)
+  // const localStreamRef = useRef<any | undefined>(undefined)
   const remoteStreamRef = useRef<any | undefined>(undefined)
   const callStatusRef = useRef<any | undefined>(undefined)
   const callIdRef = useRef<any | undefined>(undefined)
   const initiatorPeerRef = useRef<any | undefined>(undefined)
   const receiverPeerRef = useRef<any | undefined>(undefined)
+
+  const socketRef = useRef<SocketIOClient.Socket>()
+  const pcsRef = useRef<{ [socketId: string]: RTCPeerConnection }>({})
+  const localVideoRef = useRef<HTMLAudioElement>(null)
+  const localStreamRef = useRef<MediaStream>()
+  const [users, setUsers] = useState<WebRTCUser[]>([])
+  const [to, setTo] = useState('')
 
   const fetchData = async () => {
     if (toChat === '' || fromChat === '') return
@@ -118,141 +137,263 @@ const VideoCallWindow = () => {
       console.log(error)
     }
   }
-  const initiateCall = () => {
-    navigator.mediaDevices
-      .getUserMedia({ video: false, audio: true })
-      .then((stream: any) => {
-        localStreamRef.current = stream
-        audio1.current.play()
-        audio1.current.loop = true
-        setIsCalling(true)
-        isCallingRef.current = true
-        const from = session?.user?.email
-        initiatorPeerRef.current = undefined
-        initiatorPeerRef.current = new Peer({
-          initiator: true,
-          trickle: false,
-          stream: localStreamRef.current,
-          config: { iceServers: ICE_SERVERS },
-        })
-        initiatorPeerRef.current.on('signal', async (signal: any) => {
-          // console.log(isCallingRef.current, 'isCallingRef.current')
-          if (isCallingRef.current) {
-            socket.emit('callUser', {
-              signal: signal,
-              to: toChat,
-              from: fromChat,
-            })
-            // New Call Record
-            callStatusRef.current = 'caller'
-            const payload = {
-              to: fromChat,
-            }
-            const res = await fetch('/api/message/newCall', {
-              method: 'POST',
-              body: JSON.stringify(payload),
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            })
-            const resData = await res.json()
-            callIdRef.current = resData.newCallInfo.insertedId
-          }
-        })
-
-        initiatorPeerRef.current.on('stream', (stream: MediaStream) => {
-          remoteStreamRef.current = stream
-          myAudio.current.srcObject = stream
-        })
-
-        initiatorPeerRef.current.on('close', () => {
-          handleCloseVideoCall()
-          alert('opposite user ended the call.')
-        })
-
-        socket.on('acceptCall', (data: any) => {
-          console.log('acceptCall')
-          setCallAccepted(true)
-          callStatusRef.current = 'receivedCall'
-          fetch('/api/message/receivedCall', {
-            method: 'POST',
-            body: JSON.stringify({ callId: callIdRef.current }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              // setCallId(data.newCallInfo.insertedId);
-            })
-          setSnack(
-            new Snack({
-              message: `${toChat} accepted your call`,
-              color: 'success',
-              open: true,
-            })
-          )
-          // alert(`${email} accepted your call`)
-          setReceiverSignal(null)
-          setReceiverSignal(data.signal)
-          console.log(initiatorPeerRef.current, "initiatorPeerRef.current")
-          audio1.current.pause()
-          audio3.current.play()
-          initiatorPeerRef.current.signal(data.signal)
-          console.log(initiatorPeerRef.current, "initiatorPeerRef.current========")
-
-        })
-        socket.on('busy', (data: any) => {
-          handleCloseVideoCall(false)
-          setSnack(
-            new Snack({
-              message: `${data.from} is busy now.`,
-              color: 'success',
-              open: true,
-            })
-          )
-        })
-      })
-      .catch((error) => {
-        console.error('Error accessing media devices....', error)
-        // alert(error)
-        setIsCalling(false)
-        setSnack(
-          new Snack({
-            message: "Not found media device",
-            color: 'error',
-            open: true,
-          })
-        )
-      })
-  }
 
   useEffect(() => {
     if (isCalling && fromChat !== '' && toChat !== '') {
       fetchData()
-      initiateCall()
+      getLocalStream(toChat)
     }
-  }, [isCalling, fromChat])
+  }, [isCalling, fromChat, toChat])
+
+  const getLocalStream = useCallback(async (toChat) => {
+    navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: false
+    }).then((localStream) => {
+      localStreamRef.current = localStream
+      audio1.current.play()
+      audio1.current.loop = true
+      setIsCalling(true)
+      isCallingRef.current = true
+      if (localVideoRef.current) localVideoRef.current.srcObject = localStream
+      if (!socketRef.current) return
+      socketRef.current.emit('join_room', {
+        room: session?.user?.email,
+        email: session?.user?.email,
+        nickname: session?.user?.name,
+      })
+      socketRef.current.emit('callUser', {
+        from: session?.user?.email,
+        to: toChat
+      })
+    }).catch((error) => {
+      setSnack(
+        new Snack({
+          message: "Not found media device",
+          color: 'error',
+          open: true,
+        })
+      )
+    })
+  }, [])
+
+  const acceptCall = useCallback(async (toChat) => {
+    try {
+      const localStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: false
+      })
+      localStreamRef.current = localStream
+        setCallAccepted(true)
+        audio2.current.pause()
+        audio3.current.play()
+      if (localVideoRef.current) localVideoRef.current.srcObject = localStream
+      if (!socketRef.current) return
+      socketRef.current.emit('join_room', {
+        room: toChat,
+        email: session?.user?.email,
+        nickname: session?.user?.name,
+      })
+      socketRef.current.emit('acceptCall', {
+        to: toChat,
+        from: session?.user?.email,
+      })
+    } catch (e) {
+      setSnack(
+        new Snack({
+          message: "Not found media device",
+          color: 'error',
+          open: true,
+        })
+      )
+    }
+  }, [])
+
+  const createPeerConnection = useCallback(
+    (socketID: string, email: string, nickname: string) => {
+      try {
+        const pc = new RTCPeerConnection(pc_config)
+
+        pc.onicecandidate = (e) => {
+          if (!(socketRef.current && e.candidate)) return
+          console.log('onicecandidate')
+          socketRef.current.emit('candidate', {
+            candidate: e.candidate,
+            candidateSendID: socketRef.current.id,
+            candidateReceiveID: socketID,
+          })
+        }
+
+        pc.oniceconnectionstatechange = (e) => {
+          console.log(e)
+        }
+
+        pc.ontrack = (e) => {
+          setUsers((oldUsers) =>
+            oldUsers
+              .filter((user) => user.id !== socketID)
+              .concat({
+                id: socketID,
+                email,
+                nickname,
+                stream: e.streams[0],
+              })
+          )
+        }
+
+        if (localStreamRef.current) {
+          console.log('localstream add')
+          localStreamRef.current.getTracks().forEach((track) => {
+            if (!localStreamRef.current) return
+            pc.addTrack(track, localStreamRef.current)
+          })
+        } else {
+          console.log('no local stream')
+        }
+
+        return pc
+      } catch (e) {
+        console.error(e)
+        return undefined
+      }
+    },
+    []
+  )
+
   useEffect(() => {
     audio1.current = new Audio(beaks[0])
     audio2.current = new Audio(beaks[1])
     audio3.current = new Audio(beaks[2])
     audio4.current = new Audio(beaks[3])
-    socket = io(`${String(process.env.NEXT_PUBLIC_CHAT_URI)}/chatCall`, {
-      secure: true,
-    })
-    socket.on('connect', () => {
-      // Fetch existing messages from the server
-      socket.emit('emailMapId', { email: session?.user?.email })
-      // socket.emit('getMessages', { to: email, author: session?.user?.email });
-    })
-    socket.on('getid', (sockId: string) => {
-      setSocketId(sockId)
-    })
-    socket.on('callingMe', (data: any) => {
-      if (isCallingRef.current) {
-        socket.emit('Iambusy', { from: data.to, to: data.from })
-      } else {
+    socketRef.current = io(
+      `${String(process.env.NEXT_PUBLIC_CHAT_URI)}/chatCall`,
+      {
+        secure: true,
+      }
+    )
+    // socket.on('getid', (sockId: string) => {
+    //   setSocketId(sockId)
+    // })
+    // socket.on('callingMe', (data: any) => {
+    // if (isCallingRef.current) {
+    //   socket.emit('Iambusy', { from: data.to, to: data.from })
+    // } else {
+    //   setToChat(data.from)
+    //   setFromChat(data.to)
+    //   callStatusRef.current = 'callee'
+    //   setBeingCalled(true)
+    //   setSnack(
+    //     new Snack({
+    //       message: `${data.from} is calling you.`,
+    //       color: 'success',
+    //       open: true,
+    //     })
+    //   )
+    //   setCallerSignal(data.signal)
+    //   audio2.current.play()
+    //   audio2.current.loop = true
+    // }
+    // })
+    // socket.on('destroyP2P', (data: any) => {
+    //   if (callStatusRef.current == 'caller') {
+    //     fetch('/api/message/declinedCall', {
+    //       method: 'POST',
+    //       body: JSON.stringify({ callId: callIdRef.current }),
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //     })
+    //       .then((response) => response.json())
+    //       .then((resdata) => {
+    //         // setCallId(data.newCallInfo.insertedId);
+    //       })
+    //   }
+    //   handleCloseVideoCall(false)
+    // })
+  }, [])
+
+  useEffect(() => {
+    console.log(toChat, "toChat=======")
+    socketRef.current.on(
+      'all_users',
+      (allUsers: Array<{ id: string; email: string; nickname: string }>) => {
+        console.log(to, 'allUsers')
+        allUsers.forEach(async (user) => {
+          if (!localStreamRef.current) return
+          const pc = createPeerConnection(user.id, user.email, user.nickname)
+          if (!(pc && socketRef.current)) return
+          pcsRef.current = { ...pcsRef.current, [user.id]: pc }
+          try {
+            const localSdp = await pc.createOffer({
+              offerToReceiveAudio: true,
+              offerToReceiveVideo: true,
+            })
+            console.log('create offer success')
+            await pc.setLocalDescription(new RTCSessionDescription(localSdp))
+            socketRef.current.emit('offer', {
+              sdp: localSdp,
+              offerSendID: socketRef.current.id,
+              offerSendEmail: session?.user?.email,
+              offerReceiveID: user.id,
+              offerSendNickName: session?.user?.name,
+            })
+          } catch (e) {
+            console.error(e)
+          }
+        })
+      }
+    )
+
+    socketRef.current.on(
+      'getOffer',
+      async (data: {
+        sdp: RTCSessionDescription
+        offerSendID: string
+        offerSendEmail: string
+        offerSendNickName: string
+      }) => {
+        const { sdp, offerSendID, offerSendEmail, offerSendNickName } = data
+        console.log('get offer')
+        if (!localStreamRef.current) return
+        const pc = createPeerConnection(
+          offerSendID,
+          offerSendEmail,
+          offerSendNickName
+        )
+        if (!(pc && socketRef.current)) return
+        pcsRef.current = { ...pcsRef.current, [offerSendID]: pc }
+        try {
+          await pc.setRemoteDescription(new RTCSessionDescription(sdp))
+          const localSdp = await pc.createAnswer({
+            offerToReceiveVideo: true,
+            offerToReceiveAudio: true,
+          })
+          await pc.setLocalDescription(new RTCSessionDescription(localSdp))
+          socketRef.current.emit('answer', {
+            sdp: localSdp,
+            answerSendID: socketRef.current.id,
+            answerReceiveID: offerSendID,
+          })
+        } catch (e) {
+          console.error(e)
+        }
+      }
+    )
+
+    socketRef.current.on(
+      'getAnswer',
+      (data: { sdp: RTCSessionDescription; answerSendID: string }) => {
+        const { sdp, answerSendID } = data
+        console.log('get answer')
+        const pc: RTCPeerConnection = pcsRef.current[answerSendID]
+        if (!pc) return
+        pc.setRemoteDescription(new RTCSessionDescription(sdp))
+      }
+    )
+    socketRef.current.on('callingMe', (data: any) => {
+      console.log(data, 'callingMe')
+      console.log(session.user.email)
+      if (data.to === session?.user?.email) {
         setToChat(data.from)
         setFromChat(data.to)
         callStatusRef.current = 'callee'
@@ -264,77 +405,122 @@ const VideoCallWindow = () => {
             open: true,
           })
         )
-        setCallerSignal(data.signal)
         audio2.current.play()
         audio2.current.loop = true
       }
     })
-    socket.on('destroyP2P', (data: any) => {
-      if (callStatusRef.current == 'caller') {
-        fetch('/api/message/declinedCall', {
-          method: 'POST',
-          body: JSON.stringify({ callId: callIdRef.current }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-          .then((response) => response.json())
-          .then((resdata) => {
-            // setCallId(data.newCallInfo.insertedId);
-          })
-      }
-      handleCloseVideoCall(false)
-    })
-  }, [])
-
-  const acceptCall = () => {
-    navigator.mediaDevices
-      .getUserMedia({ video: false, audio: true })
-      .then((stream: any) => {
-        localStreamRef.current = stream
+    socketRef.current.on('acceptCall', (data: any) => {
+      console.log('acceptCall', data)
+      if (data.to === session?.user?.email) {
         setCallAccepted(true)
-        audio2.current.pause()
-        audio3.current.play()
-        console.log(receiverPeerRef.current, 'receiverPeerRef.current')
-        receiverPeerRef.current = undefined
-        receiverPeerRef.current = new Peer({
-          initiator: false,
-          trickle: false,
-          stream: localStreamRef.current,
-        })
-        receiverPeerRef.current.on('signal', (signal: any) => {
-          socket.emit('acceptCall', {
-            signal: signal,
-            to: toChat,
-            from: fromChat,
-          })
-        })
-        receiverPeerRef.current.on('stream', (stream: any) => {
-          remoteStreamRef.current = stream
-          myAudio.current.srcObject = stream
-        })
-
-        receiverPeerRef.current.on('close', () => {
-          handleCloseVideoCall()
-          alert('opposite user ended the call.')
-        })
-
-        if (callerSignal) {
-          receiverPeerRef.current.signal(callerSignal)
-        }
-      })
-      .catch((error) => {
-        console.error('Error accessing media devices....', error)
-        // alert(error)
+        callStatusRef.current = 'receivedCall'
+        // fetch('/api/message/receivedCall', {
+        //   method: 'POST',
+        //   body: JSON.stringify({ callId: callIdRef.current }),
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        // })
+        //   .then((response) => response.json())
+        //   .then((data) => {
+        //     // setCallId(data.newCallInfo.insertedId);
+        //   })
         setSnack(
           new Snack({
-            message: "Not found media device",
-            color: 'error',
+            message: `${toChat} accepted your call`,
+            color: 'success',
             open: true,
           })
         )
+        console.log(initiatorPeerRef.current, "initiatorPeerRef.current")
+        audio1.current.pause()
+        audio3.current.play()
+      }
+
+    })
+    socketRef.current.on(
+      'getCandidate',
+      async (data: {
+        candidate: RTCIceCandidateInit
+        candidateSendID: string
+      }) => {
+        console.log('get candidate')
+        const pc: RTCPeerConnection = pcsRef.current[data.candidateSendID]
+        if (!pc) return
+        await pc.addIceCandidate(new RTCIceCandidate(data.candidate))
+        console.log('candidate add success')
+      }
+    )
+
+    socketRef.current.on('user_exit', (data: { id: string }) => {
+      if (!pcsRef.current[data.id]) return
+      pcsRef.current[data.id].close()
+      delete pcsRef.current[data.id]
+      setUsers((oldUsers) => oldUsers.filter((user) => user.id !== data.id))
+    })
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect()
+      }
+      users.forEach((user) => {
+        if (!pcsRef.current[user.id]) return
+        pcsRef.current[user.id].close()
+        delete pcsRef.current[user.id]
       })
-  }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createPeerConnection, getLocalStream, acceptCall])
+
+
+  // const acceptCall = () => {
+  //   navigator.mediaDevices
+  //     .getUserMedia({ video: false, audio: true })
+  //     .then((stream: any) => {
+  //       localStreamRef.current = stream
+  //       setCallAccepted(true)
+  //       audio2.current.pause()
+  //       audio3.current.play()
+  //       console.log(receiverPeerRef.current, 'receiverPeerRef.current')
+  //       receiverPeerRef.current = undefined
+  //       receiverPeerRef.current = new Peer({
+  //         initiator: false,
+  //         trickle: false,
+  //         stream: localStreamRef.current,
+  //       })
+  //       receiverPeerRef.current.on('signal', (signal: any) => {
+  // socket.emit('acceptCall', {
+  //   signal: signal,
+  //   to: toChat,
+  //   from: fromChat,
+  // })
+  //       })
+  //       receiverPeerRef.current.on('stream', (stream: any) => {
+  //         remoteStreamRef.current = stream
+  //         myAudio.current.srcObject = stream
+  //       })
+
+  //       receiverPeerRef.current.on('close', () => {
+  //         handleCloseVideoCall()
+  //         alert('opposite user ended the call.')
+  //       })
+
+  //       if (callerSignal) {
+  //         receiverPeerRef.current.signal(callerSignal)
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error accessing media devices....', error)
+  //       // alert(error)
+  //       setSnack(
+  //         new Snack({
+  //           message: "Not found media device",
+  //           color: 'error',
+  //           open: true,
+  //         })
+  //       )
+  //     })
+  // }
 
   const handleCloseVideoCall = (flag: Boolean = true) => {
     localStreamRef.current
@@ -387,7 +573,8 @@ const VideoCallWindow = () => {
     handleCloseVideoCall()
   }
   const answerCall = () => {
-    acceptCall()
+    console.log(toChat)
+    acceptCall(toChat)
   }
 
   return (
@@ -492,7 +679,11 @@ const VideoCallWindow = () => {
             <Close onClick={onCallEnd} sx={{ fontSize: '32px' }} />
           </Stack>
           {callAccepted ? (
-            <audio playsInline ref={myAudio} autoPlay hidden />
+            <audio
+              hidden
+              ref={localVideoRef}
+              autoPlay
+            />
           ) : null}
         </div>
       )}
