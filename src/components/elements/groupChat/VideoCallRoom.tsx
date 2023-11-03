@@ -329,13 +329,13 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
             display: 'flex',
             justifyContent: 'Center',
           }}>
-          {!isVideo ? (
+          {isVideo ? (
             <Fab
               style={{
                 backgroundColor: '#29b6f6',
                 marginRight: '10px',
               }}
-              onClick={(e) => handleSeIsVideo(true)}
+              onClick={(e) => handleSeIsVideo(false)}
               aria-label="add">
               <Videocam sx={{ color: 'white', fontSize: '24px' }} />
             </Fab>
@@ -345,19 +345,19 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
                 backgroundColor: '#af0000',
                 marginRight: '10px',
               }}
-              onClick={(e) => handleSeIsVideo(false)}
+              onClick={(e) => handleSeIsVideo(true)}
               aria-label="add">
               <VideocamOff sx={{ color: 'white', fontSize: '24px' }} />
             </Fab>
           )}
 
-          {!isAudio ? (
+          {isAudio ? (
             <Fab
               style={{
                 backgroundColor: '#29b6f6',
                 marginRight: '10px',
               }}
-              onClick={(e) => handleSetIsMuted(true)}
+              onClick={(e) => handleSetIsMuted(false)}
               aria-label="add">
               <VolumeUp sx={{ color: 'white', fontSize: '24px' }} />
             </Fab>
@@ -367,7 +367,7 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
                 backgroundColor: '#af0000',
                 marginRight: '10px',
               }}
-              onClick={(e) => handleSetIsMuted(false)}
+              onClick={(e) => handleSetIsMuted(true)}
               aria-label="add">
               <VolumeOff sx={{ color: 'white', fontSize: '24px' }} />
             </Fab>
