@@ -154,83 +154,6 @@ io.on('connection', (socket) => {
   })
 })
 
-// const chatCallSockets = {}
-// let chatCallSockets_notify = {}
-// const chatCall = io.of('/chatCall')
-// chatCall.on('connection', (socket) => {
-//   socket.emit('getid', socket.id)
-
-//   socket.on('disconnect', () => {
-//     for (const [email, socketId] of Object.entries(chatCallSockets)) {
-//       if (socketId == socket.id) {
-//         delete chatCallSockets[email]
-//         return
-//       }
-//     }
-//     for (const [email, socketId] of Object.entries(chatCallSockets_notify)) {
-//       if (socketId == socket.id) {
-//         delete chatCallSockets_notify[email]
-//         return
-//       }
-//     }
-//     for (const [email, socketId] of Object.entries(dashboard_notify)) {
-//       if (socketId == socket.id) {
-//         delete dashboard_notify[email]
-//         break
-//       }
-//     }
-//   })
-
-//   // chatCallSockets' events for notification
-//   socket.on('register_notificationSocket', (data) => {
-//     chatCallSockets_notify[data.email] = socket.id
-//   })
-
-//   socket.on('dashboard_notification', (data) => {
-//     dashboard_notify[data.email] = socket.id
-//   })
-
-//   // Socket's events for text and voice chat
-// socket.on('emailMapId', ({ email }) => {
-//   chatCallSockets[email] = socket.id
-//   socket['email'] = email
-//   console.log(`${email} is connected as socket ${chatCallSockets[email]}`)
-// })
-
-//   socket.on('callUser', async (data) => {
-//     console.log(chatCallSockets, 'callUser')
-//     // socket.to(data.to).emit('callUser', { signal: data.signal, from: socket.id });
-//     chatCall.to(chatCallSockets[data.to]).emit('callingMe', {
-//       signal: data.signal,
-//       from: data.from,
-//       to: data.to,
-//     })
-//   })
-
-// socket.on('acceptCall', async (data) => {
-//   console.log(chatCallSockets, 'acceptcall')
-//   // socket.to(data.to).emit('acceptCall', { signal: data.signal });
-//   chatCall.to(chatCallSockets[data.to]).emit('acceptCall', {
-//     signal: data.signal,
-//     from: data.from,
-//     to: data.to,
-//   })
-// })
-
-//   socket.on('Iambusy', (data) => {
-//     chatCall.to(chatCallSockets[data.to]).emit('busy', { from: data.from, to: data.to })
-//   })
-
-//   socket.on('destroyP2P', async (data) => {
-//     chatCall.to(chatCallSockets[data.to]).emit('destroyP2P', { from: data.from })
-//   })
-
-//   socket.on('missedCall', (data) => {
-//     chatCall.to(chatCallSockets_notify[data.to]).emit('newUnreadMsg')
-//     chatCall.to(dashboard_notify[data.to]).emit('newChat')
-//   })
-// })
-
 let chatUsers = {}
 let chatSocketRoom = {}
 const chatCall = io.of('/chatCall')
@@ -299,6 +222,13 @@ chatCall.on('connection', (socket) => {
     chatCall.to(data.candidateReceiveID).emit('getCandidate', {
       candidate: data.candidate,
       candidateSendID: data.candidateSendID,
+    })
+  })
+
+  socket.on('cancelCall', (data) => {
+    socket.broadcast.emit('cancelCall', {
+      from: data.from,
+      to: data.to,
     })
   })
 
