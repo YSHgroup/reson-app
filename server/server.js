@@ -191,11 +191,11 @@ io.on('connection', (socket) => {
 //   })
 
 //   // Socket's events for text and voice chat
-  // socket.on('emailMapId', ({ email }) => {
-  //   chatCallSockets[email] = socket.id
-  //   socket['email'] = email
-  //   console.log(`${email} is connected as socket ${chatCallSockets[email]}`)
-  // })
+// socket.on('emailMapId', ({ email }) => {
+//   chatCallSockets[email] = socket.id
+//   socket['email'] = email
+//   console.log(`${email} is connected as socket ${chatCallSockets[email]}`)
+// })
 
 //   socket.on('callUser', async (data) => {
 //     console.log(chatCallSockets, 'callUser')
@@ -207,15 +207,15 @@ io.on('connection', (socket) => {
 //     })
 //   })
 
-  // socket.on('acceptCall', async (data) => {
-  //   console.log(chatCallSockets, 'acceptcall')
-  //   // socket.to(data.to).emit('acceptCall', { signal: data.signal });
-  //   chatCall.to(chatCallSockets[data.to]).emit('acceptCall', {
-  //     signal: data.signal,
-  //     from: data.from,
-  //     to: data.to,
-  //   })
-  // })
+// socket.on('acceptCall', async (data) => {
+//   console.log(chatCallSockets, 'acceptcall')
+//   // socket.to(data.to).emit('acceptCall', { signal: data.signal });
+//   chatCall.to(chatCallSockets[data.to]).emit('acceptCall', {
+//     signal: data.signal,
+//     from: data.from,
+//     to: data.to,
+//   })
+// })
 
 //   socket.on('Iambusy', (data) => {
 //     chatCall.to(chatCallSockets[data.to]).emit('busy', { from: data.from, to: data.to })
@@ -253,7 +253,7 @@ chatCall.on('connection', (socket) => {
         { id: socket.id, email: data.email, nickname: data.nickname },
       ]
     }
-    socketToRoom[socket.id] = data.room
+    chatSocketRoom[socket.id] = data.room
 
     socket.join(data.room)
 
@@ -281,11 +281,10 @@ chatCall.on('connection', (socket) => {
     })
   })
   socket.on('callUser', (data) => {
-    console.log("callUser", data)
-    socket.broadcast.emit
-    ('callingMe', {
+    console.log('callUser', data)
+    socket.broadcast.emit('callingMe', {
       from: data.from,
-      to: data.to
+      to: data.to,
     })
   })
 
@@ -301,6 +300,13 @@ chatCall.on('connection', (socket) => {
       candidate: data.candidate,
       candidateSendID: data.candidateSendID,
     })
+  })
+
+  socket.on('endCall', () => {
+    console.log(`[${chatSocketRoom[socket.id]}]: ${socket.id} exit`)
+    const roomID = chatSocketRoom[socket.id]
+    delete chatUsers[roomID]
+    chatCall.to(roomID).emit('user_exit', { id: socket.id })
   })
 
   socket.on('disconnect', () => {

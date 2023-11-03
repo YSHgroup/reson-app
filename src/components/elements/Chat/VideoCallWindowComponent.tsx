@@ -3,19 +3,16 @@ import { Minimize, CallEnd, PhoneEnabled } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 import { Close } from '@mui/icons-material'
 import LinearProgress, {
-  LinearProgressProps,
 } from '@mui/material/LinearProgress'
-import Snackbar from '@mui/material/Snackbar'
-
 import { Stack } from '@mui/material'
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import { getSession, useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import io from 'socket.io-client'
-import Peer from 'simple-peer'
 import { VideoCallContext } from 'context/VideoCallContext'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
+import AudioComponent from './AudioComponent'
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -24,13 +21,6 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
 })
 
-let socket: any
-
-// type Message = {
-//     author: string;
-//     message: string;
-// };
-
 const pc_config = {
   iceServers: [
     {
@@ -38,40 +28,24 @@ const pc_config = {
     },
   ],
 }
-
-const AUDIO_CONSTRAINTS = { audio: true, video: false }
-const VIDEO_CONSTRAINTS = {
-  audio: false,
-  video: {
-    deviceId: {
-      exact: 'a3537551792d9bbb19b8de90745903edf56fecc1f175b3a988b7b537421469eb',
-    },
-  },
-}
-const SOCKETIOSERVER = `${String(process.env.NEXT_PUBLIC_CHAT_URI)}/groupCall`
-
 const beaks = [
   '/audios/ring1.mp3',
   '/audios/ring2.mp3',
   '/audios/ring3.mp3',
   '/audios/ring4.mp3',
 ]
-// let audio1: HTMLAudioElement,
-//   audio2: HTMLAudioElement,
-//   audio3: HTMLAudioElement,
-//   audio4: HTMLAudioElement
 
-let callLabel = ['Canceled call', 'Declined call', 'Outgoing call']
-
-let callLabel_ = ['Missed call', 'Declined call', 'Incoming call']
-
+type WebRTCUser = {
+  id: string
+  email: string
+  stream: MediaStream
+  nickname: string
+}
 const VideoCallWindow = () => {
   const router = useRouter()
   const { setSnack } = useContext(SnackbarContext)
   const { data: session } = useSession()
   const [pic, setPic] = useState('')
-  const [inputValue, setInputValue] = useState<string>('')
-  const [messages, setMessages] = useState<Array<any>>([])
   const {
     isCalling,
     setIsCalling,
@@ -90,35 +64,18 @@ const VideoCallWindow = () => {
     fromChat,
     setFromChat,
   } = useContext(VideoCallContext)
-
-  type WebRTCUser = {
-    id: string
-    email: string
-    stream: MediaStream
-    nickname: string
-  }
-
-
-  const [socketId, setSocketId] = useState<string | null>(null)
   const [callAccepted, setCallAccepted] = useState(false)
-  const [callerSignal, setCallerSignal] = useState<any | null>(null)
-  const [receiverSignal, setReceiverSignal] = useState<any | null>(null)
-  const myAudio = useRef<any>(null)
 
   const isCallingRef = useRef<any>(false)
-  // const localStreamRef = useRef<any | undefined>(undefined)
-  const remoteStreamRef = useRef<any | undefined>(undefined)
   const callStatusRef = useRef<any | undefined>(undefined)
   const callIdRef = useRef<any | undefined>(undefined)
   const initiatorPeerRef = useRef<any | undefined>(undefined)
-  const receiverPeerRef = useRef<any | undefined>(undefined)
 
   const socketRef = useRef<SocketIOClient.Socket>()
   const pcsRef = useRef<{ [socketId: string]: RTCPeerConnection }>({})
   const localVideoRef = useRef<HTMLAudioElement>(null)
   const localStreamRef = useRef<MediaStream>()
   const [users, setUsers] = useState<WebRTCUser[]>([])
-  const [to, setTo] = useState('')
 
   const fetchData = async () => {
     if (toChat === '' || fromChat === '') return
@@ -184,9 +141,9 @@ const VideoCallWindow = () => {
         video: false
       })
       localStreamRef.current = localStream
-        setCallAccepted(true)
-        audio2.current.pause()
-        audio3.current.play()
+      setCallAccepted(true)
+      audio2.current.pause()
+      audio3.current.play()
       if (localVideoRef.current) localVideoRef.current.srcObject = localStream
       if (!socketRef.current) return
       socketRef.current.emit('join_room', {
@@ -271,53 +228,12 @@ const VideoCallWindow = () => {
         secure: true,
       }
     )
-    // socket.on('getid', (sockId: string) => {
-    //   setSocketId(sockId)
-    // })
-    // socket.on('callingMe', (data: any) => {
-    // if (isCallingRef.current) {
-    //   socket.emit('Iambusy', { from: data.to, to: data.from })
-    // } else {
-    //   setToChat(data.from)
-    //   setFromChat(data.to)
-    //   callStatusRef.current = 'callee'
-    //   setBeingCalled(true)
-    //   setSnack(
-    //     new Snack({
-    //       message: `${data.from} is calling you.`,
-    //       color: 'success',
-    //       open: true,
-    //     })
-    //   )
-    //   setCallerSignal(data.signal)
-    //   audio2.current.play()
-    //   audio2.current.loop = true
-    // }
-    // })
-    // socket.on('destroyP2P', (data: any) => {
-    //   if (callStatusRef.current == 'caller') {
-    //     fetch('/api/message/declinedCall', {
-    //       method: 'POST',
-    //       body: JSON.stringify({ callId: callIdRef.current }),
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //     })
-    //       .then((response) => response.json())
-    //       .then((resdata) => {
-    //         // setCallId(data.newCallInfo.insertedId);
-    //       })
-    //   }
-    //   handleCloseVideoCall(false)
-    // })
   }, [])
 
   useEffect(() => {
-    console.log(toChat, "toChat=======")
     socketRef.current.on(
       'all_users',
       (allUsers: Array<{ id: string; email: string; nickname: string }>) => {
-        console.log(to, 'allUsers')
         allUsers.forEach(async (user) => {
           if (!localStreamRef.current) return
           const pc = createPeerConnection(user.id, user.email, user.nickname)
@@ -326,9 +242,8 @@ const VideoCallWindow = () => {
           try {
             const localSdp = await pc.createOffer({
               offerToReceiveAudio: true,
-              offerToReceiveVideo: true,
+              offerToReceiveVideo: false,
             })
-            console.log('create offer success')
             await pc.setLocalDescription(new RTCSessionDescription(localSdp))
             socketRef.current.emit('offer', {
               sdp: localSdp,
@@ -353,7 +268,6 @@ const VideoCallWindow = () => {
         offerSendNickName: string
       }) => {
         const { sdp, offerSendID, offerSendEmail, offerSendNickName } = data
-        console.log('get offer')
         if (!localStreamRef.current) return
         const pc = createPeerConnection(
           offerSendID,
@@ -365,7 +279,7 @@ const VideoCallWindow = () => {
         try {
           await pc.setRemoteDescription(new RTCSessionDescription(sdp))
           const localSdp = await pc.createAnswer({
-            offerToReceiveVideo: true,
+            offerToReceiveVideo: false,
             offerToReceiveAudio: true,
           })
           await pc.setLocalDescription(new RTCSessionDescription(localSdp))
@@ -391,8 +305,6 @@ const VideoCallWindow = () => {
       }
     )
     socketRef.current.on('callingMe', (data: any) => {
-      console.log(data, 'callingMe')
-      console.log(session.user.email)
       if (data.to === session?.user?.email) {
         setToChat(data.from)
         setFromChat(data.to)
@@ -410,7 +322,6 @@ const VideoCallWindow = () => {
       }
     })
     socketRef.current.on('acceptCall', (data: any) => {
-      console.log('acceptCall', data)
       if (data.to === session?.user?.email) {
         setCallAccepted(true)
         callStatusRef.current = 'receivedCall'
@@ -427,12 +338,11 @@ const VideoCallWindow = () => {
         //   })
         setSnack(
           new Snack({
-            message: `${toChat} accepted your call`,
+            message: `${data.to} accepted your call`,
             color: 'success',
             open: true,
           })
         )
-        console.log(initiatorPeerRef.current, "initiatorPeerRef.current")
         audio1.current.pause()
         audio3.current.play()
       }
@@ -453,22 +363,36 @@ const VideoCallWindow = () => {
     )
 
     socketRef.current.on('user_exit', (data: { id: string }) => {
-      if (!pcsRef.current[data.id]) return
-      pcsRef.current[data.id].close()
-      delete pcsRef.current[data.id]
-      setUsers((oldUsers) => oldUsers.filter((user) => user.id !== data.id))
+      console.log(data, "exit_user")
+      localVideoRef.current = null
+      localStreamRef.current
+        ?.getTracks()
+        .forEach((track: { stop: () => any }) => track.stop())
+      pcsRef.current = {}
+      audio1.current.pause()
+      audio2.current.pause()
+      audio4.current.play()
+      setIsCalling(false)
+      setMinimizeCall(false)
+      isCallingRef.current = false
+      setCallAccepted(false)
+      setBeingCalled(false)
+      // if (callStatusRef.current == 'caller') {
+      //   socket.emit('missedCall', { to: toChat })
+      // }
+      // if (flag) {
+      //   const from = session?.user?.email
+      //   socket.emit('destroyP2P', { to: toChat, from })
+      // }
+      setSnackText('')
+      callIdRef.current = undefined
+      initiatorPeerRef.current = undefined
+      setFromChat('')
+      setToChat('')
+      delete pcsRef.current
+      setUsers([])
     })
 
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect()
-      }
-      users.forEach((user) => {
-        if (!pcsRef.current[user.id]) return
-        pcsRef.current[user.id].close()
-        delete pcsRef.current[user.id]
-      })
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [createPeerConnection, getLocalStream, acceptCall])
 
@@ -523,49 +447,7 @@ const VideoCallWindow = () => {
   // }
 
   const handleCloseVideoCall = (flag: Boolean = true) => {
-    localStreamRef.current
-      ?.getTracks()
-      .forEach((track: { stop: () => any }) => track.stop())
-    remoteStreamRef.current
-      ?.getTracks()
-      .forEach((track: { stop: () => any }) => track.stop())
-    audio1.current.pause()
-    audio2.current.pause()
-    audio4.current.play()
-    localStreamRef.current?.getAudioTracks()[0].stop()
-    remoteStreamRef.current?.getAudioTracks()[0].stop()
-    localStreamRef.current = undefined
-    remoteStreamRef.current = undefined
-    setIsCalling(false)
-    setMinimizeCall(false)
-    isCallingRef.current = false
-    setCallAccepted(false)
-    setBeingCalled(false)
-    if (callStatusRef.current == 'caller') {
-      socket.emit('missedCall', { to: toChat })
-    }
-    callStatusRef.current = undefined
-    if (flag) {
-      const from = session?.user?.email
-      socket.emit('destroyP2P', { to: toChat, from })
-    }
-    setSnackText('')
-    if (receiverPeerRef.current) {
-      // receiverPeerRef.current.removeListener('signal', callerSignal)
-      receiverPeerRef.current.destroy()
-    }
-    setCallerSignal(null)
-    receiverPeerRef.current = undefined
-    if (initiatorPeerRef.current) {
-      // initiatorPeerRef.current.removeListener('signal', receiverSignal)
-      initiatorPeerRef.current.destroy()
-    }
-    setReceiverSignal(null)
-    myAudio.current = null
-    callIdRef.current = undefined
-    initiatorPeerRef.current = undefined
-    setFromChat('')
-    setToChat('')
+    socketRef.current.emit('endCall', {})
     // peer.destroy();
   }
 
@@ -679,11 +561,9 @@ const VideoCallWindow = () => {
             <Close onClick={onCallEnd} sx={{ fontSize: '32px' }} />
           </Stack>
           {callAccepted ? (
-            <audio
-              hidden
-              ref={localVideoRef}
-              autoPlay
-            />
+            users.map((user, index) =>
+              (<AudioComponent key={user.email} stream={user.stream} />)
+            )
           ) : null}
         </div>
       )}
