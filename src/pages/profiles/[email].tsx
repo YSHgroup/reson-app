@@ -332,9 +332,9 @@ export default function ProfileItem() {
             </Button>
           </div>
           <Collapse in={open}>
-            <TextField fullWidth value={email} margin="normal" label="Email" onChange={e => { setEmail(e.target.value) }} />
-            <TextField fullWidth value={firstName} margin="normal" label="Firstname" onChange={e => { setFirstName(e.target.value) }} />
-            <TextField fullWidth value={lastName} margin="normal" label="Surname" onChange={e => { setLastName(e.target.value) }} />
+            <TextField fullWidth value={email} margin="normal" label="Email" disabled />
+            <TextField fullWidth value={firstName} margin="normal" label="Firstname" disabled />
+            <TextField fullWidth value={lastName} margin="normal" label="Surname" disabled />
             <TextField
               fullWidth
               margin="normal"
@@ -347,7 +347,7 @@ export default function ProfileItem() {
                   </InputAdornment>
                 ),
               }}
-              onChange={e => { setCompany(e.target.value) }}
+              disabled
             />
             <TextField
               fullWidth
@@ -361,13 +361,13 @@ export default function ProfileItem() {
                   </InputAdornment>
                 ),
               }}
-              onChange={e => { setTelephone(e.target.value) }}
+              disabled
             />
-            <TextField fullWidth value={address} margin="normal" label="Address" onChange={e => { setAddress(e.target.value) }} />
-            <TextField fullWidth value={profession} margin="normal" label="Profession" onChange={e => { setProfession(e.target.value) }} />
-            <TextField fullWidth value={education} margin="normal" label="Education" onChange={e => { setEducation(e.target.value) }} />
-            <TextField fullWidth value={carExist} margin="normal" label="Do you have Car" onChange={e => { setCarExist(e.target.value) }} />
-            <TextField fullWidth value={hobby} margin="normal" label="Hobby" onChange={e => { setHobby(e.target.value) }} />
+            <TextField fullWidth value={address} margin="normal" label="Address" disabled />
+            <TextField fullWidth value={profession} margin="normal" label="Profession" disabled />
+            <TextField fullWidth value={education} margin="normal" label="Education" disabled />
+            <TextField fullWidth value={carExist} margin="normal" label="Do you have Car" disabled />
+            <TextField fullWidth value={hobby} margin="normal" label="Hobby" disabled />
           </Collapse>
         </Box>
 
