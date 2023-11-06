@@ -112,6 +112,7 @@ const VideoCallWindow = () => {
       setIsCalling(true)
       isCallingRef.current = true
       if (localVideoRef.current) localVideoRef.current.srcObject = localStream
+      console.log(socketRef.current, "socket.current")
       if (!socketRef.current) return
       const payload = {
         to: toChat,
@@ -155,7 +156,7 @@ const VideoCallWindow = () => {
     })
   }, [])
 
-  const acceptCall = useCallback(async (toChat) => {
+  const acceptCall = useCallback(async (toChat: string) => {
     try {
       const localStream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -325,6 +326,7 @@ const VideoCallWindow = () => {
       }
     )
     socketRef.current.on('callingMe', (data: any) => {
+      console.log(data.to, "calling Me")
       if (data.to === session?.user?.email) {
         setToChat(data.from)
         setFromChat(data.to)
@@ -342,6 +344,7 @@ const VideoCallWindow = () => {
       }
     })
     socketRef.current.on('acceptCall', (data: any) => {
+      console.log(data.to, "acceptCall")
       if (data.to === session?.user?.email) {
         setCallAccepted(true)
         callStatusRef.current = 'receivedCall'

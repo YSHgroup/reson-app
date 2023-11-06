@@ -47,7 +47,6 @@ let client
   client = await connectToDatabase()
 })()
 
-console.log(client)
 const messagesCollection = () => client.db().collection('messages')
 io.on('connection', (socket) => {
   socket.emit('getid', socket.id)
@@ -89,16 +88,6 @@ io.on('connection', (socket) => {
     // console.log(`${email} is connected as socket ${sockets[email]}`)
   })
 
-  // socket.on('getMessages', async (message) => {
-  //   const { to, author } = message;
-  //   const messages = await(await messagesCollection()).find({
-  //     $or:[
-  //       {author:author, to:to},
-  //       {author:to, to:author},
-  //     ],}).toArray();
-  //   socket.emit('messages', messages);
-  // });
-
   socket.on('readMessage', async (message) => {
     const messageId = new ObjectId(message._id)
     const updateMessage = await (
@@ -119,46 +108,12 @@ io.on('connection', (socket) => {
     // console.log(msgId, emojiId, to)
     io.to(sockets[to]).emit('newReactEmoji', { msgId, emojiId })
   })
-
-  socket.on('callUser', async (data) => {
-    console.log(sockets, 'callUser')
-    // socket.to(data.to).emit('callUser', { signal: data.signal, from: socket.id });
-    io.to(sockets[data.to]).emit('callingMe', {
-      signal: data.signal,
-      from: data.from,
-      to: data.to,
-    })
-  })
-
-  socket.on('acceptCall', async (data) => {
-    console.log(sockets, 'acceptcall')
-    // socket.to(data.to).emit('acceptCall', { signal: data.signal });
-    io.to(sockets[data.to]).emit('acceptCall', {
-      signal: data.signal,
-      from: data.from,
-      to: data.to,
-    })
-  })
-
-  socket.on('Iambusy', (data) => {
-    io.to(sockets[data.to]).emit('busy', { from: data.from, to: data.to })
-  })
-
-  socket.on('destroyP2P', async (data) => {
-    io.to(sockets[data.to]).emit('destroyP2P', { from: data.from })
-  })
-
-  socket.on('missedCall', (data) => {
-    io.to(sockets_notify[data.to]).emit('newUnreadMsg')
-    io.to(dashboard_notify[data.to]).emit('newChat')
-  })
 })
 
 let chatUsers = {}
 let chatSocketRoom = {}
 const chatCall = io.of('/chatCall')
 chatCall.on('connection', (socket) => {
-  // start video call
   socket.on('join_room', (data) => {
     if (chatUsers[data.room]) {
       const length = chatUsers[data.room].length
@@ -226,6 +181,7 @@ chatCall.on('connection', (socket) => {
   })
 
   socket.on('cancelCall', (data) => {
+    console.log(data, "cancelcall")
     socket.broadcast.emit('cancelCall', {
       from: data.from,
       to: data.to,
@@ -254,8 +210,6 @@ chatCall.on('connection', (socket) => {
     chatCall.to(roomID).emit('user_exit', { id: socket.id })
     console.log(chatUsers)
   })
-
-  // end multi call part
 })
 
 let users = {}
