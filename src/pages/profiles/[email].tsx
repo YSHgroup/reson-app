@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import FullLayout from '@layouts/FullLayout/FullLayout'
-import MenuIcon from '@mui/icons-material/Menu'
 import Image from 'next/image'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -8,7 +7,6 @@ import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import { NextApiRequest } from 'next'
 import { green } from '@mui/material/colors'
-import ButtonGroup from '@mui/material/ButtonGroup'
 import InputAdornment from '@mui/material/InputAdornment'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
@@ -21,19 +19,13 @@ import { language } from "../../jotai"
 import languagejson from "../../language.json"
 import { useAtom } from 'jotai'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
-import { type AlertColor } from '@mui/material/Alert'
 import { Fade, ListItemIcon, Menu, MenuItem } from '@mui/material'
 import * as MenuData from '@constants/Menu.json'
-import { StatusData } from '@constants/Status'
 import { getSession, signOut } from 'next-auth/react'
 
 const { data: MenuDatas } = MenuData
 
-
-
-import ImageUploader from '../../components/elements/ImageUploader'
 import { useRouter } from 'next/router'
-import { stringify } from 'querystring'
 
 export default function ProfileItem() {
   const [lang, setLanguage] = useAtom(language)
@@ -58,6 +50,7 @@ export default function ProfileItem() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [pic, setPic] = React.useState<string | null>('')
   const [status, setStatus] = React.useState(0)
+  const [nickname, setNickName] = React.useState('')
 
 
   const topen = Boolean(anchorEl)
@@ -120,6 +113,7 @@ export default function ProfileItem() {
         setStatus(parseInt(res.data.status) || 0);
         setStatus(res.data.carExist || "");
         setPic(res.data.picpath || null)
+        setNickName(res.data.nickname || "")
       }
     ).catch(
       err => {
@@ -308,7 +302,7 @@ export default function ProfileItem() {
               {energy}%
             </Typography>
           </Box>
-          <Typography>{StatusData.mydata[0].name[lang]}</Typography>
+          <Typography>{nickname}</Typography>
           <Button
             variant="contained"
             color="secondary"

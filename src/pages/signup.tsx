@@ -201,7 +201,7 @@ export default function SignUp() {
     setLoading(true)
     // Await for data for any desirable next steps
     const res = await createUser({
-      email,
+      email: email.toLowerCase(),
       password,
       nickname,
       birthday,

@@ -29,8 +29,6 @@ import { getSession, signOut } from 'next-auth/react'
 
 const { data: MenuDatas } = MenuData
 
-
-
 import ImageUploader from '../components/elements/ImageUploader'
 import { useRouter } from 'next/router'
 
@@ -38,10 +36,6 @@ export default function Profile() {
   const [lang, setLanguage] = useAtom(language)
   const energy = 54
   const opportunity = 21
-
-  const router = useRouter()
-
-
   const { setSnack } = React.useContext(SnackbarContext)
   const [open, setOpen] = React.useState(false)
   const [email, setEmail] = React.useState('')
@@ -56,6 +50,7 @@ export default function Profile() {
   const [carExist, setCarExist] = React.useState('')
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [status, setStatus] = React.useState(0)
+  const [nickname, setNickName] = React.useState('')
 
 
   const topen = Boolean(anchorEl)
@@ -110,9 +105,6 @@ export default function Profile() {
     } catch (error) {
       console.error('There was an error signing out:', error);
     }
-
-    const router = useRouter();
-    router.replace(`${process.env.NEXT_PUBLIC_BASE_URL}/signin`);
   };
   function getpic() {
     loadpic()
@@ -132,6 +124,7 @@ export default function Profile() {
         setHobby(res.data[0].hobby || "");
         setStatus(parseInt(res.data[0].status) || 0);
         setStatus(res.data[0].carExist || "");
+        setNickName(res.data[0].nickname || "")
       }
     ).catch(
       err => {
@@ -347,7 +340,7 @@ export default function Profile() {
               {energy}%
             </Typography>
           </Box>
-          <Typography>{StatusData.mydata[0].name[lang]}</Typography>
+          <Typography>{nickname}</Typography>
           <Button
             variant="contained"
             color="secondary"
