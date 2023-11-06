@@ -12,7 +12,7 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-import { Link } from '@mui/material'
+import { Divider, Link, TextField } from '@mui/material'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 
 interface ListObject {
@@ -51,44 +51,61 @@ export default function GutterlessList(props: any) {
     role: null,
   })
   const [open, setOpen] = React.useState(false)
+  const [applyDesc, setApplyDesc] = React.useState('')
   const startChatting = (list: ListObject) => {
     router.push(`/chat?email=${list.author}`)
   }
 
+  const handleChangeApplyDesc = (e: any) => {
+    setApplyDesc(e.target.value)
+  }
+
   const handleApply = async (list: ListObject) => {
-    const response = await fetch('/api/can/apply', {
-      method: 'POST',
-      body: JSON.stringify({
-        need_id: list._id,
-        poster: list.author,
-      }),
-    })
-    const results = await response.json()
-    if (results.message === 'Success') {
+    if(applyDesc === "") {
       setSnack(
         new Snack({
-          message: 'Successful Apply',
-          color: 'success',
+          message: 'Enter your application',
+          color: 'error',
           open: true,
         })
       )
-      setOpen(false)
-      setSelectList({
-        _id: null,
-        author: null,
-        title: null,
-        startLine: null,
-        deadLine: null,
-        price: null,
-        description: null,
-        payType: null,
-        file: null,
-        where: null,
-        exist: null,
-        created_at: null,
-        payUnit: null,
-        role: null,
+    } else {
+      const response = await fetch('/api/can/apply', {
+        method: 'POST',
+        body: JSON.stringify({
+          need_id: list._id,
+          poster: list.author,
+          desc: applyDesc
+        }),
       })
+      const results = await response.json()
+      if (results.message === 'Success') {
+        setSnack(
+          new Snack({
+            message: 'Successful Apply',
+            color: 'success',
+            open: true,
+          })
+        )
+        setOpen(false)
+        setSelectList({
+          _id: null,
+          author: null,
+          title: null,
+          startLine: null,
+          deadLine: null,
+          price: null,
+          description: null,
+          payType: null,
+          file: null,
+          where: null,
+          exist: null,
+          created_at: null,
+          payUnit: null,
+          role: null,
+        })
+        setApplyDesc('')
+      }
     }
   }
 
@@ -203,6 +220,21 @@ export default function GutterlessList(props: any) {
           {/* <DialogContentText id="alert-dialog-description">
             {selectList.file && selectList.file}
           </DialogContentText> */}
+          <Divider sx={{marginTop: '12px'}} />
+            <TextField 
+              id="outlined-multiline-static"
+              label="Your Application"
+              multiline
+              rows={6}
+              placeholder={"Example: Hi there! I'd like to apply for this Job as I feel I am fully qualified for the position. Are you able to provide me with more details?"}
+              defaultValue={"Description"}
+              onChange={handleChangeApplyDesc}
+              size='small'
+              sx={{
+                width: "100%",
+                marginTop: "12px"
+              }}
+            />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="error">

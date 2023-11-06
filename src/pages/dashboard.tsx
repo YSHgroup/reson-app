@@ -191,7 +191,7 @@ export default function Home() {
                       <ListItemIcon>
                         <Image
                           src={`/images/${name[0]}.png`}
-                          alt={name[lang]}
+                          alt={name[0][lang]}
                           width={20}
                           height={20}
                         />
@@ -209,7 +209,7 @@ export default function Home() {
                 <ListItemIcon>
                   <Image
                     src={`/images/profile.png`}
-                    alt={name[lang]}
+                    alt={"profile"}
                     width={20}
                     height={20}
                   />

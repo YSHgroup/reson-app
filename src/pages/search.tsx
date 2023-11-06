@@ -197,12 +197,6 @@ export default function Can() {
 
   return (
     <BasicLayout title={languagejson[lang].NEED}>
-      {/* <Head>
-        <link
-          href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css"
-          rel="stylesheet"
-        />
-      </Head> */}
       <div className="page">
         <div className="search">
           <div className="header">

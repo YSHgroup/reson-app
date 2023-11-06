@@ -30,6 +30,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       author: session?.user?.email,
       poster: data.poster,
       need_id: data.need_id,
+      description: data.desc,
       created_at: Date.now()
     });
     client.close()

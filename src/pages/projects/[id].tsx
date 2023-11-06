@@ -1,35 +1,28 @@
 import FullLayout from '@layouts/FullLayout/FullLayout'
 import {
-  Badge,
   Box,
-  Divider,
   IconButton,
-  InputAdornment,
-  ListItemButton,
-  TextField,
-  Tabs,
-  Tab,
   Typography,
   ListItem,
-  ListItemText,
 } from '@mui/material'
 import CommentIcon from '@mui/icons-material/Comment'
-import List from '@mui/material/List'
+import PersonIcon from '@mui/icons-material/Person'
 import { Stack } from '@mui/system'
 import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
-import { Search as SearchIcon } from '@mui/icons-material'
 import { language } from '../../jotai'
-import languagejson from 'language.json'
 import { useAtom } from 'jotai'
-import { BulkResult } from 'mongodb'
 import dayjs from 'dayjs'
 import advancedFormat from 'dayjs/plugin/advancedFormat'
-
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
 interface ListObject {
   _id: string | null
   author: string | null
@@ -51,6 +44,7 @@ interface Result {
   created_at: string | null
   need_id: string | null
   poster: string | null
+  description: string | null
   _id: string | null
 }
 const ProjectPage = () => {
@@ -58,6 +52,7 @@ const ProjectPage = () => {
   const router = useRouter()
   const projectId = router.query.id
   const [lang, setLanguage] = useAtom(language)
+  const [open, setOpen] = React.useState(false)
   const [projectLists, setProjectLists] = useState<ListObject>({
     _id: null,
     author: null,
@@ -75,8 +70,23 @@ const ProjectPage = () => {
     role: null,
   })
   const [results, setResults] = useState<Result[]>([])
+  const [selectedResult, setSelectedResult] = useState<Result>({
+    author: "",
+    created_at: "",
+    need_id: "",
+    poster: "",
+    description: "",
+    _id: "",
+  })
   const startChatting = (list: Result) => {
     router.push(`/chat?email=${list.author}`)
+  }
+  const handleShowDescription = (list: Result) => {
+    setSelectedResult(list)
+    setOpen(true)
+  }
+  const handleClose = () => {
+    setOpen(false)
   }
   const getLists = async () => {
     const response = await fetch('/api/can/getProjectInfo', {
@@ -120,15 +130,27 @@ const ProjectPage = () => {
             key={list._id}
             disableGutters
             secondaryAction={
-              <IconButton
-                aria-label="comment"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  startChatting(list)
-                }}>
-                <CommentIcon />
-              </IconButton>
+              <>
+                <IconButton
+                  aria-label="comment"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    startChatting(list)
+                  }}>
+                  <CommentIcon />
+                </IconButton>
+                <IconButton
+                  aria-label='person'
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleClickOpen(list.author)
+                  }}
+                >
+                  <PersonIcon />
+                </IconButton>
+              </>
             }
             sx={{
               paddingLeft: '8px',
@@ -136,8 +158,8 @@ const ProjectPage = () => {
               cursor: 'pointer',
             }}
             onClick={(e) => {
-                e.preventDefault();
-                handleClickOpen(list.author)
+              e.preventDefault();
+              handleShowDescription(list)
             }}>
             <Stack sx={{ flexGrow: 1 }}>
               <Typography variant="h5">{list.author}</Typography>
@@ -148,6 +170,34 @@ const ProjectPage = () => {
           </ListItem>
         ))}
       </Box>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        style={{
+          width: '100%',
+        }}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description">
+        <DialogTitle id="alert-dialog-title">Description</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {!selectedResult.description ? "No description" : selectedResult.description}
+          </DialogContentText>
+          <DialogContentText
+            sx={{
+              textAlign: 'right',
+              fontSize: '12px'
+            }}
+          >
+            {selectedResult.author}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="error">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </FullLayout>
   )
 }
