@@ -361,7 +361,7 @@ const VideoCallWindow = () => {
           })
         setSnack(
           new Snack({
-            message: `${data.to} accepted your call`,
+            message: `${data.from} accepted your call`,
             color: 'success',
             open: true,
           })
