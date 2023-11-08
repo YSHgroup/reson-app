@@ -246,8 +246,8 @@ export default function Chat() {
           <Typography variant="body2" color="text.secondary">
             {`${Math.floor(props.value / 60)}`} :
             {`${Math.floor(props.value % 60) < 10
-                ? `0${Math.floor(props.value % 60)}`
-                : Math.floor(props.value % 60)
+              ? `0${Math.floor(props.value % 60)}`
+              : Math.floor(props.value % 60)
               }`}
           </Typography>
         </Box>
@@ -672,6 +672,11 @@ export default function Chat() {
     element?.classList.toggle('showDropdownContent')
   }
 
+  const handleProfileClick = (e: any) => {
+    e.preventDefault();
+    router.replace(`/profiles/${email}`)
+  }
+
   const action = (
     <React.Fragment>
       <IconButton
@@ -711,7 +716,10 @@ export default function Chat() {
                     width: 70,
                     height: 70,
                     // padding: 1,
-                  }}>
+                    cursor: 'pointer'
+                  }}
+                  onClick={handleProfileClick}
+                >
                   <Image
                     src={
                       pic == '' || pic == undefined

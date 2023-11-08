@@ -13,8 +13,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const usersCollection = client.db().collection('users')
   const settingsCollection = client.db().collection('settings')
   
-  const currentUser = await usersCollection.find({'email': session?.user?.email}).toArray();
-  const currentSetting = await settingsCollection.find({'user_id': currentUser[0]._id}).toArray()
+  const currentUser = await usersCollection.findOne({'email': session?.user?.email});
+  const currentSetting = await settingsCollection.find({'user_id': currentUser._id}).toArray()
   client.close()
   return res.json({ status: 200, data: currentSetting });
 }

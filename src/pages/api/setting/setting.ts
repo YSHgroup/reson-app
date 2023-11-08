@@ -19,10 +19,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const usersCollection = client.db().collection('users')
   const settingsCollection = client.db().collection('settings')
   
-  const user = await usersCollection.find({'email': session?.user?.email}).toArray()
-  console.log(user[0]._id)
+  const user = await usersCollection.findOne({'email': session?.user?.email})
   const setting = await settingsCollection.updateOne(
-    {'user_id': user[0]._id},
+    {'user_id': user._id},
     {
       $set: {
         language: lang,

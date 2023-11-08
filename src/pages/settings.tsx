@@ -8,7 +8,7 @@ import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import SettingData from '@constants/Setting.json'
-import {language, modusJot, statusJot, firstnameJot, lastnameJot, emailJot, telephoneJot, personalAnalysisJot} from "../jotai"
+import { language, modusJot, statusJot, firstnameJot, lastnameJot, emailJot, telephoneJot, personalAnalysisJot } from "../jotai"
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
 import cookies from "browser-cookies";
@@ -47,23 +47,23 @@ function SimpleDialog(props: SimpleDialogProps) {
         'Content-Type': 'application/json',
       },
     })
-  
+
     const data = await response.json()
-  
+
     if (!response.ok) {
       return {
         status: 'error',
         data: data.message || 'Something went wrong!',
       }
     }
-  
+
     return {
       status: 'success',
       data: 'Please verify with the code that is sent to your email.',
     }
   }
 
-  
+
   return (
     <Dialog onClose={handleClose} open={open}>
       <DialogTitle>{title}</DialogTitle>
@@ -91,12 +91,14 @@ export default function Settings() {
   const [personalAnalysis, setPersonalAnalysis] = useAtom(personalAnalysisJot)
   const [open, setOpen] = React.useState(false)
   const [currentIndex, setCurrentIndex] = React.useState(0)
-  const [bal, setbal] = React.useState([0,0,0,0,0,0,0,0])
+  const [bal, setbal] = React.useState([0, 0, 0, 0, 0, 0, 0, 0])
   const [selectedValues, setSelectedValues] = React.useState(
-    [[0,1,2,3], [0,1,2], [0,1,2,3], [0,1,2], [0,1,2], [0,1,2], [0,1,2], [0,1,2]]
+    [[0, 1, 2, 3], [0, 1, 2], [0, 1, 2, 3], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2]]
   )
+  const [position, setPosition] = React.useState<any>('')
 
   React.useEffect(() => {
+    getGeoPosition()
     const getCurrentSetting = async () => {
       const response = await fetch('/api/setting/currentSetting', {
         method: 'GET',
@@ -105,8 +107,7 @@ export default function Settings() {
         },
       })
       let settingData = await response.json()
-      console.log(settingData)
-      setLanguage(settingData.data[0].language)    
+      setLanguage(settingData.data[0].language)
       setModus(settingData.data[0].modus)
       setStatus(settingData.data[0].status)
       setFirstname(settingData.data[0].show_firstname)
@@ -117,6 +118,12 @@ export default function Settings() {
     }
     getCurrentSetting()
   }, [])
+
+  const getGeoPosition = async () => {
+    const response = await fetch(`https://ipapi.co/json`)
+    const countryCode = await response.json()
+    setPosition(countryCode)
+  }
 
   const handleClickOpen = (index: number) => {
     setCurrentIndex(index)
@@ -130,28 +137,28 @@ export default function Settings() {
 
     switch (currentIndex) {
       case 0:
-        setLanguage( values[bal[currentIndex]])
+        setLanguage(values[bal[currentIndex]])
         break
       case 1:
-        setModus( values[bal[currentIndex]])
+        setModus(values[bal[currentIndex]])
         break
       case 2:
-        setStatus( values[bal[currentIndex]])
-        break 
+        setStatus(values[bal[currentIndex]])
+        break
       case 3:
-        setFirstname( values[bal[currentIndex]])
+        setFirstname(values[bal[currentIndex]])
         break
       case 4:
-        setLastname( values[bal[currentIndex]])
+        setLastname(values[bal[currentIndex]])
         break
       case 5:
-        setEmail( values[bal[currentIndex]])
+        setEmail(values[bal[currentIndex]])
         break
       case 6:
-        setTelephone( values[bal[currentIndex]])
+        setTelephone(values[bal[currentIndex]])
         break
       default:
-        setPersonalAnalysis( values[bal[currentIndex]])
+        setPersonalAnalysis(values[bal[currentIndex]])
     }
     // console.log( values[bal[currentIndex]])
     // setSelectedValues(values)
@@ -177,6 +184,13 @@ export default function Settings() {
             </ListItem>
           </>
         ))}
+        <Divider />
+        <ListItem
+          key={"geoposition"}
+        >
+          <ListItemText primary="Current Position" />
+          <Typography>{position?.city} {position?.country}</Typography>
+        </ListItem>
       </List>
       <SimpleDialog
         index={currentIndex}
