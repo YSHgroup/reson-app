@@ -101,7 +101,11 @@ const VideoCallWindow = () => {
     }
   }, [isCalling, fromChat, toChat])
 
-  const getLocalStream = useCallback(async (toChat) => {
+  const getLocalStream = useCallback(async (toChat: string) => {
+    socketRef.current.emit('callUser', {
+      from: session?.user?.email,
+      to: toChat
+    })
     navigator.mediaDevices.getUserMedia({
       audio: true,
       video: false
@@ -132,10 +136,6 @@ const VideoCallWindow = () => {
         email: session?.user?.email,
         nickname: session?.user?.name,
       })
-      socketRef.current.emit('callUser', {
-        from: session?.user?.email,
-        to: toChat
-      })
     }).catch((error) => {
       setSnack(
         new Snack({
@@ -157,6 +157,10 @@ const VideoCallWindow = () => {
   }, [])
 
   const acceptCall = useCallback(async (toChat: string) => {
+    socketRef.current.emit('acceptCall', {
+      to: toChat,
+      from: session?.user?.email,
+    })
     try {
       const localStream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -172,10 +176,6 @@ const VideoCallWindow = () => {
         room: toChat,
         email: session?.user?.email,
         nickname: session?.user?.name,
-      })
-      socketRef.current.emit('acceptCall', {
-        to: toChat,
-        from: session?.user?.email,
       })
     } catch (e) {
       setSnack(
@@ -327,6 +327,7 @@ const VideoCallWindow = () => {
     )
     socketRef.current.on('callingMe', (data: any) => {
       console.log(data.to, "calling Me")
+      console.log(session?.user?.email, "session")
       if (data.to === session?.user?.email) {
         setToChat(data.from)
         setFromChat(data.to)
@@ -389,7 +390,7 @@ const VideoCallWindow = () => {
     })
 
     socketRef.current.on('cancelCall', (data: any) => {
-      if(data.to === session?.user?.email) {
+      if (data.to === session?.user?.email) {
         callendInit()
       }
     })

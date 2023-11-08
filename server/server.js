@@ -114,6 +114,7 @@ let chatUsers = {}
 let chatSocketRoom = {}
 const chatCall = io.of('/chatCall')
 chatCall.on('connection', (socket) => {
+  console.log(socket, 'connection')
   socket.on('join_room', (data) => {
     if (chatUsers[data.room]) {
       const length = chatUsers[data.room].length
