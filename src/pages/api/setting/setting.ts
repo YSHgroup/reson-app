@@ -1,15 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { getSession } from 'next-auth/react'
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "../auth/[...nextauth]"
 import { connectToDatabase } from '@lib/db'
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return
   }
-  
-  const session = await getSession({
-      req,
-  })
+  const session = await getServerSession(req, res, authOptions)
 
   console.log("session=", session)
   

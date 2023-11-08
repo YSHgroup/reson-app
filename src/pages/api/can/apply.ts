@@ -26,18 +26,30 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   let data = JSON.parse(req.body);
   try {
-    const newApply = await cansCallection.insertOne({
+    const applyed = await cansCallection.find({
       author: session?.user?.email,
-      poster: data.poster,
       need_id: data.need_id,
-      description: data.desc,
-      created_at: Date.now()
-    });
-    client.close()
-    return res.status(RS.SUCCESS_OK).json({
-      message: 'Success',
-      newApply: newApply
-    })
+      status: 'pending'
+    }).toArray();
+    if(applyed.length > 0) {
+      return res.status(RS.SUCCESS_OK).json({
+        message: 'Exsit',
+      })
+    } else {
+      const newApply = await cansCallection.insertOne({
+        author: session?.user?.email,
+        poster: data.poster,
+        need_id: data.need_id,
+        description: data.desc,
+        created_at: Date.now(),
+        status: 'pending'
+      });
+      client.close()
+      return res.status(RS.SUCCESS_OK).json({
+        message: 'Success',
+        newApply: newApply
+      })
+    }
   } catch(error) {
     client.close()
     return res.status(RS.SERROR_INTERNAL).json({

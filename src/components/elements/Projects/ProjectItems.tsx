@@ -1,6 +1,7 @@
 import {
   Badge,
   Divider,
+  IconButton,
   List,
   ListItemButton,
   Stack,
@@ -9,6 +10,8 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import PersonalVideoIcon from '@mui/icons-material/PersonalVideo';
+import { DesktopAccessDisabled } from '@mui/icons-material';
 
 interface ListObject {
   _id: string | null
@@ -46,12 +49,27 @@ const ProjectsItems = ({ lists }) => {
                 {list.price} {list.payUnit.toUpperCase()}
               </Typography>
             </Stack>
+            {
+              list.exist ? (
+                <IconButton
+                  aria-label='comment'
+                >
+                  <PersonalVideoIcon />
+                </IconButton>
+              ) : (
+                <IconButton
+                  aria-label='comment'
+                >
+                  <DesktopAccessDisabled />
+                </IconButton>
+              )
+            }
             <Badge badgeContent={list.count} color="success">
               <Image
                 src="/images/turnon.png"
                 alt="turnon"
-                width={50}
-                height={50}
+                width={40}
+                height={40}
               />
             </Badge>
           </ListItemButton>

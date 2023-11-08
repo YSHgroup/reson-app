@@ -23,6 +23,7 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
+import { DesktopAccessDisabled, PersonalVideo } from '@mui/icons-material';
 interface ListObject {
   _id: string | null
   author: string | null
@@ -46,6 +47,7 @@ interface Result {
   poster: string | null
   description: string | null
   _id: string | null
+  status: string
 }
 const ProjectPage = () => {
   dayjs.extend(advancedFormat)
@@ -77,6 +79,7 @@ const ProjectPage = () => {
     poster: "",
     description: "",
     _id: "",
+    status: ""
   })
   const startChatting = (list: Result) => {
     router.push(`/chat?email=${list.author}`)
@@ -96,9 +99,50 @@ const ProjectPage = () => {
       }),
     })
     const data = await response.json()
-    console.log(data)
     setProjectLists(data.project)
     setResults(data.results)
+  }
+
+  const handleChangeExist = async (list: ListObject) => {
+    const response = await fetch('/api/need/changeExist', {
+      method: "POST",
+      body: JSON.stringify({
+        _id: list._id,
+        exist: list.exist ? 0 : 1
+      })
+    })
+    const data = await response.json()
+    if(data.message === "Success") {
+      setProjectLists(data.project)
+    }
+  }
+
+  const handleAccept = async (id: string) => {
+    const response = await fetch('/api/can/changeStatus', {
+      method: 'POST',
+      body: JSON.stringify({
+        _id: id,
+        status: 'accepted'
+      }),
+    })
+    const data = await response.json()
+    if (data.message === "Success") {
+      setSelectedResult(data.result)
+    }
+  }
+
+  const handleReject = async (id: string) => {
+    const response = await fetch('/api/can/changeStatus', {
+      method: 'POST',
+      body: JSON.stringify({
+        _id: id,
+        status: 'rejected'
+      }),
+    })
+    const data = await response.json()
+    if (data.message === "Success") {
+      setSelectedResult(data.result)
+    }
   }
 
   const handleClickOpen = (author: string) => {
@@ -120,6 +164,27 @@ const ProjectPage = () => {
         <Typography sx={{ flexGrow: 1 }} variant="h4">
           {projectLists.title}
         </Typography>
+        {
+          projectLists.exist ? (
+            <IconButton
+              aria-label='comment'
+              onClick={(e) => {
+                handleChangeExist(projectLists)
+              }}
+            >
+              <PersonalVideo />
+            </IconButton>
+          ) : (
+            <IconButton
+              aria-label='comment'
+              onClick={(e) => {
+                handleChangeExist(projectLists)
+              }}
+            >
+              <DesktopAccessDisabled />
+            </IconButton>
+          )
+        }
         <IconButton size="large" edge="end" onClick={router.back}>
           <Image src="/images/back.png" alt="back" width={32} height={32} />
         </IconButton>
@@ -131,6 +196,16 @@ const ProjectPage = () => {
             disableGutters
             secondaryAction={
               <>
+                <span
+                  aria-label='comment'
+                  style={{
+                    padding: '3px 8px',
+                    borderRadius: '15px',
+                    background: 'rgb(61 137 199)'
+                  }}
+                >
+                  {list.status}
+                </span>
                 <IconButton
                   aria-label="comment"
                   onClick={(e) => {
@@ -193,6 +268,41 @@ const ProjectPage = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
+          {selectedResult.status === "pending" && (
+            <>
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleAccept(selectedResult._id);
+                }}
+                color="success"
+              >
+                Accept
+              </Button>
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleReject(selectedResult._id)
+                }}
+                color="error"
+              >
+                Reject
+              </Button>
+            </>
+          )}
+          {
+            selectedResult.status === "accepted" && (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleReject(selectedResult._id)
+                }}
+                color="error"
+              >
+                Reject
+              </Button>
+            )
+          }
           <Button onClick={handleClose} color="error">
             Close
           </Button>

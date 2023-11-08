@@ -36,6 +36,7 @@ interface ApplyObject {
   need_id: ListObject | null
   poster: string | null
   _id: string | null
+  status: string
 }
 const ApplyItems = ({ lists }) => {
   const router = useRouter()
@@ -52,22 +53,29 @@ const ApplyItems = ({ lists }) => {
         <div key={list._id}>
           <ListItemButton
             key={list._id}
-            // secondaryAction={
+          // secondaryAction={
 
-            // }>
+          // }>
           >
             <Stack sx={{ flexGrow: 1 }}>
               <Typography variant="h5">{list.need_id.title}</Typography>
               <Typography variant="h6">{list.poster}</Typography>
             </Stack>
-          <IconButton
-            aria-label="comment"
-            onClick={(e) => {
-              e.stopPropagation()
-              startChatting(list)
-            }}>
-            <Comment />
-          </IconButton>
+            <span
+              aria-label='comment'
+            >
+              {list.status}
+            </span>
+            {list.status === 'accepted' && (
+              <IconButton
+                aria-label="comment"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  startChatting(list)
+                }}>
+                <Comment />
+              </IconButton>
+            )}
           </ListItemButton>
           <Divider />
         </div>

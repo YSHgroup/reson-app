@@ -61,7 +61,7 @@ export default function GutterlessList(props: any) {
   }
 
   const handleApply = async (list: ListObject) => {
-    if(applyDesc === "") {
+    if (applyDesc === "") {
       setSnack(
         new Snack({
           message: 'Enter your application',
@@ -79,14 +79,24 @@ export default function GutterlessList(props: any) {
         }),
       })
       const results = await response.json()
-      if (results.message === 'Success') {
-        setSnack(
-          new Snack({
-            message: 'Successful Apply',
-            color: 'success',
-            open: true,
-          })
-        )
+      if (results.message) {
+        if (results.message === 'Success') {
+          setSnack(
+            new Snack({
+              message: 'Successful Apply',
+              color: 'success',
+              open: true,
+            })
+          )
+        } else {
+          setSnack(
+            new Snack({
+              message: 'Already applied',
+              color: 'error',
+              open: true,
+            })
+          )
+        }
         setOpen(false)
         setSelectList({
           _id: null,
@@ -104,7 +114,7 @@ export default function GutterlessList(props: any) {
           payUnit: null,
           role: null,
         })
-        setApplyDesc('')
+        setApplyDesc('')        
       }
     }
   }
@@ -217,24 +227,28 @@ export default function GutterlessList(props: any) {
           <DialogContentText id="alert-dialog-description">
             {selectList.where ? selectList.where : ''}
           </DialogContentText>
-          {/* <DialogContentText id="alert-dialog-description">
-            {selectList.file && selectList.file}
-          </DialogContentText> */}
-          <Divider sx={{marginTop: '12px'}} />
-            <TextField 
-              id="outlined-multiline-static"
-              label="Your Application"
-              multiline
-              rows={6}
-              placeholder={"Example: Hi there! I'd like to apply for this Job as I feel I am fully qualified for the position. Are you able to provide me with more details?"}
-              defaultValue={"Description"}
-              onChange={handleChangeApplyDesc}
-              size='small'
-              sx={{
-                width: "100%",
-                marginTop: "12px"
-              }}
-            />
+          {
+            selectList.file && (
+              <a href={`api/view?name=needFiles/${selectList.file}`} download style={{
+                textDecorationLine: 'underline',
+                textAlign: 'center'
+              }}>Download files</a>
+            )
+          }
+          <Divider sx={{ marginTop: '12px' }} />
+          <TextField
+            id="outlined-multiline-static"
+            label="Your Application"
+            multiline
+            rows={6}
+            placeholder={"Example: Hi there! I'd like to apply for this Job as I feel I am fully qualified for the position. Are you able to provide me with more details?"}
+            onChange={handleChangeApplyDesc}
+            size='small'
+            sx={{
+              width: "100%",
+              marginTop: "12px"
+            }}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="error">
