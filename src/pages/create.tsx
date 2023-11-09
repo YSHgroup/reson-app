@@ -69,7 +69,7 @@ export default function Need() {
 
   const [map, setMap] = useState(null)
   const [ip, setIp] = useState<string | null>(null)
-  const [zoom, setZoom] = useState(8)
+  const [zoom, setZoom] = useState(4)
   const [location, setLocation] = useState<String | null>('')
   const [lists, setLists] = useState([])
   const [file, setFile] = useState<File | null>(null)
@@ -88,17 +88,16 @@ export default function Need() {
 
   useEffect(() => {
     showMapBox()
-    getCountry()
-  }, [map, where])
+  }, [map, where, ip])
 
   useEffect(() => {
+    getCountry()
     initializeMap()
   }, [])
-  console.log(where)
   const getCountry = async () => {
     const response = await fetch(`https://ipapi.co/json`)
     const countryCode = await response.json()
-    setIp(countryCode.city)
+    setIp(`${countryCode.city}, ${countryCode.country_name}`)
   }
   const initializeMap = () => {
     const map = new mapboxgl.Map({
@@ -108,8 +107,7 @@ export default function Need() {
     setMap(map)
   }
   const showMapBox = async () => {
-    const select = where ? where.structured_formatting.main_text : ip
-    console.log(select)
+    const select = where ? where.description : ip;
     fetch(
       `https://api.mapbox.com/geocoding/v5/mapbox.places/${select}.json?access_token=${mapboxgl.accessToken}`
     )
@@ -241,10 +239,10 @@ export default function Need() {
   }
 
   const submitPublish = async () => {
-    if (need.title === '' || need.description === '') {
+    if (need.title === '' || need.description === '' || !need.price) {
       setSnack(
         new Snack({
-          message: 'Title and description are required items.',
+          message: 'Title, Price and Description are required items.',
           color: 'error',
           open: true,
         })

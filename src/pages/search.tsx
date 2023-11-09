@@ -60,7 +60,7 @@ export default function Can() {
 
   const [map, setMap] = useState(null)
   const [ip, setIp] = useState<string | null>(null)
-  const [zoom, setZoom] = useState(8)
+  const [zoom, setZoom] = useState(4)
   const [lists, setLists] = useState([])
   const [sliderValue, setSliderValue] = useState<number[]>([0, 5000])
   const [can, setCan] = useState<CanFormType>({
@@ -99,16 +99,16 @@ export default function Can() {
 
   useEffect(() => {
     showMapBox()
-    getCountry()
-  }, [map, where])
-
+  }, [map, where, ip])
+  
   useEffect(() => {
+    getCountry()
     initializeMap()
   }, [])
   const getCountry = async () => {
     const response = await fetch(`https://ipapi.co/json`)
     const countryCode = await response.json()
-    setIp(countryCode.city)
+    setIp(`${countryCode.city}, ${countryCode.country_name}`)
   }
   const initializeMap = () => {
     const map = new mapboxgl.Map({
@@ -118,8 +118,7 @@ export default function Can() {
     setMap(map)
   }
   const showMapBox = async () => {
-    const select = where ? where.structured_formatting.main_text : ip
-    console.log(select)
+    const select = where ? where.description : ip;
     fetch(
       `https://api.mapbox.com/geocoding/v5/mapbox.places/${select}.json?access_token=${mapboxgl.accessToken}`
     )
