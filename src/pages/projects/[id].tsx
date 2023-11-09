@@ -23,7 +23,7 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-import { DesktopAccessDisabled, PersonalVideo } from '@mui/icons-material';
+import { DesktopAccessDisabled, PersonalVideo, Visibility } from '@mui/icons-material';
 interface ListObject {
   _id: string | null
   author: string | null
@@ -55,6 +55,7 @@ const ProjectPage = () => {
   const projectId = router.query.id
   const [lang, setLanguage] = useAtom(language)
   const [open, setOpen] = React.useState(false)
+  const [openDetail, setOpenDetail] = React.useState(false)
   const [projectLists, setProjectLists] = useState<ListObject>({
     _id: null,
     author: null,
@@ -88,6 +89,9 @@ const ProjectPage = () => {
     setSelectedResult(list)
     setOpen(true)
   }
+  const handleDetailClose = () => {
+    setOpenDetail(false)
+  } 
   const handleClose = () => {
     setOpen(false)
   }
@@ -112,9 +116,13 @@ const ProjectPage = () => {
       })
     })
     const data = await response.json()
-    if(data.message === "Success") {
+    if (data.message === "Success") {
       setProjectLists(data.project)
     }
+  }
+
+  const handleShowDetailProject = () => {
+    setOpenDetail(true)
   }
 
   const handleAccept = async (id: string) => {
@@ -164,27 +172,14 @@ const ProjectPage = () => {
         <Typography sx={{ flexGrow: 1 }} variant="h4">
           {projectLists.title}
         </Typography>
-        {
-          projectLists.exist ? (
-            <IconButton
-              aria-label='comment'
-              onClick={(e) => {
-                handleChangeExist(projectLists)
-              }}
-            >
-              <PersonalVideo />
-            </IconButton>
-          ) : (
-            <IconButton
-              aria-label='comment'
-              onClick={(e) => {
-                handleChangeExist(projectLists)
-              }}
-            >
-              <DesktopAccessDisabled />
-            </IconButton>
-          )
-        }
+        <IconButton
+          aria-label='comment'
+          onClick={(e) => {
+            handleShowDetailProject()
+          }}
+        >
+          <Visibility />
+        </IconButton>
         <IconButton size="large" edge="end" onClick={router.back}>
           <Image src="/images/back.png" alt="back" width={32} height={32} />
         </IconButton>
@@ -304,6 +299,54 @@ const ProjectPage = () => {
             )
           }
           <Button onClick={handleClose} color="error">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openDetail}
+        onClose={handleDetailClose}
+        style={{
+          width: '100%',
+        }}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description">
+        <DialogTitle id="alert-dialog-title">{projectLists.title}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {projectLists.price}
+            {projectLists.payUnit} Per {projectLists.payType}
+          </DialogContentText>
+          <DialogContentText id="alert-dialog-description">
+            {projectLists.startLine && `StartLine: ${dayjs(projectLists.startLine).format("DD/MM/YYYY")}`} -{' '}
+            {projectLists.deadLine && `DeadLine: ${dayjs(projectLists.deadLine).format("DD/MM/YYYY")}`}
+          </DialogContentText>
+          <DialogContentText id="alert-dialog-description">
+            Description:
+          </DialogContentText>
+          <DialogContentText id="alert-dialog-description">
+            {projectLists.description}
+          </DialogContentText>
+          {
+            projectLists.file && (
+              <a href={`api/view?name=needFiles/${projectLists.file}`} download style={{
+                textDecorationLine: 'underline',
+                textAlign: 'center'
+              }}>Download files</a>
+            )
+          }
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              handleChangeExist(projectLists);
+            }}
+            color={projectLists.exist ? "error" : "success"}
+          >
+            {projectLists.exist ? "Disable" : "Enable"}
+          </Button>
+          <Button onClick={handleDetailClose} color="error">
             Close
           </Button>
         </DialogActions>

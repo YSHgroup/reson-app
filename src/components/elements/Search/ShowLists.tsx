@@ -13,6 +13,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import { Divider, Link, TextField } from '@mui/material'
+import dayjs from 'dayjs'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 
 interface ListObject {
@@ -215,8 +216,8 @@ export default function GutterlessList(props: any) {
             {selectList.payUnit} Per {selectList.payType}
           </DialogContentText>
           <DialogContentText id="alert-dialog-description">
-            {selectList.startLine && `StartLine: ${selectList.startLine}`} -{' '}
-            {selectList.deadLine && `DeadLine: ${selectList.deadLine}`}
+            {selectList.startLine && `StartLine: ${dayjs(selectList.startLine).format("DD/MM/YYYY")}`} -{' '}
+            {selectList.deadLine && `DeadLine: ${dayjs(selectList.deadLine).format("DD/MM/YYYY")}`}
           </DialogContentText>
           <DialogContentText id="alert-dialog-description">
             Description:
