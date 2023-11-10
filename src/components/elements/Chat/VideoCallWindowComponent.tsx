@@ -553,13 +553,13 @@ const VideoCallWindow = () => {
             />
             <Close onClick={onCallEnd} sx={{ fontSize: '32px' }} />
           </Stack>
-          {callAccepted ? (
-            users.map((user, index) =>
-              (<AudioComponent key={user.email} stream={user.stream} />)
-            )
-          ) : null}
         </div>
       )}
+      {callAccepted ? (
+        users.map((user, index) =>
+          (<AudioComponent key={user.email} stream={user.stream} />)
+        )
+      ) : null}
     </>
   )
 }

@@ -8,7 +8,7 @@ import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import SettingData from '@constants/Setting.json'
-import { language, modusJot, statusJot, firstnameJot, lastnameJot, emailJot, telephoneJot, personalAnalysisJot } from "../jotai"
+import { language, modusJot, statusJot, firstnameJot, lastnameJot, emailJot, telephoneJot, personalAnalysisJot, currentPositionJot } from "../jotai"
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
 import cookies from "browser-cookies";
@@ -89,11 +89,12 @@ export default function Settings() {
   const [email, setEmail] = useAtom(emailJot)
   const [telephone, setTelephone] = useAtom(telephoneJot)
   const [personalAnalysis, setPersonalAnalysis] = useAtom(personalAnalysisJot)
+  const [currentPosition, setCurrentPosition] = useAtom(currentPositionJot)
   const [open, setOpen] = React.useState(false)
   const [currentIndex, setCurrentIndex] = React.useState(0)
-  const [bal, setbal] = React.useState([0, 0, 0, 0, 0, 0, 0, 0])
+  const [bal, setbal] = React.useState([0, 0, 0, 0, 0, 0, 0, 0, 0])
   const [selectedValues, setSelectedValues] = React.useState(
-    [[0, 1, 2, 3], [0, 1, 2], [0, 1, 2, 3], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2]]
+    [[0, 1, 2, 3], [0, 1, 2], [0, 1, 2, 3], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1]]
   )
   const [position, setPosition] = React.useState<any>('')
 
@@ -115,6 +116,7 @@ export default function Settings() {
       setTelephone(settingData.data[0].show_telephone)
       setPersonalAnalysis(settingData.data[0].show_analyse)
       setEmail(settingData.data[0].show_email)
+      setCurrentPosition(settingData.data[0].length === 11 ? settingData.data[0].show_position : 0);
     }
     getCurrentSetting()
   }, [])
@@ -129,7 +131,6 @@ export default function Settings() {
     setCurrentIndex(index)
     setOpen(true)
   }
-
   const handleClose = (value: number) => {
     setOpen(false)
     const values = selectedValues[currentIndex]
@@ -157,14 +158,16 @@ export default function Settings() {
       case 6:
         setTelephone(values[bal[currentIndex]])
         break
-      default:
+      case 7:
         setPersonalAnalysis(values[bal[currentIndex]])
+      default:
+        setCurrentPosition(values[bal[currentIndex]])
     }
     // console.log( values[bal[currentIndex]])
     // setSelectedValues(values)
   }
   return (
-    <FullLayout title={languagejson[lang].Settings}>
+    <FullLayout title={"Settings"}>
       <List
         sx={{
           width: '100vw',
@@ -189,7 +192,7 @@ export default function Settings() {
           key={"geoposition"}
         >
           <ListItemText primary="Current Position" />
-          <Typography>{position?.city} {position?.country}</Typography>
+          <Typography>{!currentPosition ? `${position?.city} ${position?.country}` : ""}</Typography>
         </ListItem>
       </List>
       <SimpleDialog

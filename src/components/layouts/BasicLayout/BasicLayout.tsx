@@ -16,6 +16,36 @@ export default function BasicLayout({
   title = 'Reson App',
 }: BasicLayoutProps) {
   const { mode, toggleColorMode } = React.useContext(ColorModeContext)
+  const [style, setStyle] = React.useState({
+    position: 'absolute',
+    bottom: 100,
+    right: 12,
+    width: 36,
+    height: 36,
+    transition: 0.5
+  })
+  const mouseOut = (e: any) => {
+    e.preventDefault();
+    setStyle({
+      position: 'absolute',
+    bottom: 100,
+    right: 12,
+    width: 36,
+    height: 36,
+    transition: 0.5
+    })
+  }
+  const mouseOver = (e: any) => {
+    e.preventDefault();
+    setStyle({
+      position: 'absolute',
+      bottom: 100,
+      right: 12,
+      width: 56,
+      height: 56,
+      transition: 0.5
+    })
+  }
   return (
     <>
       <Head>
@@ -28,11 +58,9 @@ export default function BasicLayout({
         {children}
         <Fab
           color="primary"
-          sx={{
-            position: 'absolute',
-            bottom: 115,
-            right: 16,
-          }}
+          sx={style}
+          onMouseOver={mouseOver}
+          onMouseOut={mouseOut}
           onClick={toggleColorMode}>
           {mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
         </Fab>

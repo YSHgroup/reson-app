@@ -31,6 +31,10 @@
     {
       "name": "Show personal analyse",
       "options": ["All", "Only your contacts", "Nobody"]
+    }, 
+    {
+      "name": "Show current position",
+      "options": ["Yes", "No"]
     }
   ],
   [
@@ -65,6 +69,10 @@
     {
       "name": "Persönliche Analyse anzeigen",
       "options": ["Alle", "Nur Ihre Kontakte", "Niemand"]
+    },
+    {
+      "name": "Aktuelle Position anzeigen",
+      "options": ["Ja", "NEIN"]
     }
   ],
   [
@@ -99,6 +107,9 @@
     {
       "name": "Показать личный анализ",
       "options": ["Все", "Только ваши контакты", "Никто"]
+    }, {
+      "name" : "Показать текущую позицию",
+      "options" : ["да", "Нет"]
     }
   ],
   [
@@ -133,6 +144,9 @@
     {
       "name": "Показать личный анализ",
       "options": ["Все", "Только ваши контакты", "Никто"]
+    }, {
+      "name" : "Показать текущую позицию",
+      "options" : ["да", "Нет"]
     }
   ]
 ]

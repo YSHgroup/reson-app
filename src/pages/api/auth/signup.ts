@@ -102,6 +102,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       show_email: 0,
       show_telephone: 0,
       show_analyse: 0,
+      show_position: 0,
     })
   
     const message = `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/verify/${user.insertedId}/${verify_code}`
