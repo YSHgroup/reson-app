@@ -25,25 +25,23 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       { where: { $regex: data.where, $options: 'i' } },
       { title: { $regex: data.title, $options: 'i' } },
       { price: { $gt: data.min * 1, $lt: data.max * 1 } },
-      { role: data.role },
-      { payUnit: data.payUnit },
-      { exist: 1 },
-      { author: { $ne: session?.user?.email } },
     ]
   } else {
     query = [
       { title: { $regex: data.title, $options: 'i' } },
       { price: { $gt: data.min * 1, $lt: data.max * 1 } },
-      { role: data.role },
-      { payUnit: data.payUnit },
-      { exist: 1 },
-      { author: { $ne: session?.user?.email } },
     ]
   }
   try {
     const results = await needsCollection
       .find({
-        $and: query,
+        $or: query,
+        $and: [
+          { role: data.role },
+          { payUnit: data.payUnit },
+          { exist: 1 },
+          { author: { $ne: session?.user?.email } }
+        ]
       })
       .sort({ createdAt: -1 })
       .toArray()

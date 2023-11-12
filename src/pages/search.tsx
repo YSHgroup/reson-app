@@ -57,10 +57,7 @@ const minDistance = 5000
 export default function Can() {
   const [lang, setLanguage] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
-
-  const [map, setMap] = useState(null)
   const [ip, setIp] = useState<string | null>(null)
-  const [zoom, setZoom] = useState(4)
   const [lists, setLists] = useState([])
   const [sliderValue, setSliderValue] = useState<number[]>([0, 5000])
   const [can, setCan] = useState<CanFormType>({
@@ -99,23 +96,15 @@ export default function Can() {
 
   useEffect(() => {
     showMapBox()
-  }, [map, where, ip])
-  
+  }, [where, ip])
+
   useEffect(() => {
     getCountry()
-    initializeMap()
   }, [])
   const getCountry = async () => {
     const response = await fetch(`https://ipapi.co/json`)
     const countryCode = await response.json()
     setIp(`${countryCode.city}, ${countryCode.country_name}`)
-  }
-  const initializeMap = () => {
-    const map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/streets-v11',
-    })
-    setMap(map)
   }
   const showMapBox = async () => {
     const select = where ? where.description : ip;
@@ -125,15 +114,15 @@ export default function Can() {
       .then((response) => response.json())
       .then((data) => {
         if (data.features.length > 0) {
-          const [longitude, latitude] = data.features[0].center
           const { center } = data.features[0]
-          if (map != null) {
-            map.flyTo({
-              center: [longitude, latitude],
-              zoom: zoom,
-            })
-            new mapboxgl.Marker().setLngLat(center).addTo(map)
-          }
+          const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: center,
+            zoom: 6,
+          })
+          map.addControl(new mapboxgl.NavigationControl());
+          new mapboxgl.Marker().setLngLat(center).addTo(map);
         }
       })
   }
