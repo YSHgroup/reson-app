@@ -48,6 +48,7 @@ interface Result {
   description: string | null
   _id: string | null
   status: string
+  price: string | null
 }
 const ProjectPage = () => {
   dayjs.extend(advancedFormat)
@@ -80,7 +81,8 @@ const ProjectPage = () => {
     poster: "",
     description: "",
     _id: "",
-    status: ""
+    status: "",
+    price: ""
   })
   const startChatting = (list: Result) => {
     router.push(`/chat?email=${list.author}`)
@@ -250,8 +252,14 @@ const ProjectPage = () => {
         aria-describedby="alert-dialog-description">
         <DialogTitle id="alert-dialog-title">Description</DialogTitle>
         <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+            Description:
+          </DialogContentText>
           <DialogContentText id="alert-dialog-description">
             {!selectedResult.description ? "No description" : selectedResult.description}
+          </DialogContentText>
+          <DialogContentText id="alert-dialog-description">
+            Price: {!selectedResult.price ? "No price" : selectedResult.price}
           </DialogContentText>
           <DialogContentText
             sx={{

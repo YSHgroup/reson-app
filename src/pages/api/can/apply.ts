@@ -41,6 +41,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         poster: data.poster,
         need_id: data.need_id,
         description: data.desc,
+        price: data.price,
         created_at: Date.now(),
         status: 'pending'
       });

@@ -53,6 +53,7 @@ export default function GutterlessList(props: any) {
   })
   const [open, setOpen] = React.useState(false)
   const [applyDesc, setApplyDesc] = React.useState('')
+  const [applyPrice, setApplyPrice] = React.useState('');
   const startChatting = (list: ListObject) => {
     router.push(`/chat?email=${list.author}`)
   }
@@ -62,10 +63,10 @@ export default function GutterlessList(props: any) {
   }
 
   const handleApply = async (list: ListObject) => {
-    if (applyDesc === "") {
+    if (applyDesc === "" || applyPrice === "") {
       setSnack(
         new Snack({
-          message: 'Enter your application',
+          message: 'Enter your application and price',
           color: 'error',
           open: true,
         })
@@ -76,7 +77,8 @@ export default function GutterlessList(props: any) {
         body: JSON.stringify({
           need_id: list._id,
           poster: list.author,
-          desc: applyDesc
+          desc: applyDesc,
+          price: applyPrice
         }),
       })
       const results = await response.json()
@@ -115,7 +117,8 @@ export default function GutterlessList(props: any) {
           payUnit: null,
           role: null,
         })
-        setApplyDesc('')        
+        setApplyDesc('')
+        setApplyPrice(null)
       }
     }
   }
@@ -249,6 +252,18 @@ export default function GutterlessList(props: any) {
               width: "100%",
               marginTop: "12px"
             }}
+          />
+          <TextField
+            id="outlined-static"
+            value={applyPrice}
+            sx={{
+              width: '100%',
+              marginTop: "12px"
+            }}
+            name="price"
+            label="Price"
+            placeholder="Your price"
+            onChange={(e) => setApplyPrice(e.target.value)}
           />
         </DialogContent>
         <DialogActions>

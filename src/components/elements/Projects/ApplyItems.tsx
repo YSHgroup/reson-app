@@ -44,6 +44,8 @@ interface ApplyObject {
   poster: string | null
   _id: string | null
   status: string
+  price: string | null
+  description : string | null
 }
 const ApplyItems = ({ lists }) => {
   const router = useRouter()
@@ -65,12 +67,23 @@ const ApplyItems = ({ lists }) => {
     role: '',
     count: null,
   })
+  const [applyDetail, setApplyDetail] = useState<ApplyObject>({
+    author: null,
+    created_at: null,
+    need_id: null,
+    poster: null,
+    _id: null,
+    status: "",
+    price: null,
+    description: ""
+  })
 
   const startChatting = (list: ApplyObject) => {
     router.push(`/chat?email=${list.poster}`)
   }
-  const handleShowDetail = (detailInfo: ListObject) => {
-    setDetail(detailInfo)
+  const handleShowDetail = (detailInfo: ApplyObject) => {
+    setDetail(detailInfo.need_id)
+    setApplyDetail(detailInfo)
     setOpen(true)
   }
   const handleDetailClose = () => {
@@ -105,7 +118,7 @@ const ApplyItems = ({ lists }) => {
               key={list._id}
               onClick={(e) => {
                 e.preventDefault();
-                handleShowDetail(list.need_id);
+                handleShowDetail(list);
               }}
             >
               <Stack sx={{ flexGrow: 1 }}>
@@ -143,28 +156,47 @@ const ApplyItems = ({ lists }) => {
         aria-describedby="alert-dialog-description">
         <DialogTitle id="alert-dialog-title">{detail.title}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {detail.price}
-            {detail.payUnit} Per {detail.payType}
-          </DialogContentText>
-          <DialogContentText id="alert-dialog-description">
-            {detail.startLine && `StartLine: ${dayjs(detail.startLine).format("DD/MM/YYYY")}`} -{' '}
-            {detail.deadLine && `DeadLine: ${dayjs(detail.deadLine).format("DD/MM/YYYY")}`}
-          </DialogContentText>
-          <DialogContentText id="alert-dialog-description">
-            Description:
-          </DialogContentText>
-          <DialogContentText id="alert-dialog-description">
-            {detail.description}
-          </DialogContentText>
-          {
-            detail.file && (
-              <a href={`api/view?name=needFiles/${detail.file}`} download style={{
-                textDecorationLine: 'underline',
-                textAlign: 'center'
-              }}>Download files</a>
-            )
-          }
+          <DialogContentText id="alert-dialog-content">Project Information</DialogContentText>
+          <div style={{
+            paddingLeft: "16px"
+          }}>
+            <DialogContentText id="alert-dialog-description">
+              {detail.price}
+              {detail.payUnit} Per {detail.payType}
+            </DialogContentText>
+            <DialogContentText id="alert-dialog-description">
+              {detail.startLine && `StartLine: ${dayjs(detail.startLine).format("DD/MM/YYYY")}`} -{' '}
+              {detail.deadLine && `DeadLine: ${dayjs(detail.deadLine).format("DD/MM/YYYY")}`}
+            </DialogContentText>
+            <DialogContentText id="alert-dialog-description">
+              Description:
+            </DialogContentText>
+            <DialogContentText id="alert-dialog-description">
+              {detail.description}
+            </DialogContentText>
+            {
+              detail.file && (
+                <a href={`api/view?name=needFiles/${detail.file}`} download style={{
+                  textDecorationLine: 'underline',
+                  textAlign: 'center'
+                }}>Download files</a>
+              )
+            }
+          </div>
+          <DialogContentText id="alert-dialog-content" sx={{ marginTop: "12px" }}>Apply Information</DialogContentText>
+          <div style={{
+            paddingLeft: "16px"
+          }}>
+            <DialogContentText id="alert-dialog-description">
+              Price: {applyDetail.price ? applyDetail.price : "No price"}
+            </DialogContentText>
+            <DialogContentText id="alert-dialog-description">
+              Description:
+            </DialogContentText>
+            <DialogContentText id="alert-dialog-description">
+              {applyDetail.description ? applyDetail.description : "No descritpion"}
+            </DialogContentText>
+          </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDetailClose} color="error">
