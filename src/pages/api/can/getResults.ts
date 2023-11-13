@@ -19,29 +19,38 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const data = JSON.parse(req.body)
   const client = await connectToDatabase()
   const needsCollection = client.db().collection('needs')
-  let query = []
+  let query = [];
+  const titleKeywords = data.title.split(" ");
+  let titleQuery = [];
+  for (let index = 0; index < titleKeywords.length; index++) {
+    const keyword = titleKeywords[index];
+    titleQuery.push({
+      title: {$regex: keyword, $options: 'i'}
+    });
+  }
   if (data.where) {
     query = [
       { where: { $regex: data.where, $options: 'i' } },
-      { title: { $regex: data.title, $options: 'i' } },
       { price: { $gt: data.min * 1, $lt: data.max * 1 } },
+      { role: data.role },
+      { payUnit: data.payUnit },
+      { exist: 1 },
+      { author: { $ne: session?.user?.email } }
     ]
   } else {
     query = [
-      { title: { $regex: data.title, $options: 'i' } },
       { price: { $gt: data.min * 1, $lt: data.max * 1 } },
+      { role: data.role },
+      { payUnit: data.payUnit },
+      { exist: 1 },
+      { author: { $ne: session?.user?.email } }
     ]
   }
   try {
     const results = await needsCollection
       .find({
-        $or: query,
-        $and: [
-          { role: data.role },
-          { payUnit: data.payUnit },
-          { exist: 1 },
-          { author: { $ne: session?.user?.email } }
-        ]
+        $and: query,
+        $or: titleQuery
       })
       .sort({ createdAt: -1 })
       .toArray()
