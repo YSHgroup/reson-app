@@ -41,7 +41,7 @@ interface ListObject {
   role: string | null
 }
 interface Result {
-  author: string | null
+  author: any | null
   created_at: string | null
   need_id: string | null
   poster: string | null
@@ -49,6 +49,7 @@ interface Result {
   _id: string | null
   status: string
   price: string | null
+  user?: any | null
 }
 const ProjectPage = () => {
   dayjs.extend(advancedFormat)
@@ -268,6 +269,14 @@ const ProjectPage = () => {
             }}
           >
             {selectedResult.author}
+          </DialogContentText>
+          <DialogContentText
+            sx={{
+              textAlign: 'right',
+              fontSize: '12px'
+            }}
+          >
+            {selectedResult.user?.nickname}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

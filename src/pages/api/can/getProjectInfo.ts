@@ -20,13 +20,27 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const client = await connectToDatabase()
   const cansCollection = client.db().collection('cans')
   const needsCollection = client.db().collection('needs')
+  const usersCollection = client.db().collection('users')
   try {
     const results = await cansCollection
       .find({
         need_id: data.need_id
       })
       .sort({ createdAt: -1 })
-      .toArray()
+      .toArray();
+    let needs = [];
+    for (let index = 0; index < results.length; index++) {
+      const element = results[index];
+      const user = await usersCollection.findOne({
+        email: element.author
+      })
+      if(user){
+        needs.push({
+          ...element,
+          user
+        })
+      }
+    }
     const project = await needsCollection
       .findOne({
         _id: string2ObjectId(data.need_id)
@@ -34,7 +48,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     client.close()
     return res.status(200).json({
       message: 'Success',
-      results: results,
+      results: needs,
       project: project
     })
   } catch (error) {
