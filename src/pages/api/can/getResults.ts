@@ -21,13 +21,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const needsCollection = client.db().collection('needs')
   let query = [];
   const titleKeywords = data.title.split(" ");
-  let titleQuery = [];
-  for (let index = 0; index < titleKeywords.length; index++) {
-    const keyword = titleKeywords[index];
-    titleQuery.push({
-      title: {$regex: keyword, $options: 'i'}
-    });
-  }
+  const titleQuery = titleKeywords.map((e: string) => {
+    return new RegExp(e, 'i');
+  })
+  // let titleQuery = [];
+  // for (let index = 0; index < titleKeywords.length; index++) {
+  //   const keyword = titleKeywords[index];
+  //   titleQuery.push({
+  //     title: {$regex: keyword, $options: 'i'}
+  //   });
+  // }
   if (data.where) {
     query = [
       { where: { $regex: data.where, $options: 'i' } },
@@ -50,7 +53,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const results = await needsCollection
       .find({
         $and: query,
-        $or: titleQuery
+        title: {$in: titleQuery}
       })
       .sort({ createdAt: -1 })
       .toArray()
