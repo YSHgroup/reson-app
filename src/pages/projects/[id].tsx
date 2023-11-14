@@ -235,9 +235,9 @@ const ProjectPage = () => {
               handleShowDescription(list)
             }}>
             <Stack sx={{ flexGrow: 1 }}>
-              <Typography variant="h5">{list.author}</Typography>
+              <Typography variant="h5">{list.user?.nickname}</Typography>
               <Typography variant="h6">{
-                dayjs(list.created_at).format('MM/DD/YYYY')
+                list.author
               }</Typography>
             </Stack>
           </ListItem>
@@ -261,6 +261,14 @@ const ProjectPage = () => {
           </DialogContentText>
           <DialogContentText id="alert-dialog-description">
             Price: {!selectedResult.price ? "No price" : selectedResult.price}
+          </DialogContentText>
+          <DialogContentText
+            sx={{
+              textAlign: 'right',
+              fontSize: '12px'
+            }}
+          >
+            {dayjs(selectedResult.created_at).format('MM/DD/YYYY')}
           </DialogContentText>
           <DialogContentText
             sx={{
