@@ -605,19 +605,20 @@ export function FormModal({ users, addGroup }) {
         })
       )
 
+      handleClose()
       const response = await fetch('/api/message/newGroup_file', {
         method: 'POST',
         body: formData,
       })
       const res = await response.json()
       if (res.message === 'Success') {
-        handleClose()
         addGroup()
         setSelectedPeople([])
         setSelectedImage(undefined)
         setFile(undefined)
       }
     } else {
+      handleClose()
       const response = await fetch('/api/message/newGroup', {
         method: 'POST',
         body: JSON.stringify({
@@ -628,7 +629,6 @@ export function FormModal({ users, addGroup }) {
           'Content-Type': 'application/json',
         },
       })
-      handleClose()
       const res = await response.json()
       if (res.message === 'Success') {
         addGroup()
