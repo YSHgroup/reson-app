@@ -94,7 +94,6 @@ export default function Need() {
     })
     const data = await response.json()
     if (response.ok) {
-      setFile(data.file || null)
       setNeed({
         title: data.title || '',
         startLine: data.startLine ? new Date(data.startLine) : null,
