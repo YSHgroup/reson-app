@@ -32,7 +32,6 @@ export default async function handler(
             where: fields.where,
             payUnit: fields.payUnit,
             role: fields.role,
-            file: null,
             exist: 1,
             created_at: Date.now(),
         }
