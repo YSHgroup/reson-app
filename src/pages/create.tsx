@@ -32,7 +32,7 @@ import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import FullLayout from '@layouts/FullLayout'
 
 mapboxgl.accessToken =
-  'pk.eyJ1IjoicmVkMzAxMSIsImEiOiJjbGdjOXp0enAwOXZ5M2hzeGl6ank5Y29yIn0.NaiYYAmHiHFDJ6SRcqrmkg'
+  'pk.eyJ1IjoiYW50b25pb2dzdW55ZSIsImEiOiJjbGxub3g5em4wMnoxM2ZvYWNiZXA5dWUyIn0.cw7jmzNVcCy5vQq3iOGEZw'
 
 interface NeedFormType {
   title: string | null
