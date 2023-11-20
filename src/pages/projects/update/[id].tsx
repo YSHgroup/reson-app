@@ -106,6 +106,7 @@ export default function Need() {
         role: data.role || 'onsite',
       })
       setDbWhere(data.where || null)
+      showMapBox(data.where)
     }
   }
 
@@ -113,7 +114,6 @@ export default function Need() {
     const response = await fetch(`https://ipapi.co/json`)
     const countryCode = await response.json()
     setIp(`${countryCode.city}, ${countryCode.country_name}`)
-    showMapBox(`${countryCode.city}, ${countryCode.country_name}`)
   }
   const showMapBox = async (country?: string) => {
     const select = where ? where.description : ip;
