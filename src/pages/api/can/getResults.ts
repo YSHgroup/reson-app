@@ -23,7 +23,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const titleQuery = titleKeywords.map((e: string) => {
     return new RegExp(e, 'i');
   })
-  console.log(titleKeywords, titleQuery, 'asdfasdf')
   // let titleQuery = [];
   // for (let index = 0; index < titleKeywords.length; index++) {
   //   const keyword = titleKeywords[index];

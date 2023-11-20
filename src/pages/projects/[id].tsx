@@ -94,9 +94,13 @@ const ProjectPage = () => {
   }
   const handleDetailClose = () => {
     setOpenDetail(false)
-  } 
+  }
   const handleClose = () => {
     setOpen(false)
+  }
+
+  const updateProject = () => {
+    router.push(`/projects/update/${projectId}`)
   }
   const getLists = async () => {
     const response = await fetch('/api/can/getProjectInfo', {
@@ -253,7 +257,7 @@ const ProjectPage = () => {
         aria-describedby="alert-dialog-description">
         <DialogTitle id="alert-dialog-title">Description</DialogTitle>
         <DialogContent>
-        <DialogContentText id="alert-dialog-description">
+          <DialogContentText id="alert-dialog-description">
             Description:
           </DialogContentText>
           <DialogContentText id="alert-dialog-description">
@@ -362,6 +366,15 @@ const ProjectPage = () => {
           }
         </DialogContent>
         <DialogActions>
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              updateProject();
+            }}
+            color={"primary"}
+          >
+            Update
+          </Button>
           <Button
             onClick={(e) => {
               e.preventDefault();

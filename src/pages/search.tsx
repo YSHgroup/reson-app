@@ -202,21 +202,6 @@ export default function Can() {
       >
       <div className="page">
         <div className="search">
-          <div className="header">
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-              }}>
-              <IconButton
-                size="large"
-                edge="end"
-                aria-label="menu"
-                onClick={handleClose}>
-                <ArrowBackIcon />
-              </IconButton>
-            </Box>
-          </div>
           <div className="main">
             <TextField
               sx={{
