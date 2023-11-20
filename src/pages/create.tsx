@@ -77,7 +77,7 @@ export default function Need() {
 
   useEffect(() => {
     showMapBox()
-  }, [where, ip])
+  }, [where])
 
   useEffect(() => {
     getCountry()
@@ -85,8 +85,8 @@ export default function Need() {
   const getCountry = async () => {
     const response = await fetch(`https://ipapi.co/json`)
     const countryCode = await response.json()
-    setIp(`${countryCode.city}, ${countryCode.country_name}`)
     showMapBox(`${countryCode.city}, ${countryCode.country_name}`)
+    setIp(`${countryCode.city}, ${countryCode.country_name}`)
   }
   const showMapBox = async (country?: string) => {
     const select = where ? where.description : ip;

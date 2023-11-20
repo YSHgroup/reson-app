@@ -78,7 +78,7 @@ export default function Need() {
 
   useEffect(() => {
     showMapBox()
-  }, [where, ip])
+  }, [where])
 
   useEffect(() => {
     getCountry()
