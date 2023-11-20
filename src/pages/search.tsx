@@ -192,7 +192,7 @@ export default function Can() {
   }
 
   return (
-    <FullLayout title={languagejson[lang].CAN}>
+    <FullLayout title={languagejson[lang].NEED}>
       <Box
         sx={{
           height: '100%',
