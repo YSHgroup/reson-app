@@ -191,6 +191,7 @@ export default function Need() {
           role: 'onsite',
         })
         setWhere(null)
+        router.push(`/projects/${projectID}`)
       }
     } catch (err) {
       setSnack(
@@ -233,6 +234,7 @@ export default function Need() {
           role: 'onsite',
         })
         setWhere(null)
+        router.push(`/projects/${projectID}`)
       }
     } catch (err) {
       setSnack(
