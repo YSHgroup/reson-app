@@ -169,6 +169,15 @@ export default function Can() {
       })
       const results = await response.json()
       if (results.message === 'Success') {
+        if(results.results.length === 0) {
+          setSnack(
+            new Snack({
+              message: 'There are no results matching the conditions.',
+              color: 'error',
+              open: true,
+            })
+          )
+        }
         setLists(results.results)
       }
     } else {
