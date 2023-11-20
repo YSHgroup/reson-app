@@ -1,10 +1,7 @@
 import { useState, useContext } from 'react'
-import BasicLayout from '@layouts/BasicLayout'
 import Button from '@mui/material/Button'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
-import { NextApiRequest } from 'next'
-import { getSession } from 'next-auth/react'
 import Search from '@mui/icons-material/Search'
 import {
   Box,
@@ -18,7 +15,7 @@ import {
 import { language } from '../jotai'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import mapboxgl from 'mapbox-gl'
 import { useRouter } from 'next/router'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -28,7 +25,7 @@ import GoogleMaps from '@elements/Need/GoogleLocation'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import ShowLists from 'components/elements/Search/ShowLists'
-import Head from 'next/head'
+import FullLayout from '@layouts/FullLayout'
 // eslint-disable-next-line import/no-webpack-loader-syntax
 // mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 
@@ -162,7 +159,9 @@ export default function Can() {
       const response = await fetch('/api/can/getResults', {
         method: 'POST',
         body: JSON.stringify({
-          ...can,
+          payUnit: can.payUnit,
+          role: can.role,
+          title: can.title.trim(),
           min: sliderValue[0],
           max: sliderValue[1],
           where: where ? where.structured_formatting.main_text : null,
@@ -184,7 +183,14 @@ export default function Can() {
   }
 
   return (
-    <BasicLayout title={languagejson[lang].NEED}>
+    <FullLayout title={languagejson[lang].CAN}>
+      <Box
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
       <div className="page">
         <div className="search">
           <div className="header">
@@ -320,6 +326,7 @@ export default function Can() {
           </div>
         </div>
       </div>
-    </BasicLayout>
+      </Box>
+    </FullLayout>
   )
 }

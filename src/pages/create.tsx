@@ -1,5 +1,4 @@
 import { useState, useContext } from 'react'
-import BasicLayout from '@layouts/BasicLayout'
 import Button from '@mui/material/Button'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
@@ -8,7 +7,6 @@ import { getSession } from 'next-auth/react'
 import Search from '@mui/icons-material/Search'
 import {
   Box,
-  IconButton,
   FormControl,
   InputLabel,
   MenuItem,
@@ -16,18 +14,14 @@ import {
   Typography,
 } from '@mui/material'
 import { DatePicker, TimePicker } from '@mui/x-date-pickers'
-import Image from 'next/image'
 import { language } from '../jotai'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import {
   CalendarMonth as CalendarMonthIcon,
   CloudUpload as CloudUploadIcon,
-  LocationOn as LocationOnIcon,
-  AvTimer as AvTimerIcon,
   Payment as PaymentIcon,
 } from '@mui/icons-material'
 import 'react-swipeable-list/dist/styles.css'
@@ -35,6 +29,7 @@ import GoogleMaps from '@elements/Need/GoogleLocation'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
+import FullLayout from '@layouts/FullLayout'
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoicmVkMzAxMSIsImEiOiJjbGdjOXp0enAwOXZ5M2hzeGl6ank5Y29yIn0.NaiYYAmHiHFDJ6SRcqrmkg'
@@ -241,247 +236,240 @@ export default function Need() {
   }
 
   return (
-    <BasicLayout title={languagejson[lang].NEED}>
-      <div className="page">
-        <div className="search">
-          <div className="header">
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-              }}>
-              <IconButton
-                size="large"
-                edge="end"
-                aria-label="menu"
-                onClick={handleClose}>
-                <ArrowBackIcon />
-              </IconButton>
-            </Box>
-          </div>
-          <div className="main">
-            <TextField
-              sx={{
-                width: '100%',
-              }}
-              variant="outlined"
-              name="title"
-              label={languagejson[lang].WhatDoYouNeed}
-              value={need.title}
-              onChange={handleChangeNeedForm}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <div className="example">
-              <Typography>{languagejson[lang].Showexample}:</Typography>
-              <Typography>{file !== null && file.name}</Typography>
-              <Button
-                component="label"
-                variant="contained"
-                startIcon={<CloudUploadIcon />}>
-                Upload File
-                <input
-                  type="file"
-                  style={{
-                    clip: 'rect(0 0 0 0)',
-                    clipPath: 'inset(50%)',
-                    height: 1,
-                    overflow: 'hidden',
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    whiteSpace: 'nowrap',
-                    width: 1,
-                  }}
-                  onChange={handleChangeUpload}
-                />
-              </Button>
-            </div>
-            <div className="calendar">
-              <Box>
-                <CalendarMonthIcon
-                  sx={{
-                    fontSize: 50,
-                    marginRight: '20px',
-                  }}
-                />
-              </Box>
-              <Box
-                sx={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}>
-                <DatePicker
-                  label="StartLine"
-                  value={need.startLine}
-                  onChange={(value) => {
-                    setNeed((prevState) => ({
-                      ...prevState,
-                      startLine: value,
-                    }))
-                  }}
-                  renderInput={(props) => (
-                    <TextField sx={{ width: '45%' }} {...props} />
-                  )}
-                />
-                <DatePicker
-                  label="DeadLine"
-                  value={need.deadLine}
-                  onChange={(value) => {
-                    setNeed((prevState) => ({
-                      ...prevState,
-                      deadLine: value,
-                    }))
-                  }}
-                  renderInput={(props) => (
-                    <TextField sx={{ width: '45%' }} {...props} />
-                  )}
-                />
-              </Box>
-            </div>
-            <div className="timer">
-              <Box>
-                <PaymentIcon
-                  sx={{
-                    fontSize: 50,
-                    marginRight: '20px',
-                  }}
-                />
-              </Box>
-              <Box
-                sx={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}>
+    <FullLayout title={languagejson[lang].CAN}>
+      <Box
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+          <div className="page">
+            <div className="search">
+              <div className="main">
                 <TextField
-                  value={need.price}
                   sx={{
-                    width: '45%',
+                    width: '100%',
                   }}
-                  name="price"
-                  label="Price"
-                  type="number"
-                  inputProps={{
-                    min: 0,
-                  }}
-                  placeholder="Price"
+                  variant="outlined"
+                  name="title"
+                  label={languagejson[lang].WhatDoYouNeed}
+                  value={need.title}
                   onChange={handleChangeNeedForm}
-                />
-                <FormControl sx={{ width: '45%' }}>
-                  <InputLabel id="per-price-select-label">Per Price</InputLabel>
-                  <Select
-                    value={need.payType}
-                    onChange={handleChangeNeedForm}
-                    id="outlined"
-                    displayEmpty
-                    inputProps={{ 'aria-label': 'Without label' }}
-                    label="Per Price"
-                    labelId="per-price-select-label"
-                    name="payType">
-                    <MenuItem value={'piece'}>per Piece</MenuItem>
-                    <MenuItem value={'hour'}>per Hour</MenuItem>
-                    <MenuItem value={'month'}>per Month</MenuItem>
-                    <MenuItem value={'year'}>per Year</MenuItem>
-                    <MenuItem value={'unit'}>per Unit</MenuItem>
-                    <MenuItem value={'free'}>for Free</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-            </div>
-            <div className="timer">
-              <Box>
-                <PaymentIcon
-                  sx={{
-                    fontSize: 50,
-                    marginRight: '20px',
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search />
+                      </InputAdornment>
+                    ),
                   }}
                 />
-              </Box>
-              <Box
-                sx={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}>
-                <FormControl sx={{ width: '45%' }}>
-                  <InputLabel id="per-price-select-label">Pay Unit</InputLabel>
-                  <Select
-                    value={need.payUnit}
-                    onChange={handleChangeNeedForm}
-                    id="outlined"
-                    displayEmpty
-                    inputProps={{ 'aria-label': 'Without label' }}
-                    label="Pay Unit"
-                    labelId="pay-unit-select-label"
-                    name="payUnit">
-                    <MenuItem value={'usd'}>USD</MenuItem>
-                    <MenuItem value={'uah'}>UAH</MenuItem>
-                    <MenuItem value={'eur'}>EUR</MenuItem>
-                    <MenuItem value={'gbp'}>GBP</MenuItem>
-                    <MenuItem value={'cad'}>CAD</MenuItem>
-                    <MenuItem value={'aud'}>AUD</MenuItem>
-                    <MenuItem value={'cny'}>CNY</MenuItem>
-                    <MenuItem value={'inr'}>INR</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl sx={{ width: '45%' }}>
-                  <InputLabel id="per-price-select-label">Role</InputLabel>
-                  <Select
-                    value={need.role}
-                    onChange={handleChangeNeedForm}
-                    id="outlined"
-                    displayEmpty
-                    inputProps={{ 'aria-label': 'Without label' }}
-                    label="Role"
-                    labelId="role-select-label"
-                    name="role">
-                    <MenuItem value={'onsite'}>Onsite</MenuItem>
-                    <MenuItem value={'hybrid'}>Hybrid</MenuItem>
-                    <MenuItem value={'remote'}>Remote</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-            </div>
+                <div className="example">
+                  <Typography>{languagejson[lang].Showexample}:</Typography>
+                  <Typography>{file !== null && file.name}</Typography>
+                  <Button
+                    component="label"
+                    variant="contained"
+                    startIcon={<CloudUploadIcon />}>
+                    Upload File
+                    <input
+                      type="file"
+                      style={{
+                        clip: 'rect(0 0 0 0)',
+                        clipPath: 'inset(50%)',
+                        height: 1,
+                        overflow: 'hidden',
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        whiteSpace: 'nowrap',
+                        width: 1,
+                      }}
+                      onChange={handleChangeUpload}
+                    />
+                  </Button>
+                </div>
+                <div className="calendar">
+                  <Box>
+                    <CalendarMonthIcon
+                      sx={{
+                        fontSize: 50,
+                        marginRight: '20px',
+                      }}
+                    />
+                  </Box>
+                  <Box
+                    sx={{
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}>
+                    <DatePicker
+                      label="StartLine"
+                      value={need.startLine}
+                      onChange={(value) => {
+                        setNeed((prevState) => ({
+                          ...prevState,
+                          startLine: value,
+                        }))
+                      }}
+                      renderInput={(props) => (
+                        <TextField sx={{ width: '45%' }} {...props} />
+                      )}
+                    />
+                    <DatePicker
+                      label="DeadLine"
+                      value={need.deadLine}
+                      onChange={(value) => {
+                        setNeed((prevState) => ({
+                          ...prevState,
+                          deadLine: value,
+                        }))
+                      }}
+                      renderInput={(props) => (
+                        <TextField sx={{ width: '45%' }} {...props} />
+                      )}
+                    />
+                  </Box>
+                </div>
+                <div className="timer">
+                  <Box>
+                    <PaymentIcon
+                      sx={{
+                        fontSize: 50,
+                        marginRight: '20px',
+                      }}
+                    />
+                  </Box>
+                  <Box
+                    sx={{
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}>
+                    <TextField
+                      value={need.price}
+                      sx={{
+                        width: '45%',
+                      }}
+                      name="price"
+                      label="Price"
+                      type="number"
+                      inputProps={{
+                        min: 0,
+                      }}
+                      placeholder="Price"
+                      onChange={handleChangeNeedForm}
+                    />
+                    <FormControl sx={{ width: '45%' }}>
+                      <InputLabel id="per-price-select-label">Per Price</InputLabel>
+                      <Select
+                        value={need.payType}
+                        onChange={handleChangeNeedForm}
+                        id="outlined"
+                        displayEmpty
+                        inputProps={{ 'aria-label': 'Without label' }}
+                        label="Per Price"
+                        labelId="per-price-select-label"
+                        name="payType">
+                        <MenuItem value={'piece'}>per Piece</MenuItem>
+                        <MenuItem value={'hour'}>per Hour</MenuItem>
+                        <MenuItem value={'month'}>per Month</MenuItem>
+                        <MenuItem value={'year'}>per Year</MenuItem>
+                        <MenuItem value={'unit'}>per Unit</MenuItem>
+                        <MenuItem value={'free'}>for Free</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </div>
+                <div className="timer">
+                  <Box>
+                    <PaymentIcon
+                      sx={{
+                        fontSize: 50,
+                        marginRight: '20px',
+                      }}
+                    />
+                  </Box>
+                  <Box
+                    sx={{
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}>
+                    <FormControl sx={{ width: '45%' }}>
+                      <InputLabel id="per-price-select-label">Pay Unit</InputLabel>
+                      <Select
+                        value={need.payUnit}
+                        onChange={handleChangeNeedForm}
+                        id="outlined"
+                        displayEmpty
+                        inputProps={{ 'aria-label': 'Without label' }}
+                        label="Pay Unit"
+                        labelId="pay-unit-select-label"
+                        name="payUnit">
+                        <MenuItem value={'usd'}>USD</MenuItem>
+                        <MenuItem value={'uah'}>UAH</MenuItem>
+                        <MenuItem value={'eur'}>EUR</MenuItem>
+                        <MenuItem value={'gbp'}>GBP</MenuItem>
+                        <MenuItem value={'cad'}>CAD</MenuItem>
+                        <MenuItem value={'aud'}>AUD</MenuItem>
+                        <MenuItem value={'cny'}>CNY</MenuItem>
+                        <MenuItem value={'inr'}>INR</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <FormControl sx={{ width: '45%' }}>
+                      <InputLabel id="per-price-select-label">Role</InputLabel>
+                      <Select
+                        value={need.role}
+                        onChange={handleChangeNeedForm}
+                        id="outlined"
+                        displayEmpty
+                        inputProps={{ 'aria-label': 'Without label' }}
+                        label="Role"
+                        labelId="role-select-label"
+                        name="role">
+                        <MenuItem value={'onsite'}>Onsite</MenuItem>
+                        <MenuItem value={'hybrid'}>Hybrid</MenuItem>
+                        <MenuItem value={'remote'}>Remote</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </div>
 
-            <TextField
-              value={need.description}
-              onChange={handleChangeNeedForm}
-              name="description"
-              id="outlined-required"
-              required
-              multiline
-              sx={{
-                width: '100%',
-                marginTop: '20px',
-              }}
-              rows={4}
-              placeholder="Description..."
-              label="Description"
-            />
-            <GoogleMaps
-              where={where}
-              setWhere={(value: PlaceType) => setWhere(value)}
-            />
-            <div className="maps">
-              <div id="map" style={{ height: '300px', overflow: 'hidden' }} />
-            </div>
+                <TextField
+                  value={need.description}
+                  onChange={handleChangeNeedForm}
+                  name="description"
+                  id="outlined-required"
+                  required
+                  multiline
+                  sx={{
+                    width: '100%',
+                    marginTop: '20px',
+                  }}
+                  rows={4}
+                  placeholder="Description..."
+                  label="Description"
+                />
+                <GoogleMaps
+                  where={where}
+                  setWhere={(value: PlaceType) => setWhere(value)}
+                />
+                <div className="maps">
+                  <div id="map" style={{ height: '300px', overflow: 'hidden' }} />
+                </div>
 
-            <div className="actions">
-              <Button variant="contained" onClick={submitPublish}>
-                PUBLISH
-              </Button>
+                <div className="actions">
+                  <Button variant="contained" onClick={submitPublish}>
+                    PUBLISH
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </BasicLayout>
+      </Box>
+    </FullLayout>
   )
 }
 

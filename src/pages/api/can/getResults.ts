@@ -19,18 +19,19 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const data = JSON.parse(req.body)
   const client = await connectToDatabase()
   const needsCollection = client.db().collection('needs')
-  let query = [];
   const titleKeywords = data.title.split(" ");
   const titleQuery = titleKeywords.map((e: string) => {
     return new RegExp(e, 'i');
   })
+  console.log(titleKeywords, titleQuery, 'asdfasdf')
   // let titleQuery = [];
   // for (let index = 0; index < titleKeywords.length; index++) {
   //   const keyword = titleKeywords[index];
   //   titleQuery.push({
-  //     title: {$regex: keyword, $options: 'i'}
+    //     title: {$regex: keyword, $options: 'i'}
   //   });
   // }
+  let query = [];
   if (data.where) {
     query = [
       { where: { $regex: data.where, $options: 'i' } },
@@ -42,7 +43,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     ]
   } else {
     query = [
-      { price: { $gt: data.min * 1, $lt: data.max * 1 } },
+      { price: { $gte: data.min * 1, $lte: data.max * 1 } },
       { role: data.role },
       { payUnit: data.payUnit },
       { exist: 1 },
