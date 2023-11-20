@@ -104,7 +104,6 @@ export default function Need() {
         payUnit: data.payUnit || 'usd',
         role: data.role || 'onsite',
       })
-      setWhere(data.where || null)
     }
   }
 
