@@ -86,11 +86,12 @@ export default function Need() {
     const response = await fetch(`https://ipapi.co/json`)
     const countryCode = await response.json()
     setIp(`${countryCode.city}, ${countryCode.country_name}`)
+    showMapBox(`${countryCode.city}, ${countryCode.country_name}`)
   }
-  const showMapBox = async () => {
+  const showMapBox = async (country?: string) => {
     const select = where ? where.description : ip;
     fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${select}.json?access_token=${mapboxgl.accessToken}`
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${country || select}.json?access_token=${mapboxgl.accessToken}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -115,10 +116,6 @@ export default function Need() {
       elements[0].remove()
     }
   })
-
-  const handleClose = () => {
-    router.back()
-  }
 
   const handleChangeUpload = (e: any) => {
     setFile(e.target.files[0])
