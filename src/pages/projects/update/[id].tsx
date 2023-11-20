@@ -72,6 +72,7 @@ export default function Need() {
     payUnit: 'usd',
     role: 'onsite',
   })
+  const [dbWhere, setDbWhere] = useState<string | null>(null);
   const [where, setWhere] = useState<PlaceType | null>(null)
   const router = useRouter()
   const projectID = router.query.id;
@@ -104,6 +105,7 @@ export default function Need() {
         payUnit: data.payUnit || 'usd',
         role: data.role || 'onsite',
       })
+      setDbWhere(data.where || null)
     }
   }
 
@@ -160,7 +162,7 @@ export default function Need() {
       'fields',
       JSON.stringify({
         ...need,
-        where: where ? where.structured_formatting.main_text : null,
+        where: where ? where.structured_formatting.main_text : dbWhere,
         _id: projectID
       })
     )
@@ -189,6 +191,7 @@ export default function Need() {
           role: 'onsite',
         })
         setWhere(null)
+        setDbWhere(null)
         router.push(`/projects/${projectID}`)
       }
     } catch (err) {
@@ -205,7 +208,7 @@ export default function Need() {
   const UpdateData = async () => {
     const data = {
       ...need,
-      where: where ? where.structured_formatting.main_text : null,
+      where: where ? where.structured_formatting.main_text : dbWhere,
       _id: projectID
     }
     try {
@@ -232,6 +235,7 @@ export default function Need() {
           role: 'onsite',
         })
         setWhere(null)
+        setDbWhere(null)
         router.push(`/projects/${projectID}`)
       }
     } catch (err) {
