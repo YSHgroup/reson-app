@@ -23,37 +23,25 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const titleQuery = titleKeywords.map((e: string) => {
     return new RegExp(e, 'i');
   })
-  // let titleQuery = [];
-  // for (let index = 0; index < titleKeywords.length; index++) {
-  //   const keyword = titleKeywords[index];
-  //   titleQuery.push({
-    //     title: {$regex: keyword, $options: 'i'}
-  //   });
-  // }
-  let query = [];
+  let query:any = [
+    { exist: 1 },
+    { price: { $gt: data.min * 1, $lt: data.max * 1 } },
+    { author: { $ne: session?.user?.email } }
+  ];
   if (data.where) {
-    query = [
-      { where: { $regex: data.where, $options: 'i' } },
-      { price: { $gt: data.min * 1, $lt: data.max * 1 } },
-      { role: data.role },
-      { payUnit: data.payUnit },
-      { exist: 1 },
-      { author: { $ne: session?.user?.email } }
-    ]
-  } else {
-    query = [
-      { price: { $gte: data.min * 1, $lte: data.max * 1 } },
-      { role: data.role },
-      { payUnit: data.payUnit },
-      { exist: 1 },
-      { author: { $ne: session?.user?.email } }
-    ]
+    query.push({ where: { $regex: data.where, $options: 'i' } })
+  }
+  if(data.role) {
+    data.role !== 'all' && query.push({ role: data.role });
+  }
+  if(data.payUnit) {
+    data.payUnit !== 'all' && query.push({ payUnit: data.payUnit });
   }
   try {
     const results = await needsCollection
       .find({
         $and: query,
-        title: {$in: titleQuery}
+        title: { $in: titleQuery }
       })
       .sort({ createdAt: -1 })
       .toArray()

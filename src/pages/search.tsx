@@ -59,8 +59,8 @@ export default function Can() {
   const [sliderValue, setSliderValue] = useState<number[]>([0, 5000])
   const [can, setCan] = useState<CanFormType>({
     title: '',
-    payUnit: 'usd',
-    role: 'onsite',
+    payUnit: 'all',
+    role: 'all',
   })
   const [where, setWhere] = useState<PlaceType | null>(null)
   const router = useRouter()
@@ -166,7 +166,7 @@ export default function Can() {
       })
       const results = await response.json()
       if (results.message === 'Success') {
-        if(results.results.length === 0) {
+        if (results.results.length === 0) {
           setSnack(
             new Snack({
               message: 'There are no results matching the conditions.',
@@ -197,126 +197,128 @@ export default function Can() {
           flexDirection: 'column',
         }}
       >
-      <div className="page">
-        <div className="search">
-          <div className="main">
-            <TextField
-              sx={{
-                width: '100%',
-              }}
-              variant="outlined"
-              name="title"
-              label={languagejson[lang].whatYouAreLookingFor}
-              value={can.title}
-              onChange={handleChangeCan}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <div className="timer">
-              <Box>
-                <PaymentIcon
-                  sx={{
-                    fontSize: 50,
-                    marginRight: '20px',
-                  }}
-                />
-              </Box>
-              <Box
+        <div className="page">
+          <div className="search">
+            <div className="main">
+              <TextField
                 sx={{
                   width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}>
-                <Slider
-                  getAriaLabel={() => 'Minimum distance shift'}
-                  value={sliderValue}
-                  onChange={handleSliderChange}
-                  valueLabelDisplay="auto"
-                  min={0}
-                  max={100000}
-                  getAriaValueText={valuetext}
-                  disableSwap
-                />
-              </Box>
-            </div>
-            <div className="timer">
-              <Box>
-                <PaymentIcon
+                }}
+                variant="outlined"
+                name="title"
+                label={languagejson[lang].whatYouAreLookingFor}
+                value={can.title}
+                onChange={handleChangeCan}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <div className="timer">
+                <Box>
+                  <PaymentIcon
+                    sx={{
+                      fontSize: 50,
+                      marginRight: '20px',
+                    }}
+                  />
+                </Box>
+                <Box
                   sx={{
-                    fontSize: 50,
-                    marginRight: '20px',
-                  }}
-                />
-              </Box>
-              <Box
-                sx={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}>
-                <FormControl sx={{ width: '45%' }}>
-                  <InputLabel id="per-price-select-label">Pay Unit</InputLabel>
-                  <Select
-                    value={can.payUnit}
-                    onChange={handleChangeCan}
-                    id="outlined"
-                    displayEmpty
-                    inputProps={{ 'aria-label': 'Without label' }}
-                    label="Pay Unit"
-                    labelId="pay-unit-select-label"
-                    name="payUnit">
-                    <MenuItem value={'usd'}>USD</MenuItem>
-                    <MenuItem value={'uah'}>UAH</MenuItem>
-                    <MenuItem value={'eur'}>EUR</MenuItem>
-                    <MenuItem value={'gbp'}>GBP</MenuItem>
-                    <MenuItem value={'cad'}>CAD</MenuItem>
-                    <MenuItem value={'aud'}>AUD</MenuItem>
-                    <MenuItem value={'cny'}>CNY</MenuItem>
-                    <MenuItem value={'inr'}>INR</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl sx={{ width: '45%' }}>
-                  <InputLabel id="role-select-label">Role</InputLabel>
-                  <Select
-                    value={can.role}
-                    onChange={handleChangeCan}
-                    id="outlined"
-                    displayEmpty
-                    inputProps={{ 'aria-label': 'Without label' }}
-                    label="Role"
-                    labelId="role-select-label"
-                    name="role">
-                    <MenuItem value={'onsite'}>Onsite</MenuItem>
-                    <MenuItem value={'hybrid'}>Hybrid</MenuItem>
-                    <MenuItem value={'remote'}>Remote</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-            </div>
-            <GoogleMaps
-              where={where}
-              setWhere={(value: PlaceType) => setWhere(value)}
-            />
-            <div className="maps">
-              <div id="map" style={{ height: '300px', overflow: 'hidden' }} />
-            </div>
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                  }}>
+                  <Slider
+                    getAriaLabel={() => 'Minimum distance shift'}
+                    value={sliderValue}
+                    onChange={handleSliderChange}
+                    valueLabelDisplay="auto"
+                    min={0}
+                    max={100000}
+                    getAriaValueText={valuetext}
+                    disableSwap
+                  />
+                </Box>
+              </div>
+              <div className="timer">
+                <Box>
+                  <PaymentIcon
+                    sx={{
+                      fontSize: 50,
+                      marginRight: '20px',
+                    }}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                  }}>
+                  <FormControl sx={{ width: '45%' }}>
+                    <InputLabel id="per-price-select-label">Pay Unit</InputLabel>
+                    <Select
+                      value={can.payUnit}
+                      onChange={handleChangeCan}
+                      id="outlined"
+                      displayEmpty
+                      inputProps={{ 'aria-label': 'Without label' }}
+                      label="Pay Unit"
+                      labelId="pay-unit-select-label"
+                      name="payUnit">
+                      <MenuItem value={'all'}>All Unit</MenuItem>
+                      <MenuItem value={'usd'}>USD</MenuItem>
+                      <MenuItem value={'uah'}>UAH</MenuItem>
+                      <MenuItem value={'eur'}>EUR</MenuItem>
+                      <MenuItem value={'gbp'}>GBP</MenuItem>
+                      <MenuItem value={'cad'}>CAD</MenuItem>
+                      <MenuItem value={'aud'}>AUD</MenuItem>
+                      <MenuItem value={'cny'}>CNY</MenuItem>
+                      <MenuItem value={'inr'}>INR</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <FormControl sx={{ width: '45%' }}>
+                    <InputLabel id="role-select-label">Role</InputLabel>
+                    <Select
+                      value={can.role}
+                      onChange={handleChangeCan}
+                      id="outlined"
+                      displayEmpty
+                      inputProps={{ 'aria-label': 'Without label' }}
+                      label="Role"
+                      labelId="role-select-label"
+                      name="role">
+                      <MenuItem value={'all'}>All Role</MenuItem>
+                      <MenuItem value={'onsite'}>Onsite</MenuItem>
+                      <MenuItem value={'hybrid'}>Hybrid</MenuItem>
+                      <MenuItem value={'remote'}>Remote</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </div>
+              <GoogleMaps
+                where={where}
+                setWhere={(value: PlaceType) => setWhere(value)}
+              />
+              <div className="maps">
+                <div id="map" style={{ height: '300px', overflow: 'hidden' }} />
+              </div>
 
-            <div className="actions">
-              <Button variant="contained" onClick={handleSearch}>
-                SEARCH
-              </Button>
+              <div className="actions">
+                <Button variant="contained" onClick={handleSearch}>
+                  SEARCH
+                </Button>
+              </div>
             </div>
-          </div>
-          <div className="showlists">
-            <ShowLists lists={lists} />
+            <div className="showlists">
+              <ShowLists lists={lists} />
+            </div>
           </div>
         </div>
-      </div>
       </Box>
     </FullLayout>
   )
