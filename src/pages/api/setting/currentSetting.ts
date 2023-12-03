@@ -7,7 +7,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return
   }
-  const session = await getServerSession(req, res, authOptions)
+  const session: any = await getServerSession(req as any, res as any, authOptions as any)
   const client = await connectToDatabase()
   
   const usersCollection = client.db().collection('users')

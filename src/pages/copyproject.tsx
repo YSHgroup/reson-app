@@ -1,3 +1,4 @@
+import React from 'react'
 import FullLayout from '@layouts/FullLayout/FullLayout'
 import {
   Badge,
@@ -12,7 +13,6 @@ import Typography from '@mui/material/Typography'
 import { Stack } from '@mui/system'
 import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
-import React from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
@@ -86,9 +86,9 @@ export default function CopyProject() {
           width: '100vw',
         }}>
         {list.map(({ name, date, members }, i) => (
-          <>
+          <React.Fragment key={name}>
             {i !== 0 && <Divider />}
-            <ListItemButton key={name}>
+            <ListItemButton>
               <Checkbox />
               <Stack sx={{ flexGrow: 1 }}>
                 <Typography variant="h4">{name}</Typography>
@@ -113,7 +113,7 @@ export default function CopyProject() {
                 />
               </IconButton>
             </ListItemButton>
-          </>
+          </React.Fragment>
         ))}
       </List>
     </FullLayout>

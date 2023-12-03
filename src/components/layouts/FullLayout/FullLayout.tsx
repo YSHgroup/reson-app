@@ -6,10 +6,10 @@ import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import Image from 'next/image'
 import Menubar from '@elements/Menubar'
 import { useRouter } from 'next/router'
-import {language, modusJot, statusJot, firstnameJot, lastnameJot, emailJot, telephoneJot, personalAnalysisJot} from "../../../jotai"
+import { language, modusJot, statusJot, firstnameJot, lastnameJot, emailJot, telephoneJot, personalAnalysisJot } from "../../../jotai"
 import { useAtom } from 'jotai'
 
 type FullLayoutProps = {
@@ -39,7 +39,7 @@ export default function FullLayout({
     let settingData = {
       lang, modus, status, firstname, lastname, email, telephone, personalAnalysis
     }
-    if (router.pathname.substring(1,router.pathname.length) == 'settings') {
+    if (router.pathname.substring(1, router.pathname.length) == 'settings') {
       fetch('/api/setting/setting', {
         method: 'POST',
         body: JSON.stringify(settingData),
@@ -48,7 +48,7 @@ export default function FullLayout({
         },
       }).then(res => console.log(res))
     }
-    console.log(router.pathname.substring(1,router.pathname.length))
+    console.log(router.pathname.substring(1, router.pathname.length))
     router.replace('/dashboard')
   }
   return (
@@ -73,13 +73,14 @@ export default function FullLayout({
                 }}>
                 {title}
               </Typography>
-              <IconButton
-                size="large"
-                edge="end"
+              <IconButton 
+                size="large" 
+                edge="end" 
                 color="inherit"
                 aria-label="menu"
-                onClick={handleClose}>
-                <ArrowBackIcon />
+                onClick={handleClose}
+              >
+                <Image src="/images/back.png" alt="back" width={26} height={26} />
               </IconButton>
             </Toolbar>
           </AppBar>

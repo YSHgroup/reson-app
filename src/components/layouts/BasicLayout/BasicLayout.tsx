@@ -28,11 +28,11 @@ export default function BasicLayout({
     e.preventDefault();
     setStyle({
       position: 'absolute',
-    bottom: 100,
-    right: 12,
-    width: 36,
-    height: 36,
-    transition: 0.5
+      bottom: 100,
+      right: 12,
+      width: 36,
+      height: 36,
+      transition: 0.5
     })
   }
   const mouseOver = (e: any) => {
@@ -49,7 +49,7 @@ export default function BasicLayout({
   return (
     <>
       <Head>
-        <title>Reson | {title}</title>
+        <title>{title ? `Reson | ${title}` :'Reson'}</title>
       </Head>
       <div
         className={cn('pageWrapper', {

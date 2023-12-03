@@ -47,13 +47,9 @@
   display: flex !important;
 }
 
-
-
-
-
-
-
-
+.messagesLink:hover + .unreadMessageNotification {
+  display: block!important
+}
 
 /* customize fullcalendar styles */
 

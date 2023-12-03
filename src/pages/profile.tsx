@@ -23,15 +23,15 @@ import { useAtom } from 'jotai'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { type AlertColor } from '@mui/material/Alert'
 import { Fade, ListItemIcon, Menu, MenuItem } from '@mui/material'
-import * as MenuData from '@constants/Menu.json'
+import MenuData from '@constants/Menu.json'
 import { StatusData } from '@constants/Status'
 import { getSession, signOut } from 'next-auth/react'
 
-const { data: MenuDatas } = MenuData
 
 import ImageUploader from '../components/elements/ImageUploader'
 import { useRouter } from 'next/router'
 
+const { data: MenuDatas } = MenuData;
 export default function Profile() {
   const [lang, setLanguage] = useAtom(language)
   const energy = 54
@@ -62,9 +62,7 @@ export default function Profile() {
   }
 
   useEffect(() => {
-
     getpic();
-
   }, [])
 
   const handleChange = () => {
@@ -113,18 +111,18 @@ export default function Profile() {
   async function loadpic() {
     await fetch('/api/user/currentUser').then(res => res.json()).then(
       res => {
-        setEmail(res.data[0].email || "");
-        setFirstName(res.data[0].firstName || "");
-        setLastName(res.data[0].lastName || "");
-        setCompany(res.data[0].company || "");
-        setTelephone(res.data[0].telephone || "");
-        setAddress(res.data[0].address || "");
-        setProfession(res.data[0].profession || "");
-        setEducation(res.data[0].education || "");
-        setHobby(res.data[0].hobby || "");
-        setStatus(parseInt(res.data[0].status) || 0);
-        setStatus(res.data[0].carExist || "");
-        setNickName(res.data[0].nickname || "")
+        setEmail(res.data.email || "");
+        setFirstName(res.data.firstName || "");
+        setLastName(res.data.lastName || "");
+        setCompany(res.data.company || "");
+        setTelephone(res.data.telephone || "");
+        setAddress(res.data.address || "");
+        setProfession(res.data.profession || "");
+        setEducation(res.data.education || "");
+        setHobby(res.data.hobby || "");
+        setStatus(parseInt(res.data.status) || 0);
+        setStatus(res.data.carExist || "");
+        setNickName(res.data.nickname || "")
       }
     ).catch(
       err => {
@@ -222,6 +220,22 @@ export default function Profile() {
                   </MenuItem>
                 )
             )}
+            <MenuItem key={'profile'} dense>
+              <Box
+                component={Link}
+                href={"/profile"}
+                sx={{ display: 'inherit' }}>
+                <ListItemIcon>
+                  <Image
+                    src={`/images/profile.png`}
+                    alt={"profile"}
+                    width={20}
+                    height={20}
+                  />
+                </ListItemIcon>
+                Profile
+              </Box>
+            </MenuItem>
             <MenuItem dense onClick={() => handleSignOut()}>
               Logout
             </MenuItem>

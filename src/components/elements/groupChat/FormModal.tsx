@@ -33,7 +33,6 @@ const modalStyle = {
   
 export default function FormModal({ users, groupInfo, members, setChangeState }: any) {
     const [open, setOpen] = React.useState(false)
-  
     const handleOpen = () => {
       initMembers()
       setOpen(true)
@@ -80,12 +79,8 @@ export default function FormModal({ users, groupInfo, members, setChangeState }:
     }
   
     const initMembers = () => {
-      const people = users.filter((user: any) =>
-        members.some((member: any) => member.email === user.email)
-      )
-      setSelectedPeople(people)
+      setSelectedPeople(members)
     }
-  
     const updateGroup = async () => {
       if (selectedPeople.length === 0) {
         return

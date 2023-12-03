@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 
 export default function ImageUploader() {
-
-
+  const router = useRouter();
+  const email = router.query.email;
   useEffect(() => {
     getpic()
   }, [])
@@ -59,8 +60,6 @@ export default function ImageUploader() {
       }
 
       function parseFile(file) {
-
-        console.log(file.name);
         // output(
         //   '<strong>' + encodeURI(file.name) + '</strong>'
         // );
@@ -89,7 +88,6 @@ export default function ImageUploader() {
 
       function setProgressMaxValue(e) {
         var pBar = document.getElementById('file-progress');
-
         if (e.lengthComputable) {
           pBar.max = e.total;
         }
@@ -97,14 +95,12 @@ export default function ImageUploader() {
 
       function updateFileProgress(e) {
         var pBar = document.getElementById('file-progress');
-
         if (e.lengthComputable) {
           pBar.value = e.loaded;
         }
       }
 
       function uploadFile(file) {
-
         var xhr = new XMLHttpRequest(),
           fileInput = document.getElementById('class-roster-file'),
           pBar = document.getElementById('file-progress'),
@@ -162,7 +158,6 @@ export default function ImageUploader() {
   }, [])
 
   async function asyncupload(file: any) {
-    console.log(file.name);
     const data = await file.arrayBuffer();
     await fetch('/api/upload', {
       method: 'POST',
@@ -197,26 +192,44 @@ export default function ImageUploader() {
     const data = await response.json()
   }
   function uploadstart(file) {
-    asyncupload(file)
+    if(!email) {asyncupload(file)}
   }
 
   function getpic() {
-    loadpic()
+    if (email) {
+      loadPicbyEmail();
+    } else {
+      loadpic()
+    }
+  }
+
+  async function loadPicbyEmail() {
+    const user = await fetch('/api/user/getUserByEmail', {
+      method: 'POST',
+      body: JSON.stringify({
+        email
+      })
+    });
+    const res = await user.json();
+    setPic(res);
+  }
+
+  async function setPic(res: any) {
+    const path: any = res.data.picpath;
+    document.getElementById('start').classList.add("hidden");
+    document.getElementById('response').classList.remove("hidden");
+    document.getElementById('notimage').classList.add("hidden");
+    document.getElementById('file-image').classList.remove("hidden");
+    if (path != null && path != "") {
+      document.getElementById('file-image').src = `api/view?name=chats/${path}`;
+    } else {
+      document.getElementById('file-image').src = `/images/${res.data[0].sex}.png`;
+    }
   }
 
   async function loadpic() {
-    await fetch('api/user/currentUser').then(res => res.json()).then(
-      res => {
-        const path: any = res.data[0].picpath;
-        if (path != null && path != "") {
-          document.getElementById('start').classList.add("hidden");
-          document.getElementById('response').classList.remove("hidden");
-          document.getElementById('notimage').classList.add("hidden");
-          document.getElementById('file-image').classList.remove("hidden");
-          document.getElementById('file-image').src = `api/view?name=chats/${path}`;
-        }
-
-      }
+    await fetch('/api/user/currentUser').then(res => res.json()).then(
+      res => setPic(res)
     ).catch(
       err => {
 

@@ -1,3 +1,4 @@
+import React from 'react'
 import FullLayout from '@layouts/FullLayout/FullLayout'
 import { Divider } from '@mui/material'
 import List from '@mui/material/List'
@@ -7,7 +8,7 @@ import Typography from '@mui/material/Typography'
 import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
 import Image from 'next/image'
-import {language} from "../jotai"
+import { language } from "../jotai"
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
 
@@ -48,9 +49,9 @@ export default function Score() {
           background: '#fff4',
         }}>
         {list.map((item, i) => (
-          <>
+          <React.Fragment key={item.name}>
             {i !== 0 && <Divider />}
-            <ListItem key={item.name}>
+            <ListItem >
               <ListItemText
                 primary={
                   <Typography
@@ -71,7 +72,7 @@ export default function Score() {
                 height={100}
               />
             </ListItem>
-          </>
+          </React.Fragment>
         ))}
       </List>
     </FullLayout>

@@ -36,7 +36,7 @@ export const config = {
 
 export default async function handler(req: any, res: NextApiResponse) {
   try {
-    const session = await getServerSession(req, res, authOptions)
+    const session: any = await getServerSession(req as any, res as any, authOptions as any)
     if (session == undefined) {
       return res.status(RS.CERROR_UNAUTHORIZED).json({
         message: 'Unauthorized',

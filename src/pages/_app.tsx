@@ -86,11 +86,10 @@ export default function App({ Component, pageProps }: AppProps) {
   }
 
   React.useEffect(() => {
-    const local: any = localStorage.getItem('language')
-    const storedValue: any = parseInt(local) || 0
-    if (storedValue) {
-      setLanguage(storedValue as LanguageType)
-    }
+    const localLanguage = localStorage.getItem('language');
+    // if (localLanguage) {
+    //   setLanguage(parseInt(localLanguage))
+    // }
   }, [])
 
   return (
@@ -107,12 +106,7 @@ export default function App({ Component, pageProps }: AppProps) {
                     setSnack,
                   }}>
                   <Head>
-                    <meta name="description" content="Reson App" />
-                    <meta
-                      name="viewport"
-                      content="width=device-width, initial-scale=1"
-                    />
-                    <link rel="icon" href="/favicon.png" />
+                    <title>ResonApp</title>
                   </Head>
                   <Component {...pageProps} />
                   <VideoCallWindow />

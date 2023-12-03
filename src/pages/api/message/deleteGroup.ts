@@ -18,7 +18,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const { groupInfo } = req.body;
 
-  const session = await getServerSession(req, res, authOptions);
+  const session: any = await getServerSession(req as any, res as any, authOptions as any)
   if (session?.user?.email !== groupInfo.owner) {
     return res.status(RS.CERROR_FORBIDDEN).json({
       message: 'You do not have the permission.'

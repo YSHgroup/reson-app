@@ -19,6 +19,7 @@ import { language } from '../jotai'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import NotificationChat from '../components/elements/NotificationChat'
+import NotificationCalendar from '../components/elements/NotificationCalendar'
 import io from 'socket.io-client'
 
 const { data: MenuDatas } = MenuData
@@ -31,10 +32,8 @@ export default function Home() {
   const opportunity = 21
   const [unread, SetUnread] = React.useState(0)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const [notificationDropdown, setNoficationDropdown] =
-    React.useState<boolean>(false)
   const [totalUnreadChats, setTotalUnreadChats] = React.useState<any>([])
-
+  const [isNotificationCalendar, setIsNotificationCalendar] = React.useState<boolean>(false)
   const open = Boolean(anchorEl)
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -136,16 +135,6 @@ export default function Home() {
     })
     getUnreadMessage()
   }, [])
-
-  const ImportContacts = async () => {
-    // const response = await fetch('/api/contact/contact', {
-    //   method: 'POST',
-    //   body: JSON.stringify(fakeContacts),
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    // })
-  }
 
   return (
     <BasicLayout title="Dashboard">
@@ -315,8 +304,7 @@ export default function Home() {
           <IconButton
             LinkComponent={Link}
             href="/messages"
-            onMouseEnter={() => setNoficationDropdown(true)}
-            onMouseLeave={() => setNoficationDropdown(false)}
+            className='messagesLink'
           >
             {unread > 0 ? (
               <Badge badgeContent={unread} color="error">
@@ -338,14 +326,9 @@ export default function Home() {
               </Badge>
             )}
           </IconButton>
-          {notificationDropdown && (
-            <NotificationChat
-              totalUnreadChats={totalUnreadChats}
-              zIndex={'2'}
-              left={'67px'}
-            />
-          )}
-
+          <NotificationChat
+            totalUnreadChats={totalUnreadChats}
+          />
           {isDragging && (
             <Image src="/images/arrow.png" alt="left" width={50} height={50} />
           )}
@@ -385,7 +368,19 @@ export default function Home() {
               style={{ transform: 'rotate(180deg)' }}
             />
           )}
-          <IconButton LinkComponent={Link} href="/calendar">
+          {
+            isNotificationCalendar && <NotificationCalendar />
+          }
+          <IconButton
+            LinkComponent={Link}
+            href="/calendar"
+            onMouseOver={() => {
+              setIsNotificationCalendar(true)
+            }}
+            onMouseLeave={() => {
+              setIsNotificationCalendar(false)
+            }}
+          >
             <Image
               src="/images/calendar.png"
               alt="calendar"
@@ -491,7 +486,6 @@ export default function Home() {
               alt="contact"
               width={50}
               height={50}
-              onClick={ImportContacts}
             />
           </IconButton>
           <IconButton LinkComponent={Link} href="/projects">

@@ -20,12 +20,13 @@ import languagejson from "../../language.json"
 import { useAtom } from 'jotai'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { Fade, ListItemIcon, Menu, MenuItem } from '@mui/material'
-import * as MenuData from '@constants/Menu.json'
+import MenuData from '@constants/Menu.json'
 import { getSession, signOut } from 'next-auth/react'
 
 const { data: MenuDatas } = MenuData
 
 import { useRouter } from 'next/router'
+import ImageUploader from '@elements/ImageUploader'
 
 export default function ProfileItem() {
   const [lang, setLanguage] = useAtom(language)
@@ -62,9 +63,7 @@ export default function ProfileItem() {
   }
 
   useEffect(() => {
-
     getpic();
-
   }, [])
 
   const handleChange = () => {
@@ -178,6 +177,22 @@ export default function ProfileItem() {
                   </MenuItem>
                 )
             )}
+            <MenuItem key={'profile'} dense>
+              <Box
+                component={Link}
+                href={"/profile"}
+                sx={{ display: 'inherit' }}>
+                <ListItemIcon>
+                  <Image
+                    src={`/images/profile.png`}
+                    alt={"profile"}
+                    width={20}
+                    height={20}
+                  />
+                </ListItemIcon>
+                Profile
+              </Box>
+            </MenuItem>
             <MenuItem dense onClick={() => handleSignOut()}>
               Logout
             </MenuItem>
@@ -202,13 +217,7 @@ export default function ProfileItem() {
               width={150}
               height={150}
             /> */}
-            {
-              pic ? (
-                <Image src={`/api/view?name=chats/${pic}`} alt={email} width={270} height={200} />
-              ) : (
-                <Image src={"/images/male.png"} alt={email} width={270} height={200} />
-              )
-            }
+            <ImageUploader />
           </Box>
           <Box
             sx={{

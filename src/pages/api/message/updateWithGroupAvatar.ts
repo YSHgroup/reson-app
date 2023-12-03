@@ -1,13 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { getSession } from 'next-auth/react'
 import RS from '@constants/ResponseStatus'
 import { connectToDatabase } from '@lib/db'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]"
-var pos = require('pos');
 import multer from 'multer';
 import fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import { ObjectId } from 'mongodb'
 
@@ -34,7 +31,7 @@ export const config = {
 export default async function handler(req: any, res: NextApiResponse) {
     try {
         var today = new Date();
-        const session = await getServerSession(req, res, authOptions)
+        const session: any = await getServerSession(req as any, res as any, authOptions as any)
         if (session == undefined) {
             return res.status(RS.CERROR_UNAUTHORIZED).json({
                 message: 'Unauthorized',

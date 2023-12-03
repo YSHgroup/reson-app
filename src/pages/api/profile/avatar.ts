@@ -11,7 +11,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return
   }
 
-  const session = await getServerSession(req, res, authOptions)
+  const session: any = await getServerSession(req as any, res as any, authOptions as any)
   
   
   const { picpath } = req.body

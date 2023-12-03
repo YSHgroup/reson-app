@@ -228,8 +228,8 @@ export default function Messages() {
         // const date2 = msg2[0].date.split("/").reverse().concat(msg2[0].time.split(":"));
         let date1 = msg1[0].date.split('/')
         let date2 = msg2[0].date.split('/')
-        ;[date1[0], date1[1], date1[2]] = [date1[2], date1[0], date1[1]]
-        ;[date2[0], date2[1], date2[2]] = [date2[2], date2[0], date2[1]]
+          ;[date1[0], date1[1], date1[2]] = [date1[2], date1[0], date1[1]]
+          ;[date2[0], date2[1], date2[2]] = [date2[2], date2[0], date2[1]]
         date1 = date1.concat(msg1[0].time.split(':'))
         date2 = date2.concat(msg2[0].time.split(':'))
         if (user1.msgs.length > 0 && user2.msgs.length > 0)
@@ -316,9 +316,9 @@ export default function Messages() {
         direction="row"
         sx={{ justifyContent: 'space-between', padding: '10px' }}>
         <Tabs value={group} onChange={handleChange}>
-          <Tab label={languagejson[lang].chats} />
-          <Tab label={languagejson[lang].group} />
-          <Tab label={languagejson[lang].contacts} />
+          <Tab key="chats" label={languagejson[lang].chats} />
+          <Tab key="group" label={languagejson[lang].group} />
+          <Tab key="contacts" label={languagejson[lang].contacts} />
         </Tabs>
         {group == 1 && (
           <FormModal
@@ -327,16 +327,15 @@ export default function Messages() {
           />
         )}
         {group == 2 && (
-          <Button
+          <IconButton
             sx={{
               marginRight: '5px',
               textTransform: 'none',
-              marginBottom: '12px',
             }}
-            variant="contained"
-            onClick={handleImportClick}>
-            Import Contact
-          </Button>
+            onClick={handleImportClick}
+          >
+            <Image src="/images/create.png" alt="create" title='Import Contact' width={30} height={30} />
+          </IconButton>
         )}
       </Stack>
       {/* BEGIN: CHATS SECTION */}
@@ -347,10 +346,9 @@ export default function Messages() {
               width: '100vw',
             }}>
             {users.map((user: any, i: number) => (
-              <>
+              <React.Fragment key={user._id}>
                 {i !== 0 && <Divider />}
                 <ListItemButton
-                  key={user._id}
                   href={`/chat?email=${user.email}`}
                   LinkComponent={Link}>
                   <Stack sx={{ flexGrow: 1 }}>
@@ -365,9 +363,11 @@ export default function Messages() {
                     }}
                     sx={{
                       // background: (user.sex != null ? (user.sex == 'male' ? 'rgb(0,176,240)' : 'rgb(255,18,239)') : 'rgb(47,255,79)'),
-                      background: 'rgb(0,176,240)',
-                      borderRadius: 2,
                       padding: 0,
+                      background: 'rgb(47,255,79)',
+                      borderRadius: 2,
+                      width: 70,
+                      height: 70,
                     }}>
                     <Badge
                       badgeContent={
@@ -384,11 +384,12 @@ export default function Messages() {
                         alt={user.sex != null ? user.sex : ''}
                         width={70}
                         height={70}
+                        style={{ cursor: 'pointer', padding: '5px' }}
                       />
                     </Badge>
                   </IconButton>
                 </ListItemButton>
-              </>
+              </React.Fragment>
             ))}
           </List>
         </>
@@ -402,16 +403,24 @@ export default function Messages() {
           }}>
           {chatGroups.length > 0 &&
             chatGroups.map((item, i) => (
-              <>
+              <React.Fragment key={item._id}>
                 {i !== 0 && <Divider />}
                 <ListItemButton
-                  key={item._id}
                   LinkComponent={Link}
                   href={`/groupchat/${item._id}`}>
                   <ListItemText>
                     <Typography variant="h4">{item.title}</Typography>
                   </ListItemText>
-                  <IconButton>
+                  <IconButton
+                    sx={{
+                      // background: (user.sex != null ? (user.sex == 'male' ? 'rgb(0,176,240)' : 'rgb(255,18,239)') : 'rgb(47,255,79)'),
+                      padding: 0,
+                      background: 'rgb(47,255,79)',
+                      borderRadius: 2,
+                      width: 70,
+                      height: 70,
+                    }}
+                  >
                     <Badge
                       badgeContent={item.members.length}
                       color="success"
@@ -421,7 +430,8 @@ export default function Messages() {
                       }}>
                       <Badge
                         badgeContent={item.unreadchats.length}
-                        color="error">
+                        color="error"
+                      >
                         <Image
                           src={
                             item.groupAvatar
@@ -429,14 +439,15 @@ export default function Messages() {
                               : `/images/group.png`
                           }
                           alt={item.title}
-                          width={50}
-                          height={50}
+                          width={70}
+                          height={70}
+                          style={{ cursor: 'pointer', padding: '5px' }}
                         />
                       </Badge>
                     </Badge>
                   </IconButton>
                 </ListItemButton>
-              </>
+              </React.Fragment>
             ))}
         </List>
       )}
@@ -448,13 +459,12 @@ export default function Messages() {
             sx={{
               width: '100vw',
             }}
-            // subheader={AddContact}
+          // subheader={AddContact}
           >
             {contacts.map((contact: any, i: number) => (
-              <>
+              <React.Fragment key={contact._id}>
                 {i !== 0 && <Divider />}
                 <ListItemButton
-                  key={contact._id}
                   // href="/profile"
                   LinkComponent={Link}>
                   <Stack sx={{ flexGrow: 1 }}>
@@ -480,9 +490,8 @@ export default function Messages() {
                       <Image
                         src={
                           contact.photo === null
-                            ? `/images/${
-                                contact.sex != null ? contact.sex : 'male'
-                              }.png`
+                            ? `/images/${contact.sex != null ? contact.sex : 'male'
+                            }.png`
                             : contact.photo
                         }
                         alt={contact.sex != null ? contact.sex : ''}
@@ -492,7 +501,7 @@ export default function Messages() {
                     </Badge>
                   </IconButton>
                 </ListItemButton>
-              </>
+              </React.Fragment>
             ))}
           </List>
           <BootstrapDialog
@@ -657,12 +666,12 @@ export function FormModal({ users, addGroup }) {
 
   return (
     <div>
-      <Button
+      <IconButton
+        sx={{ marginRight: '5px', textTransform: 'none' }}
         onClick={handleOpen}
-        variant="contained"
-        sx={{ marginRight: '5px', textTransform: 'none' }}>
-        New Group Chat
-      </Button>
+      >
+        <Image src="/images/create.png" alt="create" title='New Group' width={30} height={30} />
+      </IconButton>
       <Modal
         open={open}
         onClose={handleClose}

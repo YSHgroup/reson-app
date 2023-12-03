@@ -484,7 +484,7 @@ export default function Calendar() {
               value={initValues.bgColor}
             >
               {bgColorLists.map((bgColorList) =>
-                <MenuItem value={bgColorList.value}>
+                <MenuItem value={bgColorList.value} key={bgColorList.label}>
                   <span style={{
                     width: "20px",
                     height: "20px",

@@ -8,8 +8,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return
   }
-
-  console.log(req.body)
   const session = await getSession({
     req,
   })

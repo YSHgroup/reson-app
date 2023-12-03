@@ -1,3 +1,4 @@
+import React from 'react'
 import FullLayout from '@layouts/FullLayout/FullLayout'
 import { Divider } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
@@ -84,9 +85,9 @@ export default function Property() {
           background: '#fff4',
         }}>
         {list.map((item, i) => (
-          <>
+          <React.Fragment key={item.name}>
             {i !== 0 && <Divider />}
-            <ListItem key={item.name}>
+            <ListItem>
               <ListItemText
                 primary={<Typography variant="h4">{item.name}</Typography>}
               />
@@ -97,7 +98,7 @@ export default function Property() {
                 height={100}
               />
             </ListItem>
-          </>
+          </React.Fragment>
         ))}
       </List>
     </FullLayout>

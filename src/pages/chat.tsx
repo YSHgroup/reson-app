@@ -14,7 +14,6 @@ import {
 import LinearProgress, {
   LinearProgressProps,
 } from '@mui/material/LinearProgress'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import {
   IconButton,
   Stack,
@@ -24,16 +23,13 @@ import {
   Grid,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import { NextApiRequest } from 'next'
 import { getSession, useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import io from 'socket.io-client'
-import Peer from 'simple-peer'
 import { formatTime, timestampToFormattedDate } from '@lib/utils'
-import { useWindowSize } from '@react-hook/window-size'
 import Link from 'next/link'
 import cn from 'classnames'
 import {
@@ -298,7 +294,7 @@ export default function Chat() {
   }
 
   const initiateCall = () => {
-    setToChat(email)
+    setToChat(email as string)
     setFromChat(session?.user?.email)
     setIsCalling(true)
   }
@@ -690,10 +686,10 @@ export default function Chat() {
   )
 
   return (
-    <StyledEngineProvider injectFirst>
-      <CacheProvider value={cache}>
-        <IsCallingContext.Provider value={isCalling}>
-          <FullLayout title="Chat" appbar={false}>
+    <FullLayout title="Chat" appbar={false}>
+      <StyledEngineProvider injectFirst>
+        <CacheProvider value={cache}>
+          <IsCallingContext.Provider value={isCalling}>
             <Box
               sx={{
                 height: '100%',
@@ -739,8 +735,9 @@ export default function Chat() {
                   color="inherit"
                   aria-label="menu"
                   onClick={router.back}
-                  LinkComponent={Link}>
-                  <ArrowBackIcon />
+                  LinkComponent={Link}
+                >
+                  <Image src="/images/back.png" alt="back" width={26} height={26} />
                 </IconButton>
               </Box>
               <Stack
@@ -1024,8 +1021,7 @@ export default function Chat() {
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             fill="#8A8D91"
-                            gradientcolor1="#8A8D91"
-                            gradientcolor2="#8A8D91">
+                          >
                             <path d="M12 1.999c5.524 0 10.002 4.478 10.002 10.002 0 5.523-4.478 10.001-10.002 10.001-5.524 0-10.002-4.478-10.002-10.001C1.998 6.477 6.476 1.998 12 1.998Zm0 1.5a8.502 8.502 0 1 0 0 17.003A8.502 8.502 0 0 0 12 3.5ZM8.462 14.784A4.491 4.491 0 0 0 12 16.502a4.491 4.491 0 0 0 3.535-1.714.75.75 0 0 1 1.177.93A5.991 5.991 0 0 1 12 18.002a5.991 5.991 0 0 1-4.716-2.29.75.75 0 0 1 1.178-.928ZM9 8.75a1.25 1.25 0 1 1 0 2.499A1.25 1.25 0 0 1 9 8.75Zm6 0a1.25 1.25 0 1 1 0 2.499 1.25 1.25 0 0 1 0-2.499Z"></path>
                           </svg>
                         </Box>
@@ -1176,10 +1172,10 @@ export default function Chat() {
               handleClose={handleClose}
               content={selectedContent}
             />
-          </FullLayout>
-        </IsCallingContext.Provider>
-      </CacheProvider>
-    </StyledEngineProvider>
+          </IsCallingContext.Provider>
+        </CacheProvider>
+      </StyledEngineProvider>
+    </FullLayout>
   )
 }
 export async function getServerSideProps({ req }: { req: NextApiRequest }) {

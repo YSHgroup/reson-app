@@ -3,15 +3,16 @@ import { getSession } from 'next-auth/react'
 import RS from '@constants/ResponseStatus'
 import { connectToDatabase } from '@lib/db'
 import { getDigitalRoot } from '@lib/utils'
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "../auth/[...nextauth]"
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return
   }
 
-  const session = await getSession({
-    req,
-  })
+  const session: any = await getServerSession(req as any, res as any, authOptions as any)
+
 
   const client = await connectToDatabase()
 

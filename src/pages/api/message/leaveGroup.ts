@@ -17,7 +17,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   var today = new Date()
 
-  const session = await getServerSession(req, res, authOptions)
+  const session: any = await getServerSession(req as any, res as any, authOptions as any)
 
   const { groupInfo } = req.body
   const client = await connectToDatabase()

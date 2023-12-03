@@ -7,7 +7,7 @@ import { authOptions } from '../auth/[...nextauth]'
 import { ObjectId } from 'mongodb'
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession(req, res, authOptions)
+  const session: any = await getServerSession(req as any, res as any, authOptions as any)
   if (session == undefined)
     return res.status(RS.CERROR_UNAUTHORIZED).json({
       message: 'Unauthorized',

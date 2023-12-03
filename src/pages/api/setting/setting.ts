@@ -7,7 +7,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return
   }
-  const session = await getServerSession(req, res, authOptions)
+  const session: any = await getServerSession(req as any, res as any, authOptions as any)
 
   console.log("session=", session)
   

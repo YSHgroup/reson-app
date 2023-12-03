@@ -173,10 +173,9 @@ export default function Settings() {
           width: '100vw',
         }}>
         {SettingData[lang].map(({ name, options }, i) => (
-          <>
+          <React.Fragment key={name + options + i}>
             {i !== 0 && <Divider />}
             <ListItem
-              key={name + options + i}
               onClick={() => handleClickOpen(i)}>
               <ListItemText primary={name} />
               {i == 0 ?
@@ -185,14 +184,14 @@ export default function Settings() {
                 <Typography>{options[selectedValues[i][0] || 0]}</Typography>
               }
             </ListItem>
-          </>
+          </React.Fragment>
         ))}
         <Divider />
         <ListItem
           key={"geoposition"}
         >
           <ListItemText primary="Current Position" />
-          <Typography>{!currentPosition ? `${position?.city} ${position?.country}` : ""}</Typography>
+          <Typography>{!currentPosition ?  (position && `${position.city} ${position.country}`) : ""}</Typography>
         </ListItem>
       </List>
       <SimpleDialog

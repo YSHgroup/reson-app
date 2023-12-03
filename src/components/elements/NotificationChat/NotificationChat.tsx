@@ -3,18 +3,11 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import Divider from '@mui/material/Divider'
 import ListItemText from '@mui/material/ListItemText'
-// import ListItemAvatar from '@mui/material/ListItemAvatar';
-// import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography'
-// import PropTypes from 'prop-types';
 
 let callLabel = ['Missed call', 'Declined call', 'Incoming call']
 
-export default function AlignItemsList(props: any) {
-  const { totalUnreadChats, zIndex, left } = props
-  React.useEffect(() => {
-    console.log(totalUnreadChats)
-  }, [])
+export default function AlignItemsList({ totalUnreadChats }) {
   return (
     <List
       sx={{
@@ -22,44 +15,63 @@ export default function AlignItemsList(props: any) {
         maxWidth: 300,
         bgcolor: 'background.paper',
         position: 'absolute',
-        zIndex: zIndex,
-        left: left,
-      }}>
+        zIndex: 2,
+        left: '67px',
+        padding: 0,
+        opacity: 0.6,
+        top: '18px',
+        // visibility: 'hidden'
+        display: 'none'
+      }}
+      className='unreadMessageNotification'
+    >
+      <React.Fragment>
+        <Typography
+          sx={{
+            textAlign: 'center',
+            paddingY: '5px'
+          }}
+        >
+          Unread Messages
+        </Typography>
+      </React.Fragment>
       {totalUnreadChats.length ? (
         totalUnreadChats.map((item: any, i: number) => {
-          if (i > 2) return
-          else
-            return (
-              <>
-                <Divider component="li" />
-                <ListItem alignItems="flex-start">
-                  {/* <ListItemAvatar>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-                </ListItemAvatar> */}
-                  <ListItemText
-                    primary={item.author ? item.author : item.posterEmail}
-                    secondary={
-                      <React.Fragment>
-                        <Typography
-                          sx={{ 
-                            display: 'block', 
-                            wordWrap: "break-word"
-                          }}
-                          component="span"
-                          variant="body2"
-                          color="text.primary">
-                          {item.type == 'text' && item.content}
-                          {item.type == 'voiceCall' &&
-                            callLabel[Number(item.content)]}
-                        </Typography>
-                        {` ${item.date} ${item.time}`}
-                      </React.Fragment>
-                    }
-                  />
-                </ListItem>
-                <Divider component="li" />
-              </>
-            )
+          if (i < 2) return (
+            <React.Fragment key={item._id}>
+              <Divider component="li" />
+              <ListItem >
+                <ListItemText
+                  primary={item.author ? item.author : item.posterEmail}
+                  secondary={
+                    <React.Fragment>
+                      <Typography
+                        sx={{
+                          display: 'block',
+                          wordWrap: "break-word"
+                        }}
+                        component="span"
+                        variant="body2"
+                        color="text.primary">
+                        {item.type == 'text' && item.content}
+                        {item.type == 'voiceCall' &&
+                          callLabel[Number(item.content)]}
+                      </Typography>
+                      {` ${item.date} ${item.time}`}
+                    </React.Fragment>
+                  }
+                />
+              </ListItem>
+              <Divider component="li" />
+              {i === 1 && (<Typography
+                sx={{
+                  textAlign: 'center',
+                }}
+              >
+                ...
+              </Typography>)}
+            </React.Fragment>
+          )
         })
       ) : (
         <React.Fragment>

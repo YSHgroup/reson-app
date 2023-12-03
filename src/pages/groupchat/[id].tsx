@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom'
 import FullLayout from '@layouts/FullLayout/FullLayout'
 import { Send, VideoCameraFront } from '@mui/icons-material'
 import { MoreHoriz } from '@mui/icons-material'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import {
   IconButton,
   Stack,
@@ -34,6 +33,7 @@ import stringAvatar from '../../components/elements/StringAvatar'
 import styles from '../../styles/chat.module.scss'
 import FormModal from '@elements/groupChat/FormModal'
 import ChatImage from '@elements/groupChat/ChatImage'
+import Image from 'next/image'
 import VideoCallRoom from '@elements/groupChat/VideoCallRoom'
 
 const cache = createCache({
@@ -79,7 +79,6 @@ export default function GroupChat() {
   const fetchGroupInfo = async () => {
     const response = await fetch(`/api/message/groups?id=${groupId}`)
     const jsonData = await response.json()
-    console.log(jsonData, 'jsondata')
     setGroup(jsonData.group)
   }
   async function fetchMsg() {
@@ -109,7 +108,7 @@ export default function GroupChat() {
         name: session?.user?.name,
       })
     })
-    socket.on('connectToRoom', (data: any) => {})
+    socket.on('connectToRoom', (data: any) => { })
     // receive new chat with newchatId for updating read status
     socket.on('newMessage', (data: Message) => {
       setMessages((previousMsgs) => [...previousMsgs, data])
@@ -164,9 +163,8 @@ export default function GroupChat() {
     const myemail: any = session?.user?.email
     const unreadchats = messages.filter(
       (message) => !message.readers.includes(myemail)
-    )
-    // console.log('unreadchats', unreadchats);
-    ;(async () => {
+    );
+    (async () => {
       const payload = { readchats: unreadchats }
       try {
         const res = await fetch('/api/message/readGroupMsg', {
@@ -186,7 +184,7 @@ export default function GroupChat() {
     if (messages[i - 1] === undefined) {
       return message.date
     }
-    if (messages[i - 1].date == !messages.date) {
+    if (messages[i - 1].date !== message.date) {
       return message.date
     }
   }
@@ -383,9 +381,9 @@ export default function GroupChat() {
     )
   }
   return (
-    <StyledEngineProvider injectFirst>
-      <CacheProvider value={cache}>
-        <FullLayout title="Chat" appbar={false}>
+    <FullLayout title="Chat" appbar={false}>
+      <StyledEngineProvider injectFirst>
+        <CacheProvider value={cache}>
           <Box
             sx={{
               height: '100%',
@@ -427,8 +425,9 @@ export default function GroupChat() {
                 color="inherit"
                 aria-label="menu"
                 onClick={router.back}
-                LinkComponent={Link}>
-                <ArrowBackIcon />
+                LinkComponent={Link}
+              >
+                <Image src="/images/back.png" alt="back" width={26} height={26} />
               </IconButton>
             </Box>
             <Stack
@@ -732,8 +731,7 @@ export default function GroupChat() {
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             fill="#8A8D91"
-                            gradientcolor1="#8A8D91"
-                            gradientcolor2="#8A8D91">
+                          >
                             <path d="M12 1.999c5.524 0 10.002 4.478 10.002 10.002 0 5.523-4.478 10.001-10.002 10.001-5.524 0-10.002-4.478-10.002-10.001C1.998 6.477 6.476 1.998 12 1.998Zm0 1.5a8.502 8.502 0 1 0 0 17.003A8.502 8.502 0 0 0 12 3.5ZM8.462 14.784A4.491 4.491 0 0 0 12 16.502a4.491 4.491 0 0 0 3.535-1.714.75.75 0 0 1 1.177.93A5.991 5.991 0 0 1 12 18.002a5.991 5.991 0 0 1-4.716-2.29.75.75 0 0 1 1.178-.928ZM9 8.75a1.25 1.25 0 1 1 0 2.499A1.25 1.25 0 0 1 9 8.75Zm6 0a1.25 1.25 0 1 1 0 2.499 1.25 1.25 0 0 1 0-2.499Z"></path>
                           </svg>
                         </Box>
@@ -825,9 +823,9 @@ export default function GroupChat() {
           {IsCallRoom && (
             <VideoCallRoom handleClose={handleIsCallRoom} group={group} />
           )}
-        </FullLayout>
-      </CacheProvider>
-    </StyledEngineProvider>
+        </CacheProvider>
+      </StyledEngineProvider>
+    </FullLayout>
   )
 }
 

@@ -40,22 +40,7 @@ export default function Projects() {
   }
   const router = useRouter()
   return (
-    <FullLayout title={'PROJECT'} appbar={false}>
-      <Box
-        sx={{
-          p: 2,
-          display: 'flex',
-          width: '100vw',
-          alignItems: 'center',
-        }}>
-        <Typography sx={{ flexGrow: 1 }} variant="h4">
-          {languagejson[lang].Myproject}
-        </Typography>
-
-        <IconButton size="large" edge="end" onClick={router.back}>
-          <Image src="/images/back.png" alt="back" width={32} height={32} />
-        </IconButton>
-      </Box>
+    <FullLayout title={languagejson[lang].Myproject}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs
           value={value}

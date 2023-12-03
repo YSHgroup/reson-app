@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]"
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const session = await getServerSession(req, res, authOptions)
+    const session: any = await getServerSession(req as any, res as any, authOptions as any)
     var today = new Date()
     var Y = today.getFullYear()
     var M = today.getMonth() + 1

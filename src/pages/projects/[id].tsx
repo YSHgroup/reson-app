@@ -11,7 +11,6 @@ import { Stack } from '@mui/system'
 import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
 import React, { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { language } from '../../jotai'
 import { useAtom } from 'jotai'
@@ -168,28 +167,23 @@ const ProjectPage = () => {
   }, [])
 
   return (
-    <FullLayout title="projects/id" appbar={false}>
+    <FullLayout title={projectLists.title}>
       <Box
         sx={{
-          p: 2,
+          p: 1,
           display: 'flex',
           width: '100vw',
           alignItems: 'center',
+          justifyContent: 'flex-end'
         }}>
-        <Typography sx={{ flexGrow: 1 }} variant="h4">
-          {projectLists.title}
-        </Typography>
-        <IconButton
-          aria-label='comment'
+        <Button
           onClick={(e) => {
             handleShowDetailProject()
           }}
+          variant='contained'
         >
-          <Visibility />
-        </IconButton>
-        <IconButton size="large" edge="end" onClick={router.back}>
-          <Image src="/images/back.png" alt="back" width={32} height={32} />
-        </IconButton>
+         <Visibility />&nbsp; Detail
+        </Button>
       </Box>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         {results.map((list: Result) => (

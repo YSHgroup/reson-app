@@ -15,14 +15,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   //     req,
   // })
   
-  const session = await getServerSession(req, res, authOptions)
-
+  const session: any = await getServerSession(req as any, res as any, authOptions as any)
   //   const { message } = req.body
   const client = await connectToDatabase()
   
   const usersCollection = client.db().collection('users')
   
-  const currentUser = await usersCollection.find({'email': session?.user?.email}).toArray()
+  const currentUser = await usersCollection.findOne({'email': session?.user?.email});
 
   client.close()
   return res.json({ status: 200, data: currentUser });
