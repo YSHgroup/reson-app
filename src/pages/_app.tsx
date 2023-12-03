@@ -23,6 +23,7 @@ import Worker from '../components/worker'
 import { VideoCallProvider } from 'context/VideoCallContext'
 import VideoCallWindow from '@elements/Chat/VideoCallWindowComponent'
 import ParticlesComponent from '@elements/Particles'
+import { darkTheme, lightTheme } from 'theme'
 
 type LanguageType = number // Replace 'number' with the actual type of your language state
 
@@ -55,13 +56,16 @@ export default function App({ Component, pageProps }: AppProps) {
     //     paper: "#222"
     //   }
     // };
-    return createTheme({
-      palette: {
-        mode,
-        // ...customProps
-      },
-    })
+    const customProps = (mode === 'dark') ? darkTheme : lightTheme;
+    return customProps
+    // return createTheme({
+    //   palette: {
+    //     mode,
+    //     // ...customProps
+    //   },
+    // })
   }, [mode])
+  console.log(theme, 'theme')
 
   const [snack, setSnack] = React.useState(
     new Snack({

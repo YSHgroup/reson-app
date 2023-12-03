@@ -20,10 +20,7 @@ const ParticlesComponent = ({ mode }) => {
       loaded={particlesLoaded}
       options={{
         background: {
-          image:
-            mode === 'dark'
-              ? "url('/images/background.jpg')"
-              : 'radial-gradient(#F1F0F0)',
+          image: "url('/images/background.jpg')"
         },
         fpsLimit: 120,
         interactivity: {

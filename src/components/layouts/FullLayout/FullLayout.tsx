@@ -48,7 +48,6 @@ export default function FullLayout({
         },
       }).then(res => console.log(res))
     }
-    console.log(router.pathname.substring(1, router.pathname.length))
     router.replace('/dashboard')
   }
   return (

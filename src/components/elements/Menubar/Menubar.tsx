@@ -14,7 +14,8 @@ export default function Menubar() {
     <BottomNavigation
       sx={{
         width: '100vw',
-        background: '#002060',
+        // background: '#002060',
+        color: 'primary'
       }}
       // showLabels
       value={value}
