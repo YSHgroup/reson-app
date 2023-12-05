@@ -179,9 +179,9 @@ export default function Settings() {
               onClick={() => handleClickOpen(i)}>
               <ListItemText primary={name} />
               {i == 0 ?
-                <Typography>{options[lang]}</Typography>
+                <Typography component={'span'}>{options[lang]}</Typography>
                 :
-                <Typography>{options[selectedValues[i][0] || 0]}</Typography>
+                <Typography component={'span'}>{options[selectedValues[i][0] || 0]}</Typography>
               }
             </ListItem>
           </React.Fragment>
@@ -191,7 +191,7 @@ export default function Settings() {
           key={"geoposition"}
         >
           <ListItemText primary="Current Position" />
-          <Typography>{!currentPosition ?  (position && `${position.city} ${position.country}`) : ""}</Typography>
+          <Typography component={'span'}>{!currentPosition ?  (position && `${position.city} ${position.country}`) : ""}</Typography>
         </ListItem>
       </List>
       <SimpleDialog

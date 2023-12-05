@@ -29,10 +29,12 @@ export default function AlignItemsList({ totalUnreadChats }) {
         <Typography
           sx={{
             textAlign: 'center',
-            paddingY: '5px'
+            paddingY: '5px',
+            display: 'block'
           }}
+          component={'span'}
         >
-          Unread Messages
+          {'Unread Messages'}
         </Typography>
       </React.Fragment>
       {totalUnreadChats.length ? (

@@ -9,7 +9,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
   const session: any = await getServerSession(req as any, res as any, authOptions as any)
 
-  console.log("session=", session)
+  // console.log("session=", session)
   
   const { lang, modus, status, firstname, lastname, email, telephone, personalAnalysis } = req.body
   const client = await connectToDatabase()
