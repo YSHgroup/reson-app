@@ -33,7 +33,8 @@ export default function Home() {
   const [unread, SetUnread] = React.useState(0)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [totalUnreadChats, setTotalUnreadChats] = React.useState<any>([])
-  const [isNotificationCalendar, setIsNotificationCalendar] = React.useState<boolean>(false)
+  const [isNotificationCalendar, setIsNotificationCalendar] =
+    React.useState<boolean>(false)
   const open = Boolean(anchorEl)
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -153,7 +154,15 @@ export default function Home() {
             justifyContent: 'space-between',
             visibility: isDragging ? 'hidden' : 'visible',
           }}>
-          <IconButton LinkComponent={Link} href="/settings">
+          <IconButton
+            sx={{
+              ':hover': {
+                bgcolor: (theme) =>
+                  theme.palette.mode === 'dark' ? '#00000066' : '#ffffff19',
+              },
+            }}
+            LinkComponent={Link}
+            href="/settings">
             <Image
               src="/images/setting.png"
               alt="setting"
@@ -161,7 +170,14 @@ export default function Home() {
               height={50}
             />
           </IconButton>
-          <IconButton onClick={handleClick}>
+          <IconButton
+            sx={{
+              ':hover': {
+                bgcolor: (theme) =>
+                  theme.palette.mode === 'dark' ? '#00000066' : '#ffffff19',
+              },
+            }}
+            onClick={handleClick}>
             <Image src="/images/menu.png" alt="menu" width={50} height={50} />
           </IconButton>
           <Menu
@@ -193,12 +209,12 @@ export default function Home() {
             <MenuItem key={'profile'} dense>
               <Box
                 component={Link}
-                href={"/profile"}
+                href={'/profile'}
                 sx={{ display: 'inherit' }}>
                 <ListItemIcon>
                   <Image
                     src={`/images/profile.png`}
-                    alt={"profile"}
+                    alt={'profile'}
                     width={20}
                     height={20}
                   />
@@ -302,10 +318,15 @@ export default function Home() {
             position: 'relative',
           }}>
           <IconButton
+            sx={{
+              ':hover': {
+                bgcolor: (theme) =>
+                  theme.palette.mode === 'dark' ? '#00000066' : '#ffffff19',
+              },
+            }}
             LinkComponent={Link}
             href="/messages"
-            className='messagesLink'
-          >
+            className="messagesLink">
             {unread > 0 ? (
               <Badge badgeContent={unread} color="error">
                 <Image
@@ -326,9 +347,7 @@ export default function Home() {
               </Badge>
             )}
           </IconButton>
-          <NotificationChat
-            totalUnreadChats={totalUnreadChats}
-          />
+          <NotificationChat totalUnreadChats={totalUnreadChats} />
           {isDragging && (
             <Image src="/images/arrow.png" alt="left" width={50} height={50} />
           )}
@@ -341,7 +360,14 @@ export default function Home() {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <IconButton onClick={() => routerToProfile()}>
+            <IconButton
+              sx={{
+                ':hover': {
+                  bgcolor: (theme) =>
+                    theme.palette.mode === 'dark' ? '#00000066' : '#ffffff19',
+                },
+              }}
+              onClick={() => routerToProfile()}>
               <Image
                 src="/images/main.png"
                 alt="main"
@@ -368,10 +394,14 @@ export default function Home() {
               style={{ transform: 'rotate(180deg)' }}
             />
           )}
-          {
-            isNotificationCalendar && <NotificationCalendar />
-          }
+          {isNotificationCalendar && <NotificationCalendar />}
           <IconButton
+            sx={{
+              ':hover': {
+                bgcolor: (theme) =>
+                  theme.palette.mode === 'dark' ? '#00000066' : '#ffffff19',
+              },
+            }}
             LinkComponent={Link}
             href="/calendar"
             onMouseOver={() => {
@@ -379,8 +409,7 @@ export default function Home() {
             }}
             onMouseLeave={() => {
               setIsNotificationCalendar(false)
-            }}
-          >
+            }}>
             <Image
               src="/images/calendar.png"
               alt="calendar"
@@ -480,7 +509,15 @@ export default function Home() {
             justifyContent: 'space-between',
             visibility: isDragging ? 'hidden' : 'visible',
           }}>
-          <IconButton LinkComponent={Link} href="/messages?group=2">
+          <IconButton
+            sx={{
+              ':hover': {
+                bgcolor: (theme) =>
+                  theme.palette.mode === 'dark' ? '#00000066' : '#ffffff19',
+              },
+            }}
+            LinkComponent={Link}
+            href="/messages?group=2">
             <Image
               src="/images/contact.png"
               alt="contact"
@@ -488,7 +525,15 @@ export default function Home() {
               height={50}
             />
           </IconButton>
-          <IconButton LinkComponent={Link} href="/projects">
+          <IconButton
+            sx={{
+              ':hover': {
+                bgcolor: (theme) =>
+                  theme.palette.mode === 'dark' ? '#00000066' : '#ffffff19',
+              },
+            }}
+            LinkComponent={Link}
+            href="/projects">
             <Image
               src="/images/create.png"
               alt="create"
