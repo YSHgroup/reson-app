@@ -23,26 +23,31 @@ import Worker from '../components/worker'
 import { VideoCallProvider } from 'context/VideoCallContext'
 import VideoCallWindow from '@elements/Chat/VideoCallWindowComponent'
 import ParticlesComponent from '@elements/Particles'
-import { darkTheme, lightTheme } from 'theme'
+import { darkTheme, lightTheme, defaultTheme } from 'theme'
 
 type LanguageType = number // Replace 'number' with the actual type of your language state
 
+// Customize the PaletteMode type to add the value of 'default'
+type CustomizePaletteMode = PaletteMode | 'default'
+
 export default function App({ Component, pageProps }: AppProps) {
   const [lang, setLanguage] = useAtom<LanguageType>(language)
-  const [mode, setMode] = React.useState<PaletteMode>('dark')
+  const [mode, setMode] = React.useState<CustomizePaletteMode>('default')
   const colorMode = React.useMemo(
     () => ({
       // The dark mode switch would invoke this method
       toggleColorMode: () => {
-        setMode((prevMode: PaletteMode) =>
-          prevMode === 'light' ? 'dark' : 'light'
+        setMode((prevMode: CustomizePaletteMode) =>
+          prevMode === 'default' ? 'dark' : prevMode === 'dark' ? 'light' : 'default'
         )
       },
       mode,
     }),
     [mode]
   )
-
+    React.useEffect(()=> {
+      console.log('mode: ', mode)
+    },[mode])
   // Update the theme only if the mode changes
   const theme = React.useMemo(() => {
     // const customProps = (mode === "dark") ? {
@@ -56,7 +61,7 @@ export default function App({ Component, pageProps }: AppProps) {
     //     paper: "#222"
     //   }
     // };
-    const customProps = (mode === 'dark') ? darkTheme : lightTheme;
+    const customProps = (mode === 'dark') ? darkTheme : mode === 'light'? lightTheme: defaultTheme;
     return customProps
     // return createTheme({
     //   palette: {
