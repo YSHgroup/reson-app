@@ -47,10 +47,10 @@ const ParticlesComponent = ({ mode }) => {
         },
         particles: {
           color: {
-            value: mode === 'dark' ? '#66B1D9' : '#828E8E',
+            value: mode === 'dark' ? '#66B1D9' : '#88e2ec',
           },
           links: {
-            color: mode === 'dark' ? '#66B1D9' : '#828E8E',
+            color: mode === 'dark' ? '#66B1D9' : '#88e2ec',
             distance: 150,
             enable: true,
             opacity: 0.5,

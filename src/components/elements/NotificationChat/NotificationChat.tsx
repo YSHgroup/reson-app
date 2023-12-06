@@ -13,15 +13,23 @@ export default function AlignItemsList({ totalUnreadChats }) {
       sx={{
         width: '100%',
         maxWidth: 300,
-        bgcolor: 'background.paper',
         position: 'absolute',
         zIndex: 2,
         left: '67px',
         padding: 0,
-        opacity: 0.6,
         top: '18px',
-        // visibility: 'hidden'
-        display: 'none'
+        display: 'none',
+        '&:before': {
+          position: 'absolute',
+          content: '""',
+          zIndex: -1,
+          top: 0,
+          bottom: 0,
+          right: 0,
+          left: 0,
+          bgcolor: 'background.paper',
+          opacity: 0.6
+        }
       }}
       className='unreadMessageNotification'
     >
