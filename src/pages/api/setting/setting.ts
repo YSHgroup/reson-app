@@ -10,8 +10,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session: any = await getServerSession(req as any, res as any, authOptions as any)
 
   // console.log("session=", session)
+  const { language: lang, modus, status, show_firstname: firstname, show_lastname: lastname, show_email: email, show_telephone: telephone, show_analyse: personalAnalysis } = req.body
+  console.log('request:: ', lang, modus, status, firstname, lastname, email, telephone, personalAnalysis)
   
-  const { lang, modus, status, firstname, lastname, email, telephone, personalAnalysis } = req.body
   const client = await connectToDatabase()
   
   const usersCollection = client.db().collection('users')

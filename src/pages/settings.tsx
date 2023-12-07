@@ -18,29 +18,33 @@ import cookies from "browser-cookies";
 export interface SimpleDialogProps {
   index: number
   open: boolean
-  selectedValue: number
+  selectedValue: number,
+  settings: any
   onClose: (value: number) => void
 }
 
 function SimpleDialog(props: SimpleDialogProps) {
   const [lang, setLanguage] = useAtom(language)
-  const { onClose, selectedValue, open, index } = props
+  const { onClose, selectedValue, open, index, settings } = props
   const { name: title, options } = SettingData[lang][index]
 
   const handleClose = () => {
     onClose(selectedValue)
   }
-
-  const handleListItemClick = (value: number) => {
-
-    // const { language: lang, modus: modus, status: status, show_firstname: firstname, show_lastname: lastname, show_email: email, show_telephone: telephone, show_analyse: personalAnalysis,}
-    onClose(value)
-    console.log(value)
+  // const reSettings = { lang: settings.lang, modus: settings.modus, status: settings.status, firstname: settings.status, lastname: settings.lastname, email: settings.email, telephone: settings.telephone, personalAnalysis: settings.personalAnalysis };
+  const keys = Object.keys(settings)
+  settings.language = lang
+  const handleListItemClick = (value: {index: number, i: number}) => {
+    console.log('key----->', keys[value.index], value.index, value.i)
+    settings[keys[value.index]] = value.i
+    console.table(settings)
+    setSetting(settings)
+    onClose(value.i)
   }
 
 
   async function setSetting(settings: object) {
-    const response = await fetch('/api/auth/signup', {
+    const response = await fetch('/api/setting/setting', {
       method: 'POST',
       body: JSON.stringify(settings),
       headers: {
@@ -70,7 +74,7 @@ function SimpleDialog(props: SimpleDialogProps) {
       <List sx={{ pt: 0 }}>
         {options.map((option, i) => (
           <ListItem key={option + i} disableGutters>
-            <ListItemButton onClick={() => handleListItemClick(i)}>
+            <ListItemButton onClick={() => handleListItemClick({index, i})}>
               <ListItemText primary={option} />
             </ListItemButton>
           </ListItem>
@@ -98,6 +102,9 @@ export default function Settings() {
   )
   const [position, setPosition] = React.useState<any>('')
 
+  const settingArr =  { language: lang, modus: modus, status: status, show_firstname: firstname, show_lastname: lastname, show_email: email, show_telephone: telephone, show_analyse: personalAnalysis,}
+  console.log('---settingArr----')
+  console.table(settingArr)
   React.useEffect(() => {
     getGeoPosition()
     const getCurrentSetting = async () => {
@@ -108,17 +115,20 @@ export default function Settings() {
         },
       })
       let settingData = await response.json()
-      setLanguage(settingData.data[0].language)
-      setModus(settingData.data[0].modus)
-      setStatus(settingData.data[0].status)
-      setFirstname(settingData.data[0].show_firstname)
-      setLastname(settingData.data[0].show_lastname)
-      setTelephone(settingData.data[0].show_telephone)
-      setPersonalAnalysis(settingData.data[0].show_analyse)
-      setEmail(settingData.data[0].show_email)
-      setCurrentPosition(settingData.data[0].length === 11 ? settingData.data[0].show_position : 0);
+      console.log(settingData, 'settingData')
+      setLanguage(settingData.data.language)
+      setModus(settingData.data.modus)
+      setStatus(settingData.data.status)
+      setFirstname(settingData.data.show_firstname)
+      setLastname(settingData.data.show_lastname)
+      setTelephone(settingData.data.show_telephone)
+      setPersonalAnalysis(settingData.data.show_analyse)
+      setEmail(settingData.data.show_email)
+      setCurrentPosition(settingData.data.length === 11 ? settingData.data.show_position : 0);
     }
     getCurrentSetting()
+
+  console.table(['-MongoDB-setting-', modus, lang])
   }, [])
 
   const getGeoPosition = async () => {
@@ -166,6 +176,7 @@ export default function Settings() {
     // console.log( values[bal[currentIndex]])
     // setSelectedValues(values)
   }
+  console.log(lang,'settingLang')
   return (
     <FullLayout title={"Settings"}>
       <List
@@ -199,6 +210,7 @@ export default function Settings() {
         selectedValue={selectedValues[currentIndex][bal[currentIndex]]}
         open={open}
         onClose={handleClose}
+        settings = {settingArr}
       />
     </FullLayout>
   )

@@ -28,6 +28,7 @@ let socket: any
 export default function Home() {
   const { data: session } = useSession()
   const [lang, setLanguage] = useAtom(language)
+  console.log(lang,"lang")
   const energy = 54
   const opportunity = 21
   const [unread, SetUnread] = React.useState(0)
