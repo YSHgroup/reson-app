@@ -237,6 +237,53 @@ export default function Home() {
             position: 'relative',
             flexDirection: 'column',
           }}>
+                      <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              position: 'absolute',
+              left: 12,
+              height: '100%',
+              width: 24,
+              backgroundImage: 'url(/images/statusbar.png)',
+              backgroundSize: '100% 100%',
+              visibility: isDragging ? 'hidden' : 'visible',
+            }}>
+            <Typography
+              sx={{
+                transform: 'rotate(90deg)',
+                fontSize: 18,
+              }}>
+              {languagejson[lang].OPPORTUNITY}
+            </Typography>
+            <Typography
+              sx={{
+                width: '42px',
+                lineHeight: '28px',
+                backgroundColor: 'rgb(227,171,177)',
+                color: 'white',
+                textAlign: 'center',
+                borderRadius: '0 6px 6px 0',
+                position: 'absolute',
+                bottom: `calc(${opportunity}% - 14px)`,
+                left: 38,
+                paddingLeft: '-2px',
+                '&::after': {
+                  content: '" "',
+                  position: 'absolute',
+                  left: '-14px',
+                  top: '0',
+                  marginLeft: '-14px',
+                  borderWidth: '14px',
+                  borderStyle: 'solid',
+                  borderColor:
+                    'transparent rgb(227,171,177) transparent transparent',
+                },
+              }}>
+              {opportunity}%
+            </Typography>
+          </Box>
           <ButtonBase href="/search" LinkComponent={Link}>
             <Typography
               variant="h4"
@@ -457,53 +504,7 @@ export default function Home() {
               />
             </Box>
           )}
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              position: 'absolute',
-              left: 12,
-              height: '100%',
-              width: 24,
-              backgroundImage: 'url(/images/statusbar.png)',
-              backgroundSize: '100% 100%',
-              visibility: isDragging ? 'hidden' : 'visible',
-            }}>
-            <Typography
-              sx={{
-                transform: 'rotate(90deg)',
-                fontSize: 18,
-              }}>
-              {languagejson[lang].OPPORTUNITY}
-            </Typography>
-            <Typography
-              sx={{
-                width: '42px',
-                lineHeight: '28px',
-                backgroundColor: 'rgb(227,171,177)',
-                color: 'white',
-                textAlign: 'center',
-                borderRadius: '0 6px 6px 0',
-                position: 'absolute',
-                bottom: `calc(${opportunity}% - 14px)`,
-                left: 38,
-                paddingLeft: '-2px',
-                '&::after': {
-                  content: '" "',
-                  position: 'absolute',
-                  left: '-14px',
-                  top: '0',
-                  marginLeft: '-14px',
-                  borderWidth: '14px',
-                  borderStyle: 'solid',
-                  borderColor:
-                    'transparent rgb(227,171,177) transparent transparent',
-                },
-              }}>
-              {opportunity}%
-            </Typography>
-          </Box>
+
         </Box>
         <Box
           sx={{
