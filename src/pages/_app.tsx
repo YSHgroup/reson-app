@@ -18,7 +18,7 @@ import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import DateFnsUtils from '@date-io/date-fns'
 import { useAtom, Provider as JotaiProvider } from 'jotai'
-import { language } from '../jotai'
+import { language, modusJot } from '../jotai'
 import Worker from '../components/worker'
 import { VideoCallProvider } from 'context/VideoCallContext'
 import VideoCallWindow from '@elements/Chat/VideoCallWindowComponent'
@@ -32,8 +32,17 @@ type CustomizePaletteMode = PaletteMode | 'default'
 
 export default function App({ Component, pageProps }: AppProps) {
   const [lang, setLanguage] = useAtom<LanguageType>(language)
+  const [modus] = useAtom(modusJot)
+  // const modeFromStorage = localStorage.getItem('color_mode')
+  // const [mode, setMode] = React.useState<CustomizePaletteMode>(
+  //   modeFromStorage === 'default' ||
+  //     modeFromStorage === 'light' ||
+  //     modeFromStorage === 'dark'
+  //     ? modeFromStorage
+  //     : 'default'
+  // )
   const [mode, setMode] = React.useState<CustomizePaletteMode>('default')
-  
+  console.log(lang,'app lang')
   const colorMode = React.useMemo(
     () => ({
       // The dark mode switch would invoke this method
@@ -47,12 +56,35 @@ export default function App({ Component, pageProps }: AppProps) {
         )
       },
       mode,
+      setColorMode: (value) => {
+        setMode(value)
+      }
     }),
     [mode]
   )
+  React.useEffect(() => {
+    console.log('-------------------------------\n',lang, modus)
+  },[modus, lang])
+  React.useEffect(() => {
+    const modeState = ['dark', 'light', 'default']
+    const getCurrentSetting = async () => {
+      const response = await fetch('/api/setting/currentSetting', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      let settingData = await response.json()
+      const indexOfMode = Number(settingData.data.modus)
+      setMode(modeState[indexOfMode] as CustomizePaletteMode)
+    }
+    getCurrentSetting()
+  }, [])
 
   React.useEffect(() => {
-    console.log('mode: ', mode)
+    localStorage.setItem('color_mode', mode)
+
+    console.log('-app-localstorage-mode-->',mode)
   }, [mode])
 
   // Update the theme only if the mode changes

@@ -28,7 +28,7 @@ let socket: any
 export default function Home() {
   const { data: session } = useSession()
   const [lang, setLanguage] = useAtom(language)
-  console.log(lang,"lang")
+  console.log(lang,"lang dashboard")
   const energy = 54
   const opportunity = 21
   const [unread, SetUnread] = React.useState(0)
@@ -86,8 +86,9 @@ export default function Home() {
       })
 
       let settingData = await response.json()
-      localStorage.setItem('language', settingData.data[0].language)
-      setLanguage(settingData.data[0].language)
+      localStorage.setItem('language', settingData.data.language)
+      console.log('--local-language-->', settingData.data.language)
+      setLanguage(settingData.data.language)
     }
 
     getCurrentSetting()
@@ -105,8 +106,8 @@ export default function Home() {
       })
 
       let settingData = await response.json()
-      localStorage.setItem('language', settingData.data[0].language)
-      setLanguage(settingData.data[0].language)
+      localStorage.setItem('language', settingData.data.language)
+      setLanguage(settingData.data.language)
     }
 
     getCurrentSetting()

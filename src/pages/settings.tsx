@@ -6,42 +6,57 @@ import ListItemText from '@mui/material/ListItemText'
 import Typography from '@mui/material/Typography'
 import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
-import React, { useState } from 'react'
+import React, { useContext } from 'react'
 import SettingData from '@constants/Setting.json'
-import { language, modusJot, statusJot, firstnameJot, lastnameJot, emailJot, telephoneJot, personalAnalysisJot, currentPositionJot } from "../jotai"
-import languagejson from "../language.json"
+import {
+  language,
+  modusJot,
+  statusJot,
+  firstnameJot,
+  lastnameJot,
+  emailJot,
+  telephoneJot,
+  personalAnalysisJot,
+  currentPositionJot,
+} from '../jotai'
+import languagejson from '../language.json'
 import { useAtom } from 'jotai'
-import cookies from "browser-cookies";
-
-
+import cookies from 'browser-cookies'
+import ColorModeContext from 'context/ColorModeContext'
 
 export interface SimpleDialogProps {
   index: number
   open: boolean
-  selectedValue: number,
+  selectedValue: number
   settings: any
   onClose: (value: number) => void
 }
 
 function SimpleDialog(props: SimpleDialogProps) {
+  const [modus, setModus] = useAtom(modusJot)
   const [lang, setLanguage] = useAtom(language)
   const { onClose, selectedValue, open, index, settings } = props
   const { name: title, options } = SettingData[lang][index]
-
+ const {setColorMode} = useContext(ColorModeContext)
   const handleClose = () => {
     onClose(selectedValue)
   }
-  // const reSettings = { lang: settings.lang, modus: settings.modus, status: settings.status, firstname: settings.status, lastname: settings.lastname, email: settings.email, telephone: settings.telephone, personalAnalysis: settings.personalAnalysis };
+
   const keys = Object.keys(settings)
   settings.language = lang
-  const handleListItemClick = (value: {index: number, i: number}) => {
-    console.log('key----->', keys[value.index], value.index, value.i)
+  settings.modus = modus
+  const handleListItemClick = (value: { index: number; i: number }) => {
+    // console.log('key----->', [keys[value.index], value.index, value.i])
     settings[keys[value.index]] = value.i
     console.table(settings)
+    const modeState = ['dark', 'light', 'default']
+    if (keys[value.index] == "modus") {localStorage.setItem('color_mode', modeState[value.i])
+    setColorMode(modeState[value.i])}
+    setModus(value.i)
     setSetting(settings)
     onClose(value.i)
   }
-
+  // console.log('setting-modus-->', modus)
 
   async function setSetting(settings: object) {
     const response = await fetch('/api/setting/setting', {
@@ -67,14 +82,13 @@ function SimpleDialog(props: SimpleDialogProps) {
     }
   }
 
-
   return (
     <Dialog onClose={handleClose} open={open}>
       <DialogTitle>{title}</DialogTitle>
       <List sx={{ pt: 0 }}>
         {options.map((option, i) => (
           <ListItem key={option + i} disableGutters>
-            <ListItemButton onClick={() => handleListItemClick({index, i})}>
+            <ListItemButton onClick={() => handleListItemClick({ index, i })}>
               <ListItemText primary={option} />
             </ListItemButton>
           </ListItem>
@@ -97,12 +111,29 @@ export default function Settings() {
   const [open, setOpen] = React.useState(false)
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const [bal, setbal] = React.useState([0, 0, 0, 0, 0, 0, 0, 0, 0])
-  const [selectedValues, setSelectedValues] = React.useState(
-    [[0, 1, 2, 3], [0, 1, 2], [0, 1, 2, 3], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1]]
-  )
+  const [selectedValues, setSelectedValues] = React.useState([
+    [0, 1, 2, 3],
+    [0, 1, 2],
+    [0, 1, 2, 3],
+    [0, 1, 2],
+    [0, 1, 2],
+    [0, 1, 2],
+    [0, 1, 2],
+    [0, 1, 2],
+    [0, 1],
+  ])
   const [position, setPosition] = React.useState<any>('')
 
-  const settingArr =  { language: lang, modus: modus, status: status, show_firstname: firstname, show_lastname: lastname, show_email: email, show_telephone: telephone, show_analyse: personalAnalysis,}
+  const settingArr = {
+    language: lang,
+    modus: modus,
+    status: status,
+    show_firstname: firstname,
+    show_lastname: lastname,
+    show_email: email,
+    show_telephone: telephone,
+    show_analyse: personalAnalysis,
+  }
   console.log('---settingArr----')
   console.table(settingArr)
   React.useEffect(() => {
@@ -115,7 +146,6 @@ export default function Settings() {
         },
       })
       let settingData = await response.json()
-      console.log(settingData, 'settingData')
       setLanguage(settingData.data.language)
       setModus(settingData.data.modus)
       setStatus(settingData.data.status)
@@ -124,11 +154,12 @@ export default function Settings() {
       setTelephone(settingData.data.show_telephone)
       setPersonalAnalysis(settingData.data.show_analyse)
       setEmail(settingData.data.show_email)
-      setCurrentPosition(settingData.data.length === 11 ? settingData.data.show_position : 0);
+      setCurrentPosition(
+        settingData.data.length === 11 ? settingData.data.show_position : 0
+      )
     }
     getCurrentSetting()
 
-  console.table(['-MongoDB-setting-', modus, lang])
   }, [])
 
   const getGeoPosition = async () => {
@@ -176,9 +207,8 @@ export default function Settings() {
     // console.log( values[bal[currentIndex]])
     // setSelectedValues(values)
   }
-  console.log(lang,'settingLang')
   return (
-    <FullLayout title={"Settings"}>
+    <FullLayout title={'Settings'}>
       <List
         sx={{
           width: '100vw',
@@ -186,23 +216,26 @@ export default function Settings() {
         {SettingData[lang].map(({ name, options }, i) => (
           <React.Fragment key={name + options + i}>
             {i !== 0 && <Divider />}
-            <ListItem
-              onClick={() => handleClickOpen(i)}>
+            <ListItem onClick={() => handleClickOpen(i)}>
               <ListItemText primary={name} />
-              {i == 0 ?
+              {i == 0 ? (
                 <Typography component={'span'}>{options[lang]}</Typography>
-                :
-                <Typography component={'span'}>{options[selectedValues[i][0] || 0]}</Typography>
-              }
+              ) : (
+                <Typography component={'span'}>
+                  {options[selectedValues[i][0] || 0]}
+                </Typography>
+              )}
             </ListItem>
           </React.Fragment>
         ))}
         <Divider />
-        <ListItem
-          key={"geoposition"}
-        >
+        <ListItem key={'geoposition'}>
           <ListItemText primary="Current Position" />
-          <Typography component={'span'}>{!currentPosition ?  (position && `${position.city} ${position.country}`) : ""}</Typography>
+          <Typography component={'span'}>
+            {!currentPosition
+              ? position && `${position.city} ${position.country}`
+              : ''}
+          </Typography>
         </ListItem>
       </List>
       <SimpleDialog
@@ -210,7 +243,7 @@ export default function Settings() {
         selectedValue={selectedValues[currentIndex][bal[currentIndex]]}
         open={open}
         onClose={handleClose}
-        settings = {settingArr}
+        settings={settingArr}
       />
     </FullLayout>
   )
