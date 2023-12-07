@@ -221,6 +221,7 @@ export default function Can() {
                 <Box>
                   <PaymentIcon
                     sx={{
+                      color: (theme) => theme.palette.mode === 'dark'? '#fff': theme.palette.mode === 'light'? '#22222288': '#fff',                        
                       fontSize: 50,
                       marginRight: '20px',
                     }}
@@ -248,6 +249,7 @@ export default function Can() {
                 <Box>
                   <PaymentIcon
                     sx={{
+                      color: (theme) => theme.palette.mode === 'dark'? '#fff': theme.palette.mode === 'light'? '#22222288': '#f0f',
                       fontSize: 50,
                       marginRight: '20px',
                     }}

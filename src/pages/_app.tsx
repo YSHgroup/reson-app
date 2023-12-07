@@ -33,43 +33,35 @@ type CustomizePaletteMode = PaletteMode | 'default'
 export default function App({ Component, pageProps }: AppProps) {
   const [lang, setLanguage] = useAtom<LanguageType>(language)
   const [mode, setMode] = React.useState<CustomizePaletteMode>('default')
+  
   const colorMode = React.useMemo(
     () => ({
       // The dark mode switch would invoke this method
       toggleColorMode: () => {
         setMode((prevMode: CustomizePaletteMode) =>
-          prevMode === 'default' ? 'dark' : prevMode === 'dark' ? 'light' : 'default'
+          prevMode === 'default'
+            ? 'dark'
+            : prevMode === 'dark'
+            ? 'light'
+            : 'default'
         )
       },
       mode,
     }),
     [mode]
   )
-    React.useEffect(()=> {
-      console.log('mode: ', mode)
-    },[mode])
+
+  React.useEffect(() => {
+    console.log('mode: ', mode)
+  }, [mode])
+
   // Update the theme only if the mode changes
   const theme = React.useMemo(() => {
-    // const customProps = (mode === "dark") ? {
-    //   background: {
-    //     default: "#b42b2b",
-    //     paper: "#b42b2b"
-    //   }
-    // } : {
-    //   background: {
-    //     default: "#222",
-    //     paper: "#222"
-    //   }
-    // };
-    const customProps = (mode === 'dark') ? darkTheme : mode === 'light'? lightTheme: defaultTheme;
+    const customProps =
+      mode === 'dark' ? darkTheme : mode === 'light' ? lightTheme : defaultTheme
     return customProps
-    // return createTheme({
-    //   palette: {
-    //     mode,
-    //     // ...customProps
-    //   },
-    // })
   }, [mode])
+
   console.log(theme, 'theme')
 
   const [snack, setSnack] = React.useState(
@@ -95,7 +87,7 @@ export default function App({ Component, pageProps }: AppProps) {
   }
 
   React.useEffect(() => {
-    const localLanguage = localStorage.getItem('language');
+    const localLanguage = localStorage.getItem('language')
     // if (localLanguage) {
     //   setLanguage(parseInt(localLanguage))
     // }

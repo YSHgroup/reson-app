@@ -20,7 +20,12 @@ const ParticlesComponent = ({ mode }) => {
       loaded={particlesLoaded}
       options={{
         background: {
-          image: "url('/images/background.jpg')"
+          image:
+            mode === 'default'
+              ? "url('/images/background.jpg')"
+              : mode === 'dark'
+              ? 'radial-gradient(#4c638f,#022261)'
+              : 'radial-gradient(#d2e2e1,#0d645f)',
         },
         fpsLimit: 120,
         interactivity: {
@@ -47,10 +52,10 @@ const ParticlesComponent = ({ mode }) => {
         },
         particles: {
           color: {
-            value: mode === 'dark' ? '#66B1D9' : '#88e2ec',
+            value: mode === 'dark' ? '#17346e' : mode === 'light'? '#52918c': '#4e96ba',
           },
           links: {
-            color: mode === 'dark' ? '#66B1D9' : '#88e2ec',
+            color: mode === 'dark' ? '#17346e' : mode === 'light'? '#52918c': '#4e96ba',
             distance: 150,
             enable: true,
             opacity: 0.5,

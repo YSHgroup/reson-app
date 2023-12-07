@@ -386,6 +386,7 @@ export default function Profile() {
             <Button
               variant="text"
               size="large"
+              color='inherit'
               onClick={handleChange}
               endIcon={open ? <ArrowLeft /> : <ArrowDropDown />}>
               {languagejson[lang].Completetheinformation}

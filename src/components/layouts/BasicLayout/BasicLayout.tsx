@@ -5,7 +5,7 @@ import cn from 'classnames'
 import Fab from '@mui/material/Fab'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LightModeIcon from '@mui/icons-material/LightMode'
-import { Restore } from '@mui/icons-material'
+import { BrightnessAuto, Restore } from '@mui/icons-material'
 
 type BasicLayoutProps = {
   children: React.ReactNode
@@ -63,7 +63,7 @@ export default function BasicLayout({
           onMouseOver={mouseOver}
           onMouseOut={mouseOut}
           onClick={toggleColorMode}>
-          {mode === 'dark' ? <LightModeIcon /> : mode === 'light'? <Restore />: <DarkModeIcon/>}
+          {mode === 'dark' ? <LightModeIcon /> : mode === 'light'? <BrightnessAuto />: <DarkModeIcon/>}
         </Fab>
       </div>
     </>

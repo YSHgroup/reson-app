@@ -353,7 +353,7 @@ export default function Messages() {
                   LinkComponent={Link}>
                   <Stack sx={{ flexGrow: 1 }}>
                     <Typography variant="h4">{user.nickname}</Typography>
-                    <Typography>{user.email}</Typography>
+                    <Typography component={'span'}>{user.email}</Typography>
                   </Stack>
                   <IconButton
                     onClick={(e) => {
@@ -469,7 +469,7 @@ export default function Messages() {
                   LinkComponent={Link}>
                   <Stack sx={{ flexGrow: 1 }}>
                     <Typography variant="h4">{contact.name}</Typography>
-                    <Typography>{contact.emailAddress}</Typography>
+                    <Typography component={'span'}>{contact.emailAddress}</Typography>
                   </Stack>
                   <IconButton
                     onClick={(e) => {

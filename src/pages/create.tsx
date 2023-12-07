@@ -262,8 +262,8 @@ export default function Need() {
                   }}
                 />
                 <div className="example">
-                  <Typography>{languagejson[lang].Showexample}:</Typography>
-                  <Typography>{file !== null && file.name}</Typography>
+                  <Typography component={'span'} sx={{color: 'text.primary'}}>{languagejson[lang].Showexample}:</Typography>
+                  <Typography component={'span'} sx={{color: 'text.secondary'}}>{file !== null && file.name}</Typography>
                   <Button
                     component="label"
                     variant="contained"
@@ -290,6 +290,7 @@ export default function Need() {
                   <Box>
                     <CalendarMonthIcon
                       sx={{
+                        color: 'text.secondary',
                         fontSize: 50,
                         marginRight: '20px',
                       }}
@@ -333,6 +334,7 @@ export default function Need() {
                   <Box>
                     <PaymentIcon
                       sx={{
+                        color: 'text.secondary',
                         fontSize: 50,
                         marginRight: '20px',
                       }}
@@ -383,6 +385,7 @@ export default function Need() {
                   <Box>
                     <PaymentIcon
                       sx={{
+                        color: 'text.secondary',
                         fontSize: 50,
                         marginRight: '20px',
                       }}
