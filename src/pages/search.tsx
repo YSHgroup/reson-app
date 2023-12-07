@@ -186,6 +186,19 @@ export default function Can() {
         })
       )
     }
+    console.log('---------search can---------')
+    try {
+      console.table(can)
+      await fetch('/api/need/search-analysis', {
+        method: 'POST',
+        body: JSON.stringify({can}),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    } catch (error) {
+      console.log('search analysis error:', error)
+    }
   }
 
   return (
