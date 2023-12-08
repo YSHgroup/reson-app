@@ -39,6 +39,7 @@ export default function Projects() {
     setValue(newValue)
   }
   const router = useRouter()
+  const labels = ["Projects", "Task", "Search", "Favorites"]
   return (
     <FullLayout title={languagejson[lang].Myproject}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -46,12 +47,13 @@ export default function Projects() {
           value={value}
           onChange={handleChange}
           aria-label="basic tabs example">
-          <Tab label="Projects" {...a11yProps(0)} />
-          <Tab label="Applying" {...a11yProps(1)} />
+            {labels.map((label: string, i: number) => <Tab label={label} {...a11yProps(i)} />)}
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0} />
       <CustomTabPanel value={value} index={1} />
+      <CustomTabPanel value={value} index={2} />
+      <CustomTabPanel value={value} index={3} />
     </FullLayout>
   )
 }

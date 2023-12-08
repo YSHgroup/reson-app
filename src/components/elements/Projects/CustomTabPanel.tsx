@@ -71,12 +71,15 @@ export default function CustomTabPanel(props: TabPanelProps) {
   return (
     <div
       role="tabpanel"
+      style={{width: '100%'}}
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}>
       {value === 0 && <ProjectsItems lists={projectLists} />}
       {value === 1 && <ApplyItems lists={applyLists} />}
+      {value === 2 && <ApplyItems lists={applyLists} />}
+      {value === 3 && <ApplyItems lists={applyLists} />}
     </div>
   )
 }

@@ -35,7 +35,7 @@ const ProjectsItems = ({ lists }) => {
   return (
     <List
       sx={{
-        width: '100vw',
+        width: '100%',
       }}>
       {lists.map((list: ListObject, i: number) => (
         <div key={list._id}>

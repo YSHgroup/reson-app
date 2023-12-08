@@ -7,6 +7,7 @@ import {
   createTheme,
   Snackbar,
   Alert,
+  CssBaseline,
 } from '@mui/material'
 import '../styles/globals.scss'
 import '../styles/globals.css'
@@ -24,6 +25,7 @@ import { VideoCallProvider } from 'context/VideoCallContext'
 import VideoCallWindow from '@elements/Chat/VideoCallWindowComponent'
 import ParticlesComponent from '@elements/Particles'
 import { darkTheme, lightTheme, defaultTheme } from 'theme'
+import CustomScrollbar from '@elements/CustomScrollbar'
 
 type LanguageType = number // Replace 'number' with the actual type of your language state
 
@@ -141,6 +143,8 @@ export default function App({ Component, pageProps }: AppProps) {
                   <Head>
                     <title>ResonApp</title>
                   </Head>
+                  <CustomScrollbar>
+                  <CssBaseline/>
                   <Component {...pageProps} />
                   <VideoCallWindow />
                   <Snackbar
@@ -160,6 +164,7 @@ export default function App({ Component, pageProps }: AppProps) {
                       {snack.message || 'A New Message'}
                     </Alert>
                   </Snackbar>
+                  </CustomScrollbar>
                 </SnackbarContext.Provider>
               </VideoCallProvider>
             </JotaiProvider>

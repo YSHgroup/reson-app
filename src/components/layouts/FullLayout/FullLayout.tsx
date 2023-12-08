@@ -88,6 +88,7 @@ export default function FullLayout({
           sx={{
             overflow: 'auto',
             flexGrow: 1,
+            width: '100%',
           }}>
           {children}
         </Box>
