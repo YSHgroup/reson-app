@@ -26,6 +26,8 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import ShowLists from 'components/elements/Search/ShowLists'
 import FullLayout from '@layouts/FullLayout'
+import { favorIdAtom } from 'atoms'
+
 // eslint-disable-next-line import/no-webpack-loader-syntax
 // mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 
@@ -57,6 +59,8 @@ export default function Can() {
   const [ip, setIp] = useState<string | null>(null)
   const [lists, setLists] = useState([])
   const [sliderValue, setSliderValue] = useState<number[]>([0, 5000])
+  const [favorIds, setFavorId] = useAtom(favorIdAtom)
+
   const [can, setCan] = useState<CanFormType>({
     title: '',
     payUnit: 'all',
@@ -90,6 +94,21 @@ export default function Can() {
   function valuetext(value: number) {
     return `${value} ${can.payUnit}`
   }
+  const getFavorites = async () => {
+    
+    try {
+      const response = await fetch('/api/favorite/get-favorites', {
+        method: 'GET',
+      })
+      const personalFavor = await response.json()
+      // const favor = personalFavor.favor_id
+      console.log('getfavorite function result:',personalFavor.favorites)
+      // console.log('custom favorites panel:', personalFavor.favor_id, projectLists.filter(p=> favor.includes(p._id)))
+      setFavorId(personalFavor.favorites)
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   useEffect(() => {
     showMapBox()
@@ -105,9 +124,11 @@ export default function Can() {
     showMapBox(`${countryCode.city}, ${countryCode.country_name}`)
   }
   const showMapBox = async (country?: string) => {
-    const select = where ? where.description : ip;
+    const select = where ? where.description : ip
     fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${country || select}.json?access_token=${mapboxgl.accessToken}`
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${
+        country || select
+      }.json?access_token=${mapboxgl.accessToken}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -119,8 +140,8 @@ export default function Can() {
             center: center,
             zoom: 6,
           })
-          map.addControl(new mapboxgl.NavigationControl());
-          new mapboxgl.Marker().setLngLat(center).addTo(map);
+          map.addControl(new mapboxgl.NavigationControl())
+          new mapboxgl.Marker().setLngLat(center).addTo(map)
         }
       })
   }
@@ -186,12 +207,10 @@ export default function Can() {
         })
       )
     }
-    console.log('---------search can---------')
     try {
-      console.table(can)
       await fetch('/api/need/search-analysis', {
         method: 'POST',
-        body: JSON.stringify({can}),
+        body: JSON.stringify({ can }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -208,10 +227,9 @@ export default function Can() {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-        }}
-      >
+        }}>
         <div className="page">
-          <div className="search">
+          <div className="search" style={{ margin: 'auto' }}>
             <div className="main">
               <TextField
                 sx={{
@@ -234,7 +252,12 @@ export default function Can() {
                 <Box>
                   <PaymentIcon
                     sx={{
-                      color: (theme) => theme.palette.mode === 'dark'? '#fff': theme.palette.mode === 'light'? '#22222288': '#fff',                        
+                      color: (theme) =>
+                        theme.palette.mode === 'dark'
+                          ? '#fff'
+                          : theme.palette.mode === 'light'
+                          ? '#22222288'
+                          : '#fff',
                       fontSize: 50,
                       marginRight: '20px',
                     }}
@@ -262,7 +285,12 @@ export default function Can() {
                 <Box>
                   <PaymentIcon
                     sx={{
-                      color: (theme) => theme.palette.mode === 'dark'? '#fff': theme.palette.mode === 'light'? '#22222288': '#f0f',
+                      color: (theme) =>
+                        theme.palette.mode === 'dark'
+                          ? '#fff'
+                          : theme.palette.mode === 'light'
+                          ? '#22222288'
+                          : '#f0f',
                       fontSize: 50,
                       marginRight: '20px',
                     }}
@@ -275,7 +303,9 @@ export default function Can() {
                     justifyContent: 'space-between',
                   }}>
                   <FormControl sx={{ width: '45%' }}>
-                    <InputLabel id="per-price-select-label">Pay Unit</InputLabel>
+                    <InputLabel id="per-price-select-label">
+                      Pay Unit
+                    </InputLabel>
                     <Select
                       value={can.payUnit}
                       onChange={handleChangeCan}
@@ -330,7 +360,7 @@ export default function Can() {
               </div>
             </div>
             <div className="showlists">
-              <ShowLists lists={lists} />
+              <ShowLists lists={lists} requestServer={getFavorites}  />
             </div>
           </div>
         </div>

@@ -237,7 +237,7 @@ export default function Need() {
       console.table(need)
       await fetch('/api/can/create-analysis', {
         method: 'POST',
-        body: JSON.stringify({need}),
+        body: JSON.stringify({ need }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -256,7 +256,7 @@ export default function Need() {
           flexDirection: 'column',
         }}>
         <div className="page">
-          <div className="create">
+          <div className="create" style={{ margin: 'auto' }}>
             <div className="main">
               <TextField
                 sx={{

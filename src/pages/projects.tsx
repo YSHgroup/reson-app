@@ -47,7 +47,7 @@ export default function Projects() {
           value={value}
           onChange={handleChange}
           aria-label="basic tabs example">
-            {labels.map((label: string, i: number) => <Tab label={label} {...a11yProps(i)} />)}
+            {labels.map((label: string, i: number) => <Tab key={i} label={languagejson[lang].MyprojectTab[i]} {...a11yProps(i)} />)}
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0} />

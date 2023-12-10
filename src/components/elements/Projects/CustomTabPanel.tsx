@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { Typography } from '@mui/material'
 import ProjectsItems from './ProjectItems'
 import ApplyItems from './ApplyItems'
+import Search from './Search'
+import Favorites from './Favorites'
+import { useAtom } from 'jotai'
+import { favorIdAtom } from 'atoms'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -36,7 +40,7 @@ export default function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props
   const [projectLists, setProjectLists] = useState<ListObject[]>([])
   const [applyLists, setApplyLists] = useState<ApplyObject[]>([])
-
+  const [favorIds, setFavorId] = useAtom(favorIdAtom)
   const getProjects = async () => {
     try {
       const response = await fetch('/api/need/get_projects', {
@@ -60,26 +64,50 @@ export default function CustomTabPanel(props: TabPanelProps) {
       console.log(err)
     }
   }
+
+  const getFavorites = async () => {
+    try {
+      const response = await fetch('/api/favorite/get-favorites', {
+        method: 'GET',
+      })
+      const personalFavor = await response.json()
+      console.log(
+        !!personalFavor.favorites
+          ? 'getfavorite function result:' + personalFavor.favorites
+          : 'No your favorites'
+      )
+      setFavorId(personalFavor.favorites)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  useEffect(() => {
+    getFavorites()
+  }, [])
   useEffect(() => {
     if (!value) {
       getProjects()
+    } else if (value === 3) {
     } else {
       getApplyItems()
     }
   }, [value])
+  console.log('first')
+  console.table(['favorite list:', favorIds])
 
   return (
     <div
       role="tabpanel"
-      style={{width: '100%'}}
+      style={{ width: '100%' }}
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}>
       {value === 0 && <ProjectsItems lists={projectLists} />}
       {value === 1 && <ApplyItems lists={applyLists} />}
-      {value === 2 && <ApplyItems lists={applyLists} />}
-      {value === 3 && <ApplyItems lists={applyLists} />}
+      {value === 2 && <Search onItemChange={getFavorites} />}
+      {value === 3 && <Favorites lists={favorIds} onItemChange={getFavorites} />}
     </div>
   )
 }
