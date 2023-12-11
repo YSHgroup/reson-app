@@ -45,7 +45,7 @@ export default function Score() {
     <FullLayout title="Property">
       <List
         sx={{
-          width: '100vw',
+          width: '100%',
           background: '#fff4',
         }}>
         {list.map((item, i) => (

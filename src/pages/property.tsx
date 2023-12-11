@@ -81,7 +81,7 @@ export default function Property() {
       </Typography>
       <List
         sx={{
-          width: '100vw',
+          width: '100%',
           background: '#fff4',
         }}>
         {list.map((item, i) => (
