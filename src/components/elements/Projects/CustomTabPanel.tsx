@@ -93,8 +93,6 @@ export default function CustomTabPanel(props: TabPanelProps) {
       getApplyItems()
     }
   }, [value])
-  console.log('first')
-  console.table(['favorite list:', favorIds])
 
   return (
     <div

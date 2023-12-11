@@ -31,7 +31,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       success.message = 'Removed in favorites'
       res.status(RS.SUCCESS_OK).json(success)
   } catch (err) {
-    console.log('error:', err)
+    console.log('remove error:', err)
     err.message = 'Internal Server Error'
     res.status(RS.SERROR_INTERNAL).json(err)
   }

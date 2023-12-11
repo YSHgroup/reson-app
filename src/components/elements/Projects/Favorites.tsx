@@ -41,7 +41,6 @@ const Favorites = ({ lists, onItemChange }) => {
   useEffect(() => {
     setList(lists)
   }, [lists])
-  console.log('--first list-->', list)
   return (
     <Box
       sx={{

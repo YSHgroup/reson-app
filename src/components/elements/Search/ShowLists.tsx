@@ -59,8 +59,6 @@ export default function GutterlessList(props: any) {
   const [applyPrice, setApplyPrice] = React.useState('')
   const [favorIds] = useAtom(favorIdAtom)
   const [favoridList, setFavorIdList] = React.useState([])
-  console.table(favorIds)
-  // console.log('favorites-- ids:',favorIds, props.lists.filter(list => favorIds.map(id => list._id.includes(id))))
   const startChatting = (item: ListObject) => {
     router.push(`/chat?email=${item.author}`)
   }
@@ -176,7 +174,6 @@ export default function GutterlessList(props: any) {
       headers: { 'Content-Type': 'application/json' },
     })
     const result = await response.json()
-    console.log('resutl --', result)
   }
   const favorOperation = async (item: any) => {
     // const queryString = new URLSearchParams({id: item._id}).toString()
@@ -206,10 +203,9 @@ export default function GutterlessList(props: any) {
           open: true,
         })
       )
-      // console.log('show list props-->', props.requestServer, props)
       props.requestServer()
     } else {
-      console.log('error----->', result)
+      console.log('favorite item operation error: ', result)
     }
   }
   const getStarColor = (id: string) => {

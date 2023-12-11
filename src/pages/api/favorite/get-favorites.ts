@@ -59,7 +59,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return res
       .status(RS.CERROR_FORBIDDEN)
       .json({ message: 'Method not supported' })
-  console.log('SESSION-->', session.user)
   try {
     let error = new Error()
 
@@ -86,7 +85,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     res.status(RS.SUCCESS_OK).json({ favorites })
   } catch (err) {
-    console.log('error', err)
+    console.log('get-favorites response error: ', err)
     return res
       .status(RS.SERROR_INTERNAL)
       .json({ message: "Favorite datas no exist or Internal server error" })

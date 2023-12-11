@@ -67,7 +67,6 @@ export default function Can() {
     role: 'all',
   })
   const [where, setWhere] = useState<PlaceType | null>(null)
-  const router = useRouter()
 
   const handleSliderChange = (
     event: Event,
@@ -101,12 +100,9 @@ export default function Can() {
         method: 'GET',
       })
       const personalFavor = await response.json()
-      // const favor = personalFavor.favor_id
-      console.log('getfavorite function result:',personalFavor.favorites)
-      // console.log('custom favorites panel:', personalFavor.favor_id, projectLists.filter(p=> favor.includes(p._id)))
       setFavorId(personalFavor.favorites)
     } catch (err) {
-      console.log(err)
+      console.log('Project/ error: ', err)
     }
   }
 
