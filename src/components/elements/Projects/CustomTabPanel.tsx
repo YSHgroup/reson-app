@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { Typography } from '@mui/material'
 import ProjectsItems from './ProjectItems'
 import ApplyItems from './ApplyItems'
 import Search from './Search'

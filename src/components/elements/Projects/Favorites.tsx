@@ -36,7 +36,6 @@ const ResponsiveLayout = styled('div')(({ theme }) => ({
 }))
 
 const Favorites = ({ lists, onItemChange }) => {
-  // const list = lists
   const [list, setList] = useState<ListObject[]>([])
   useEffect(() => {
     setList(lists)

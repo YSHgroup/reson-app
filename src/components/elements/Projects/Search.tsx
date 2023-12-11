@@ -50,7 +50,7 @@ export default function SearchComponent({
 }: {
   onItemChange?: () => void
 }) {
-  const [lang, setLanguage] = useAtom(language)
+  const [lang] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
   const [ip, setIp] = useState<string | null>(null)
   const [lists, setLists] = useState([])
@@ -84,17 +84,10 @@ export default function SearchComponent({
     }
   }
 
-  function valuetext(value: number) {
+  const valuetext = (value: number) => {
     return `${value} ${can.payUnit}`
   }
 
-  useEffect(() => {
-    showMapBox()
-  }, [where])
-
-  useEffect(() => {
-    getCountry()
-  }, [])
   const getCountry = async () => {
     const response = await fetch(`https://ipapi.co/json`)
     const countryCode = await response.json()
@@ -109,14 +102,6 @@ export default function SearchComponent({
       }.json?access_token=${mapboxgl.accessToken}`
     ).then((response) => response.json())
   }
-  useEffect(() => {
-    const elements = document.getElementsByClassName(
-      'mapboxgl-control-container'
-    )
-    if (elements.length > 0) {
-      elements[0].remove()
-    }
-  })
 
   const handleChangeCan = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCan((prevState) => ({
@@ -173,6 +158,23 @@ export default function SearchComponent({
       console.log('search analysis error:', error)
     }
   }
+
+  useEffect(() => {
+    showMapBox()
+  }, [where])
+
+  useEffect(() => {
+    getCountry()
+  }, [])  
+
+  useEffect(() => {
+    const elements = document.getElementsByClassName(
+      'mapboxgl-control-container'
+    )
+    if (elements.length > 0) {
+      elements[0].remove()
+    }
+  })
 
   return (
     <Box
