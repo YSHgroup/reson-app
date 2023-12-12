@@ -28,7 +28,7 @@ let socket: any
 export default function Home() {
   const { data: session } = useSession()
   const [lang, setLanguage] = useAtom(language)
-  console.log(lang,"lang dashboard")
+  console.log(lang, 'lang dashboard')
   const energy = 54
   const opportunity = 21
   const [unread, SetUnread] = React.useState(0)
@@ -237,7 +237,7 @@ export default function Home() {
             position: 'relative',
             flexDirection: 'column',
           }}>
-                      <Box
+          <Box
             sx={{
               display: 'flex',
               justifyContent: 'center',
@@ -415,16 +415,25 @@ export default function Home() {
                   bgcolor: (theme) =>
                     theme.palette.mode === 'dark' ? '#00000066' : '#ffffff19',
                 },
-              }}
-              onClick={() => routerToProfile()}>
+                position: 'absolute',
+              }}>
               <Image
                 src="/images/main.png"
                 alt="main"
                 width={100}
                 height={100}
+                // onClick={() => routerToProfile()}
               />
-            </IconButton>
-            <Typography
+              <div
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                zIndex: '10',
+                cursor: 'pointer',
+              }}
+              onClick={() => routerToProfile()}></div>
+              <Typography
               variant="h2"
               sx={{
                 position: 'absolute',
@@ -432,6 +441,24 @@ export default function Home() {
               }}>
               I
             </Typography>
+            </IconButton>
+            {/* <div
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                zIndex: '10',
+                cursor: 'pointer',
+              }}
+              onClick={() => routerToProfile()}></div> */}
+            {/* <Typography
+              variant="h2"
+              sx={{
+                position: 'absolute',
+                color: 'white',
+              }}>
+              I
+            </Typography> */}
           </Box>
 
           {isDragging && (
@@ -504,7 +531,6 @@ export default function Home() {
               />
             </Box>
           )}
-
         </Box>
         <Box
           sx={{
