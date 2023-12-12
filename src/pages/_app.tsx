@@ -44,7 +44,6 @@ export default function App({ Component, pageProps }: AppProps) {
   //     : 'default'
   // )
   const [mode, setMode] = React.useState<CustomizePaletteMode>('default')
-  console.log(lang,'app lang')
   const colorMode = React.useMemo(
     () => ({
       // The dark mode switch would invoke this method
@@ -65,9 +64,6 @@ export default function App({ Component, pageProps }: AppProps) {
     [mode]
   )
   React.useEffect(() => {
-    console.log('-------------------------------\n',lang, modus)
-  },[modus, lang])
-  React.useEffect(() => {
     const modeState = ['dark', 'light', 'default']
     const getCurrentSetting = async () => {
       const response = await fetch('/api/setting/currentSetting', {
@@ -86,7 +82,6 @@ export default function App({ Component, pageProps }: AppProps) {
   React.useEffect(() => {
     localStorage.setItem('color_mode', mode)
 
-    console.log('-app-localstorage-mode-->',mode)
   }, [mode])
 
   // Update the theme only if the mode changes
@@ -96,7 +91,6 @@ export default function App({ Component, pageProps }: AppProps) {
     return customProps
   }, [mode])
 
-  console.log(theme, 'theme')
 
   const [snack, setSnack] = React.useState(
     new Snack({

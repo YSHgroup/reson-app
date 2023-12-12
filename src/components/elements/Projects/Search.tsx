@@ -146,7 +146,6 @@ export default function SearchComponent({
       )
     }
     try {
-      console.table(can)
       await fetch('/api/need/search-analysis', {
         method: 'POST',
         body: JSON.stringify({ can }),

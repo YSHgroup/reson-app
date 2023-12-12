@@ -22,7 +22,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     email: session?.user?.email,
   })
 
-  console.log(user)
   const sex = user?.sex
   // const time_birth = user?.time_birth
   const day_birth = user?.day_birth

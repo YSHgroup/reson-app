@@ -7,16 +7,19 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Typography from '@mui/material/Typography'
 import { Box } from '@mui/system'
-import { NextApiRequest } from 'next'
+import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { getSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
-import {language} from "../jotai"
-import languagejson from "../language.json"
+import { language } from '../jotai'
+import languagejson from '../language.json'
 import { useAtom } from 'jotai'
+import { usePersonalAnalysis } from 'hooks/usePersonalAnalysis'
+import { connectToDatabase } from '@lib/db'
 
-export default function Property() {
-  const [lang, setLanguage] = useAtom(language)
+export default function Property({ userInfo }) {
+  console.log('user Info: ', userInfo)
+  const [lang] = useAtom(language)
   const list = [
     {
       name: 'Pro3',
@@ -78,7 +81,7 @@ export default function Property() {
           },
           textTransform: 'uppercase',
         }}>
-          {languagejson[lang].Youhaveexcellentphysicalconditionandhealth}
+        {languagejson[lang].Youhaveexcellentphysicalconditionandhealth}
       </Typography>
       <List
         sx={{
@@ -106,10 +109,28 @@ export default function Property() {
   )
 }
 
-export async function getServerSideProps({ req }: { req: NextApiRequest }) {
+export async function getServerSideProps (context: GetServerSidePropsContext) {
+  //Cached server side
+  context.res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=10, stale-while-revalidate=59'
+  )
+  const {req} = context
   const session = await getSession({
     req,
   })
+
+  // const protocal = req.headers['x-forwarded-proto'] || 'http'
+  // const host = req.headers.host
+  // const apiUrl = new URL('/api/user/info', `${protocal}://${host}`).toString()
+
+  // const userRes = await fetch(apiUrl, { method: 'GET' })
+
+  // console.log('user res--->', userRes.ok)
+  // if (!userRes.ok) {
+  //   console.error('Failed to fetch user info')
+  // }
+  // const userInfo = await userRes.json()
 
   if (!session) {
     return {
@@ -120,9 +141,28 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
     }
   }
 
-  return {
-    props: {
-      session,
-    },
+  try {
+    const email = session.user.email
+    console.log('email: ', email)
+    const client = await connectToDatabase()
+    const userCollection = client.db().collection('users')
+    const userInfo = await userCollection.findOne({email: email}, {projection: {_id: 0, day_birth: 1, month_birth: 1, year_birth: 1}})
+    console.log('user info: ', userInfo)
+
+    if(!userInfo) throw new Error('--User info not found--')
+    return {
+      props: {
+        session,
+        userInfo
+      }
+    }
+  } catch (err) {
+    console.error('Failed to fetch user info: ', err)
+    return {
+      props: {
+        session,
+        userInfo: []
+      }
+    }
   }
 }

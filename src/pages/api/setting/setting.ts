@@ -11,7 +11,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   // console.log("session=", session)
   const { language: lang, modus, status, show_firstname: firstname, show_lastname: lastname, show_email: email, show_telephone: telephone, show_analyse: personalAnalysis } = req.body
-  console.log('request:: ', lang, modus, status, firstname, lastname, email, telephone, personalAnalysis)
+  // console.log('request:: ', lang, modus, status, firstname, lastname, email, telephone, personalAnalysis)
   
   const client = await connectToDatabase()
   
