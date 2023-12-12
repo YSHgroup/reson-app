@@ -70,6 +70,7 @@ export default function Property() {
       </Box>
       <Typography
         sx={{
+          color: 'text.secondary',
           p: 2,
           pr: 14,
           '&:first-letter': {
