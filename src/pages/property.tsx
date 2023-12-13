@@ -18,7 +18,8 @@ import { usePersonalAnalysis } from 'hooks/usePersonalAnalysis'
 import { connectToDatabase } from '@lib/db'
 
 export default function Property({ userInfo }) {
-  console.log('user Info: ', userInfo)
+  const personalInfo = usePersonalAnalysis(userInfo)
+  console.log('user Info: ', personalInfo)
   const [lang] = useAtom(language)
   const list = [
     {
@@ -109,28 +110,16 @@ export default function Property({ userInfo }) {
   )
 }
 
-export async function getServerSideProps (context: GetServerSidePropsContext) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   //Cached server side
   context.res.setHeader(
     'Cache-Control',
     'public, s-maxage=10, stale-while-revalidate=59'
   )
-  const {req} = context
+  const { req } = context
   const session = await getSession({
     req,
   })
-
-  // const protocal = req.headers['x-forwarded-proto'] || 'http'
-  // const host = req.headers.host
-  // const apiUrl = new URL('/api/user/info', `${protocal}://${host}`).toString()
-
-  // const userRes = await fetch(apiUrl, { method: 'GET' })
-
-  // console.log('user res--->', userRes.ok)
-  // if (!userRes.ok) {
-  //   console.error('Failed to fetch user info')
-  // }
-  // const userInfo = await userRes.json()
 
   if (!session) {
     return {
@@ -146,23 +135,26 @@ export async function getServerSideProps (context: GetServerSidePropsContext) {
     console.log('email: ', email)
     const client = await connectToDatabase()
     const userCollection = client.db().collection('users')
-    const userInfo = await userCollection.findOne({email: email}, {projection: {_id: 0, day_birth: 1, month_birth: 1, year_birth: 1}})
+    const userInfo = await userCollection.findOne(
+      { email: email },
+      { projection: { _id: 0, day_birth: 1, month_birth: 1, year_birth: 1 } }
+    )
     console.log('user info: ', userInfo)
 
-    if(!userInfo) throw new Error('--User info not found--')
+    if (!userInfo) throw new Error('--User info not found--')
     return {
       props: {
         session,
-        userInfo
-      }
+        userInfo,
+      },
     }
   } catch (err) {
     console.error('Failed to fetch user info: ', err)
     return {
       props: {
         session,
-        userInfo: []
-      }
+        userInfo: [],
+      },
     }
   }
 }
