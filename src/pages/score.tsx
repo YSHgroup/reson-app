@@ -1,20 +1,43 @@
 import React from 'react'
-import FullLayout from '@layouts/FullLayout/FullLayout'
-import { Divider } from '@mui/material'
+import { Divider, LinearProgress } from '@mui/material'
+import { styled } from '@mui/material/styles'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Typography from '@mui/material/Typography'
 import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
+import FullLayout from '@layouts/FullLayout/FullLayout'
 import Image from 'next/image'
 import { language } from "../jotai"
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
+import { GenNumForDate } from 'class/GenNumForDate'
 
 export default function Score() {
   const [lang, setLanguage] = useAtom(language)
 
+  const PercentBar = styled('div')({
+    height: '10px',
+    width: 'calc(100% - 10px)',
+    margin: '0 5px',
+    borderRadius: '3px',
+    border: '2px solid lime',
+    overflow: 'hidden',
+    '& div': {
+      position: 'relative',
+      height: '100%',
+      backgroundColor: 'white',
+      '&::after': {
+        content: '""',
+        position: 'absolute',
+        right: '0',
+        height: '100%',
+        border: '.5px solid lime',
+        boxShadow: '0 0 2px 1px lime'
+      }
+    }
+  })
   const list = [
     {
       name: 'READY',
@@ -41,6 +64,8 @@ export default function Score() {
       dir: 'S6',
     },
   ]
+  const numForDate = new GenNumForDate()
+  console.log('num For Date--- ', numForDate.currentDate, numForDate.getNum())
   return (
     <FullLayout title="Property">
       <List
@@ -48,9 +73,8 @@ export default function Score() {
           width: '100%',
           background: '#fff4',
         }}>
-        {list.map((item, i) => (
+        {list.reverse().map((item, i) => (
           <React.Fragment key={item.name}>
-            {i !== 0 && <Divider />}
             <ListItem >
               <ListItemText
                 primary={
@@ -72,6 +96,7 @@ export default function Score() {
                 height={100}
               />
             </ListItem>
+            <PercentBar><div style={{width: `${(6 - i)/6 * 100}%`}}></div></PercentBar>
           </React.Fragment>
         ))}
       </List>
