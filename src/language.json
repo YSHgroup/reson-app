@@ -78,7 +78,7 @@
         "Favourites":"Favourites",
         "ONLINE":"ONLINE",
         "SAVED":"SAVED",
-        "WhatDoYouNeed": "What do you need?"
+        "WhatDoYouNeed": "What can you do?"
     },
     {
         "Message":"Nachricht",
@@ -159,7 +159,7 @@
         "Favourites":"Favoriten",
         "ONLINE":"ONLINE",
         "SAVED":"GERETTET",
-        "WhatDoYouNeed": "Was brauchen Sie?"
+        "WhatDoYouNeed": "Was kannst du tun?"
     },
     {
         "Message":"повідомлення",
@@ -240,7 +240,7 @@
         "Favourites":"Избранное",
         "ONLINE":"В СЕТИ",
         "SAVED":"СОХРАНЕНО",
-        "WhatDoYouNeed":"Що тобі потрібно?"
+        "WhatDoYouNeed":"Что ты можешь сделать?"
     },
     {
         "Message":"повідомлення",
@@ -321,6 +321,6 @@
         "Favourites":"Избранное",
         "ONLINE":"В СЕТИ",
         "SAVED":"СОХРАНЕНО",
-        "WhatDoYouNeed":"Що тобі потрібно?"
+        "WhatDoYouNeed":"Що ти можеш зробити?"
     }
 ]
