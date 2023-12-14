@@ -5,6 +5,8 @@ export const defaultTheme  = createTheme({
         mode: 'dark',
         primary: {
             main: '#5284e8',
+            100: '#5284e877',
+            200: '#5284e8aa',
         },
         secondary: {
             main: '#4e96ba'
@@ -18,7 +20,7 @@ export const defaultTheme  = createTheme({
             secondary: 'rgba(255, 255, 255, 0.7)',
             disabled: 'rgba(255, 255, 255, 0.5)',
         },
-        divider: "rgba(255,255,255,0.12)"
+        divider: "rgba(255,255,255,0.2)"
 
     },
     // components: {
@@ -59,6 +61,8 @@ export const darkTheme  = createTheme({
         mode: 'dark',
         primary: {
             main: '#5284e8',
+            100: '#5284e877',
+            200: '#5284e8aa',
         },
         secondary: {
             main: '#5670A2'
@@ -72,7 +76,7 @@ export const darkTheme  = createTheme({
             secondary: 'rgba(255, 255, 255, 0.7)',
             disabled: 'rgba(255, 255, 255, 0.5)',
         },
-        divider: "rgba(255,255,255,0.12)"
+        divider: "rgba(255,255,255,0.2)"
 
     },
     // components: {
@@ -112,7 +116,9 @@ export const lightTheme = createTheme({
     palette: {
         mode: 'light',
         primary: {
-            main: '#88e2ec'
+            main: '#88e2ec',
+            100: '#88e2ec77',
+            200: '#88e2ecaa',
             // main: '#0B635D'
         },
         secondary: {

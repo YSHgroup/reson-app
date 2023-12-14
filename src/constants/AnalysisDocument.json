@@ -1,8 +1,8 @@
 {
     "EN": [
         {
-            "indicator": {"male": "Energy", "female":"Character", "diverse": "Protection"},
-            "discribtion": [
+            "criteria": {"male": "Energy", "female":"Character", "diverse": "Protection"},
+            "description": [
                 null, 
                 "You are a classic energy vampire.",
                 "You are a creative person who doesn't forget about sports. You have a good energy bar, which you often use for selfish purposes.",
@@ -13,8 +13,8 @@
             ]
         },
         {
-            "indicator": {"male": "Responsibility", "female":"Initiative", "diverse": "Leadership"},
-            "discribtion": [
+            "criteria": {"male": "Responsibility", "female":"Initiative", "diverse": "Leadership"},
+            "description": [
                 null,
                 "Your credo is to fulfill the sacrifice.",
                 "You are an irresponsible and winded egomaniac.",
@@ -25,8 +25,8 @@
             ]
         },
         {
-            "indicator": {"male": "Creativity", "female":"Knowledge", "diverse": "Thinking"},
-            "discribtion": [
+            "criteria": {"male": "Creativity", "female":"Knowledge", "diverse": "Thinking"},
+            "description": [
                 null,
                 "Congratulations, you are boring.",
                 "You think systematically. You express thought - wisely. You are like a club of connoisseurs.",
@@ -37,8 +37,8 @@
             ]
         },
         {
-            "indicator": {"male": "Health", "female":"Power", "diverse": "Body"},
-            "discribtion": [
+            "criteria": {"male": "Health", "female":"Power", "diverse": "Body"},
+            "description": [
                 null,
                 "You have enough strength and stamina, but you have to take care of yourself.",
                 "You have normal health. The only question is how to save it!",
@@ -49,8 +49,8 @@
             ]
         },
         {
-            "indicator": {"male": "Logik", "female":"Loveliness", "diverse": "Intuition"},
-            "discribtion": [
+            "criteria": {"male": "Logik", "female":"Loveliness", "diverse": "Intuition"},
+            "description": [
                 null,
                 "Deceptive logic. Risk of error.",
                 "Without tools, high probability of error.",
@@ -61,8 +61,8 @@
             ]
         },
         {
-            "indicator": {"male": "Hardworking", "female":"Ability", "diverse": "Aspiration"},
-            "discribtion": [
+            "criteria": {"male": "Hardworking", "female":"Ability", "diverse": "Aspiration"},
+            "description": [
                 null,
                 "Bad craftsman. Need for self-development.",
                 "A classic apprentice in a skilled trade.",
@@ -73,8 +73,8 @@
             ]
         },
         {
-            "indicator": {"male": "Success", "female":"Happiness", "diverse": "Luck"},
-            "discribtion": [
+            "criteria": {"male": "Success", "female":"Happiness", "diverse": "Luck"},
+            "description": [
                 null,
                 "Randomness is the probability of success.",
                 "Everything is attainable through faith.",
@@ -85,8 +85,8 @@
             ]
         },
         {
-            "indicator": {"male": "Readiness", "female":"Honesty", "diverse": "Business"},
-            "discribtion": [
+            "criteria": {"male": "Readiness", "female":"Honesty", "diverse": "Business"},
+            "description": [
                 null,
                 "No self-sacrifice.",
                 "Lack of responsibility. Self-oriented.",
@@ -97,8 +97,8 @@
             ]
         },
         {
-            "indicator": {"male": "Temperament", "female":"Harmony", "diverse": "Realization"},
-            "discribtion": [
+            "criteria": {"male": "Temperament", "female":"Harmony", "diverse": "Realization"},
+            "description": [
                 null,
                 "Inability to work.",
                 "Basic intelligence. Need for repetition in learning.",
@@ -111,8 +111,8 @@
     ],
     "DE": [
         {
-            "indicator": {"male": "Energie", "female":"Charakter", "diverse": "Schutz"},
-            "discribtion": [
+            "criteria": {"male": "Energie", "female":"Charakter", "diverse": "Schutz"},
+            "description": [
                 null,
                 "Energievampir.",
                 "Du bist eine kreative Person, die den Sport nicht vergisst. Du hast eine gute Energiebar, die du oft für eigennützige Zwecke benutzt.",
@@ -123,8 +123,8 @@
             ]
         },
         {
-            "indicator": {"male": "Verantwortung", "female": "Initiative", "diverse": "Führerschaft"},
-            "discribtion": [
+            "criteria": {"male": "Verantwortung", "female": "Initiative", "diverse": "Führerschaft"},
+            "description": [
                 null,
                 "Opfers.",
                 "Du bist ein verantwortungsloser und aufgeblasener Egoman.",
@@ -135,8 +135,8 @@
             ]
         },
         {
-            "indicator": {"male": "Kreativität", "female": "Wissen", "diverse": "Denkweise"},
-            "discribtion": [
+            "criteria": {"male": "Kreativität", "female": "Wissen", "diverse": "Denkweise"},
+            "description": [
                 null,
                 "Langweilig.",
                 "Du denkst systematisch und drückst Gedanken weise aus. Du bist wie ein Kennerclub.",
@@ -147,8 +147,8 @@
             ]
         },
         {
-            "indicator": {"male": "Stärke", "female": "Gesundheit", "diverse": "Körper"},
-            "discribtion": [
+            "criteria": {"male": "Stärke", "female": "Gesundheit", "diverse": "Körper"},
+            "description": [
                 null,
                 "Gesundheitsschwäche",
                 "Du hast eine normale Gesundheit. Die einzige Frage ist, wie man sie bewahrt!",
@@ -159,8 +159,8 @@
             ]
         },
         {
-            "indicator": {"male": "Logik", "female": "Schönheit", "diverse": "Intuition"},
-            "discribtion": [
+            "criteria": {"male": "Logik", "female": "Schönheit", "diverse": "Intuition"},
+            "description": [
                 null,
                 "Fehlergefahr",
                 "Ohne Werkzeuge besteht eine hohe Wahrscheinlichkeit des Irrtums.",
@@ -171,8 +171,8 @@
             ]
         },
         {
-            "indicator": {"male": "Arbeit", "female": "Fähigkeit", "diverse": "Bestrebungen"},
-            "discribtion": [
+            "criteria": {"male": "Arbeit", "female": "Fähigkeit", "diverse": "Bestrebungen"},
+            "description": [
                 null,
                 "Schlechter Handwerker.",
                 "Ein klassischer Lehrling in einem Fachberuf.",
@@ -183,8 +183,8 @@
             ]
         },
         {
-            "indicator": {"male": "Erfolg", "female": "Glücklichkeit", "diverse": "Schicksal"},
-            "discribtion": [
+            "criteria": {"male": "Erfolg", "female": "Glücklichkeit", "diverse": "Schicksal"},
+            "description": [
                 null,
                 "Zufalllosigkeit.",
                 "Alles ist erreichbar durch Glauben.",
@@ -195,8 +195,8 @@
             ]
         },
         {
-            "indicator": {"male": "Bereitschaft", "female": "Ehrlichkeit", "diverse": "Business"},
-            "discribtion": [
+            "criteria": {"male": "Bereitschaft", "female": "Ehrlichkeit", "diverse": "Business"},
+            "description": [
                 null,
                 "Ärgerlich und wütend.",
                 "Fehlende Verantwortung. Ichbezogen.",
@@ -207,8 +207,8 @@
             ]
         },
         {
-            "indicator": {"male": "Temperament", "female": "Harmonie", "diverse": "Bewusstheit"},
-            "discribtion": [
+            "criteria": {"male": "Temperament", "female": "Harmonie", "diverse": "Bewusstheit"},
+            "description": [
                 null,
                 "Arbeitsunfähig.",
                 "Grundintelligenz. Lernwiederholung notwendig.",
@@ -221,8 +221,8 @@
     ],
     "RU": [
         {
-            "indicator": {"male": "Энергия", "female":"Характер", "diverse": "Защита"},
-            "discribtion": [
+            "criteria": {"male": "Энергия", "female":"Характер", "diverse": "Защита"},
+            "description": [
                 null,
                 "Ты классический энергетический вампир.",
                 "Ты творческая личность, которая не забывает о спорте. У тебя хороший запас энергии, который ты часто используешь в своих целях.",
@@ -233,8 +233,8 @@
             ]
         },
         {
-            "indicator": {"male": "Ответственность", "female": "Инициатива", "diverse": "Лидерство"},
-            "discribtion": [
+            "criteria": {"male": "Ответственность", "female": "Инициатива", "diverse": "Лидерство"},
+            "description": [
                 null,
                 "Ваше кредо - выполнение жертвы.",
                 "Вы безответственный и ветреный эгоцентрик.",
@@ -245,8 +245,8 @@
             ]
         },
         {
-            "indicator": {"male": "Творчество", "female": "Знания", "diverse": "Мышление"},
-            "discribtion": [
+            "criteria": {"male": "Творчество", "female": "Знания", "diverse": "Мышление"},
+            "description": [
                 null,
                 "Поздравляем, вы скучны.",
                 "Вы мыслите систематически. Выражаете мысли мудро. Вы как клуб ценителей.",
@@ -257,8 +257,8 @@
             ]
         },
         {
-            "indicator": {"male": "Сила", "female": "Здоровье", "diverse": "Тело"},
-            "discribtion": [
+            "criteria": {"male": "Сила", "female": "Здоровье", "diverse": "Тело"},
+            "description": [
                 null,
                 "У вас достаточно силы и выносливости, но вы должны заботиться о себе.",
                 "У вас нормальное здоровье. Единственный вопрос - как его сохранить!",
@@ -269,8 +269,8 @@
             ]
         },
         {
-            "indicator": {"male": "Логика", "female": "Красота", "diverse": "Интуиция"},
-            "discribtion": [
+            "criteria": {"male": "Логика", "female": "Красота", "diverse": "Интуиция"},
+            "description": [
                 null,
                 "Обманчивая логика. Риск ошибки.",
                 "Без инструментов высокая вероятность ошибки.",
@@ -281,8 +281,8 @@
             ]
         },
         {
-            "indicator": {"male": "Трудолюбие", "female": "Способность", "diverse": "Стремление"},
-            "discribtion": [
+            "criteria": {"male": "Трудолюбие", "female": "Способность", "diverse": "Стремление"},
+            "description": [
                 null,
                 "Плохой ремесленник. Необходимость в саморазвитии.",
                 "Классический ученик в области ремесленного мастерства.",
@@ -293,8 +293,8 @@
             ]
         },
         {
-            "indicator": {"male": "Успех", "female": "Счастье", "diverse": "Удача"},
-            "discribtion": [
+            "criteria": {"male": "Успех", "female": "Счастье", "diverse": "Удача"},
+            "description": [
                 null,
                 "Случайность - это вероятность успеха.",
                 "Все достижимо через веру.",
@@ -305,8 +305,8 @@
             ]
         },
         {
-            "indicator": {"male": "Готовность", "female": "Честность", "diverse": "Бизнес"},
-            "discribtion": [
+            "criteria": {"male": "Готовность", "female": "Честность", "diverse": "Бизнес"},
+            "description": [
                 null,
                 "Нет самопожертвования.",
                 "Отсутствие ответственности. Самоцентрированный.",
@@ -317,8 +317,8 @@
             ]
         },
         {
-            "indicator": {"male": "Темперамент", "female": "Гармония", "diverse": "Осознанность"},
-            "discribtion": [
+            "criteria": {"male": "Темперамент", "female": "Гармония", "diverse": "Осознанность"},
+            "description": [
                 null,
                 "Не способен к работе.",
                 "Базовый интеллект. Необходимость повторения при обучении.",
@@ -331,8 +331,8 @@
     ],
     "UA": [
         {
-            "indicator": {"male": "Енергія", "female":"Характер", "diverse": "Захист"},
-            "discribtion": [
+            "criteria": {"male": "Енергія", "female":"Характер", "diverse": "Захист"},
+            "description": [
                 null,
                 "Ти класичний енергетичний вампір.",
                 "Ти креативна особистість, яка не забуває про спорт. У тебе добрий запас енергії, який ти часто використовуєш для егоїстичних цілей.",
@@ -343,8 +343,8 @@
             ]
         },
         {
-            "indicator": {"male": "Енергія", "female": "Характер", "diverse": "Захист"},
-            "discribtion": [
+            "criteria": {"male": "Енергія", "female": "Характер", "diverse": "Захист"},
+            "description": [
                 null,
                 "Ви класичний енергетичний вампір.",
                 "Ви творча людина, яка не забуває про спорт. У вас є хороший запас енергії, яку ви часто використовуєте з корисливими цілями.",
@@ -355,8 +355,8 @@
             ]
         },
         {
-            "indicator": {"male": "Відповідальність", "female": "Ініціатива", "diverse": "Лідерство"},
-            "discribtion": [
+            "criteria": {"male": "Відповідальність", "female": "Ініціатива", "diverse": "Лідерство"},
+            "description": [
                 null,
                 "Ваше кредо - виконання жертви.",
                 "Ви безвідповідальний та легковажний егоцентрик.",
@@ -367,8 +367,8 @@
             ]
         },
         {
-            "indicator": {"male": "Творчість", "female": "Знання", "diverse": "Мислення"},
-            "discribtion": [
+            "criteria": {"male": "Творчість", "female": "Знання", "diverse": "Мислення"},
+            "description": [
                 null,
                 "Вітаємо, ви нудні.",
                 "Ви мислите систематично. Виражаєте думки мудро. Ви як клуб поціновувачів.",
@@ -379,8 +379,8 @@
             ]
         },
         {
-            "indicator": {"male": "Здоров'я", "female": "Сила", "diverse": "Тіло"},
-            "discribtion": [
+            "criteria": {"male": "Здоров'я", "female": "Сила", "diverse": "Тіло"},
+            "description": [
                 null,
                 "У вас достатньо сили та витривалості, але ви повинні дбати про себе.",
                 "У вас нормальне здоров'я. Єдине питання – як його зберегти!",
@@ -391,8 +391,8 @@
             ]
         },
         {
-            "indicator": {"male": "Логіка", "female": "Привабливість", "diverse": "Інтуїція"},
-            "discribtion": [
+            "criteria": {"male": "Логіка", "female": "Привабливість", "diverse": "Інтуїція"},
+            "description": [
                 null,
                 "Обманна логіка. Ризик помилки.",
                 "Без інструментів висока ймовірність помилки.",
@@ -403,8 +403,8 @@
             ]
         },
         {
-            "indicator": {"male": "Працьовитість", "female": "Здібність", "diverse": "Прагнення"},
-            "discribtion": [
+            "criteria": {"male": "Працьовитість", "female": "Здібність", "diverse": "Прагнення"},
+            "description": [
                 null,
                 "Поганий ремісник. Необхідність у саморозвитку.",
                 "Класичний учень у сфері ремесла.",
@@ -415,8 +415,8 @@
             ]
         },
         {
-            "indicator": {"male": "Успіх", "female": "Щастя", "diverse": "Удача"},
-            "discribtion": [
+            "criteria": {"male": "Успіх", "female": "Щастя", "diverse": "Удача"},
+            "description": [
                 null,
                 "Випадковість – це ймовірність успіху.",
                 "Все досяжно через віру.",
@@ -427,8 +427,8 @@
             ]
         },
         {
-            "indicator": {"male": "Готовність", "female": "Чесність", "diverse": "Бізнес"},
-            "discribtion": [
+            "criteria": {"male": "Готовність", "female": "Чесність", "diverse": "Бізнес"},
+            "description": [
                 null,
                 "Жодної самопожертви.",
                 "Відсутність відповідальності. Орієнтований на себе.",
@@ -439,8 +439,8 @@
             ]
         },
         {
-            "indicator": {"male": "Темперамент", "female": "Гармонія", "diverse": "Свідомість"},
-            "discribtion": [
+            "criteria": {"male": "Темперамент", "female": "Гармонія", "diverse": "Свідомість"},
+            "description": [
                 null,
                 "Неможливість працювати.",
                 "Базовий інтелект. Потреба в повторенні в навчанні.",

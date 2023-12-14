@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { DateProcessor } from '../class/DateProcessor'
 
 const counterIndividualNumber = (numArr: number[] | string[]) => {
@@ -11,29 +11,32 @@ const counterIndividualNumber = (numArr: number[] | string[]) => {
   return q
 }
 
-export const usePersonalAnalysis = (date: Record<string, string | number>) => {
-  const keys = Object.keys(date).reverse()
-  const userObject = keys.reduce((obj, key) => {
-    obj[key] = date[key]
-    return obj
-  }, {})
-  const [value, setValue] = useState(userObject)
+export const usePersonalAnalysis = (date: Record<string, string | number>): [number[][], ()=>void] => {
+  const [value, setValue] = useState<number[][]>([[]])
+  const resultAnalysis = useCallback<() => void>(
+    () => {
+      const keys = Object.keys(date).reverse()
+      const userObject = keys.reduce((obj, key) => {
+        obj[key] = date[key]
+        return obj
+      }, {})
+      const result = new DateProcessor(userObject)
+      const { analysisOfBD, analysisOfCD } = result.processDates()
+      const resultOfAnalysis = {
+        birthdayProperty: analysisOfBD.flat(2),
+        dateProperty: analysisOfCD.flat(2),
+      }
+      const qOfAnalysis = Object.values(resultOfAnalysis).map((eachProperty) =>
+        counterIndividualNumber(eachProperty)
+      )
+      setValue(qOfAnalysis)
+      return qOfAnalysis
+    },
+    [date]
+  )
+//   console.log('personal analysis value: ', value)
 
-  console.log('personal analysis value: ', value)
-  const result = new DateProcessor(value)
-  const { analysisOfBD, analysisOfCD } = result.processDates()
-  const resultOfAnalysis = {
-    birthdayProperty: analysisOfBD.flat(2),
-    dateProperty: analysisOfCD.flat(2),
-  }
-  const qOfAnalysis = Object.values(resultOfAnalysis).map((eachProperty) =>
-    counterIndividualNumber(eachProperty)
-  )
   // console.log('class result: ', Object.values(result.currentDate)[0].toString().split(''))
-  console.log(
-    'use class to calculate the result: ',
-    resultOfAnalysis,
-    qOfAnalysis
-  )
-  return { ...value }
+  console.log('use class to calculate the result: ',date, value)
+  return [ value, resultAnalysis ]
 }

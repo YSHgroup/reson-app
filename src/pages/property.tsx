@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import FullLayout from '@layouts/FullLayout/FullLayout'
 import { Divider } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import Typography from '@mui/material/Typography'
 import { Box } from '@mui/system'
@@ -11,38 +11,43 @@ import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { getSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { language } from '../jotai'
+import { language, personalStatusJot } from '../jotai'
 import languagejson from '../language.json'
+import analysisDoc from '../constants/AnalysisDocument.json'
 import { useAtom } from 'jotai'
 import { usePersonalAnalysis } from 'hooks/usePersonalAnalysis'
 import { connectToDatabase } from '@lib/db'
 
 export default function Property({ userInfo }) {
-  const personalInfo = usePersonalAnalysis(userInfo)
-  console.log('user Info: ', personalInfo)
+  const isFirstRender = useRef(true)
+  const [personalStatus, setStatus] = useState({ statusIndex: 0, quantity: 0 })
+  const [analysisResult, setAnalysis] = usePersonalAnalysis(userInfo)
+  // console.log('analysis result document: ', analysisDoc['EN'][personalStatus.statusIndex].description)
+  console.log('user Info: ', analysisResult, personalStatus)
   const [lang] = useAtom(language)
   const list = [
-    {
-      name: 'Pro3',
-      dir: 'S1',
-    },
-    {
-      name: 'Pro4',
-      dir: 'S4',
-    },
-    {
-      name: 'Pro5',
-      dir: 'S5',
-    },
-    {
-      name: 'Pro6',
-      dir: 'S6',
-    },
-    {
-      name: 'Pro7',
-      dir: 'S6',
-    },
+    'Pro1',
+    'Pro2',
+    'Pro3',
+    'Pro4',
+    'Pro5',
+    'Pro6',
+    'Pro7',
+    'Pro8',
+    'Pro9',
   ]
+  const currentLangMode = ['EN', 'DE', 'RU', 'UA']
+  useEffect(() => {
+    setAnalysis()
+  }, [])
+  useEffect(() => {
+    if(isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    const index = analysisResult[0].findIndex(( first ) => first !== 0)
+    setStatus({ statusIndex: index, quantity: analysisResult[0][index] })
+  }, [analysisResult])
   return (
     <FullLayout title="Property">
       <Box
@@ -59,7 +64,10 @@ export default function Property({ userInfo }) {
             'line-height': '1.5',
             ml: 3,
           }}>
-          {languagejson[lang].HEALTH}
+          {
+            analysisDoc[currentLangMode[lang]][personalStatus.statusIndex]
+              .criteria['male']
+          }
         </Typography>
         <Box
           sx={{
@@ -68,7 +76,13 @@ export default function Property({ userInfo }) {
             top: 0,
           }}>
           <IconButton LinkComponent={Link} href="/score">
-            <Image src="/images/S2.png" alt="S2" width={140} height={140} />
+            <Image
+              src={`/images/S${(personalStatus.quantity ) % 6 !== 0 ? (personalStatus.quantity ) % 6 : 1}.png`}
+              alt="S2"
+              priority
+              width={140}
+              height={140}
+            />
           </IconButton>
         </Box>
       </Box>
@@ -77,32 +91,55 @@ export default function Property({ userInfo }) {
           color: 'text.secondary',
           p: 2,
           pr: 14,
+          minHeight: 50,
           '&:first-letter': {
             fontSize: '130%',
           },
           textTransform: 'uppercase',
         }}>
-        {languagejson[lang].Youhaveexcellentphysicalconditionandhealth}
+        {
+          analysisDoc[currentLangMode[lang]][personalStatus.statusIndex]
+            .description[personalStatus.quantity]
+        }
       </Typography>
       <List
         sx={{
           width: '100%',
           background: '#fff4',
+          padding: 0,
         }}>
         {list.map((item, i) => (
-          <React.Fragment key={item.name}>
+          <React.Fragment key={item}>
             {i !== 0 && <Divider />}
-            <ListItem>
-              <ListItemText
-                primary={<Typography variant="h4">{item.name}</Typography>}
-              />
-              <Image
-                src={`/images/${item.dir}.png`}
-                alt={item.dir}
-                width={100}
-                height={100}
-              />
-            </ListItem>
+            {!!analysisResult[0][i] && (
+              <ListItemButton
+                selected={i === personalStatus.statusIndex}
+                sx={{
+                  '&.Mui-selected': {
+                    bgcolor: 'primary.100',
+                    '&:hover': {
+                      bgcolor: 'primary.200',
+                    },
+                  },
+                }}
+                onClick={() =>
+                  setStatus({
+                    statusIndex: i,
+                    quantity:
+                      analysisResult[0][i] >= 6 ? 6 : analysisResult[0][i],
+                  })
+                }>
+                <ListItemText
+                  primary={<Typography variant="h4">{item}</Typography>}
+                />
+                <Image
+                  src={`/images/S${analysisResult[0][i]}.png`}
+                  alt={item}
+                  width={100}
+                  height={100}
+                />
+              </ListItemButton>
+            )}
           </React.Fragment>
         ))}
       </List>
