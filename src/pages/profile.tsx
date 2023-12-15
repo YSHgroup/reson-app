@@ -362,10 +362,12 @@ export default function Profile() {
           </Box>
           <Typography sx={{color: 'text.primary'}}>{nickname}</Typography>
           <Button
-            variant="contained"
-            color="secondary"
+            variant="text"
+            // color="inherit"
+            // sx={(theme) => theme.palette.mode ==='dark'? '#90caf9': '#1976d2'}
             size="large"
             sx={{
+              color: (theme) => theme.palette.mode ==='dark'? '#82bfef': '#1976d2',
               mt: 2,
             }}
             LinkComponent={Link}
@@ -376,11 +378,12 @@ export default function Profile() {
           </Button>
           <div>
             <Button
-              variant="contained"
-              color="primary"
+              variant="text"
+              color="inherit"
               size="large"
               sx={{
-                mt: 2,
+                color: (theme) => theme.palette.mode ==='dark'? '#82bfef': '#1976d2',
+                // mt: 2,
               }}
               LinkComponent={Link}
               href="/projects"
@@ -392,7 +395,10 @@ export default function Profile() {
             <Button
               variant="text"
               size="large"
-              color='inherit'
+              // color='inherit'
+              sx={{
+                color: (theme) => theme.palette.mode ==='dark'? '#82bfef': '#1976d2',
+              }}
               onClick={handleChange}
               endIcon={open ? <ArrowLeft /> : <ArrowDropDown />}>
               {languagejson[lang].Completetheinformation}
