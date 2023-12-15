@@ -5,7 +5,7 @@ import { NextApiRequest } from 'next'
 import { useRouter } from 'next/router'
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
-import { language } from "../jotai"
+import { dateColorJot, language } from "../jotai"
 import { getSession, useSession } from 'next-auth/react'
 
 import FullCalendar from "@fullcalendar/react";
@@ -22,7 +22,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import Autocomplete from '@mui/material/Autocomplete';
 import { Theme } from '@fullcalendar/core/internal'
-
+import { GenNumForDate } from 'class/GenNumForDate'
+import { dateColor } from '@constants/Status'
 
 const start = new Date();
 const end = new Date(new Date().setMinutes(start.getMinutes() + 30));
@@ -71,7 +72,7 @@ interface initValues {
 interface Option {
   email: string;
 }
-export default function Calendar() {
+export default function Calendar({currentColor}) {
   const router = useRouter();
   const [lang, setLanguage] = useAtom(language)
   const [modalOpen, setModalOpen] = useState(false);
@@ -94,7 +95,7 @@ export default function Calendar() {
   const { data: session } = useSession()
 
 
-
+console.log('current color: ', currentColor)
 
   const handleClickOpen = () => {
     setModalOpen(true);
@@ -335,6 +336,11 @@ export default function Calendar() {
     router.push(`/chat?email=${link}`);
   };
 
+const BorderStyle = styled('div')(({theme}) => ({
+  '& a,& table,& tr,& th,& td': {
+    borderColor: `${theme.palette.text.primary} !important`
+  }
+}))
 
   return (
     <FullLayout title={languagejson[lang].myEvents}>
@@ -349,11 +355,13 @@ export default function Calendar() {
           sx={{
             p: 2,
             width: '100vw',
-            background: '#3339',
+            background: (theme) => `${theme.palette.background.default}55`,
             alignItems: 'center',
             textAlign: 'center',
           }}
         >
+          <BorderStyle className='divdiv'>
+
           <FullCalendar
             nowIndicator={true}
             eventClick={handleEventSelect}
@@ -372,6 +380,21 @@ export default function Calendar() {
             ref={calendarRef}
             plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin, momentPlugin]}
             initialView="timeGridWeek"
+            // dayCellContent={(arg)=> {
+            //   if(arg.isToday) {
+            //     return <div style={{backgroundColor: '#000'}}>{arg.dayNumberText}</div>
+            //   }
+            //   return arg.dayNumberText
+            // }}
+            dayHeaders
+            dayHeaderDidMount={(args)=> {
+              if(args.isToday){
+                args.el.style.backgroundColor = `${currentColor}66`;
+              }
+              args.el.style.color = 'primary.main';
+              // return args.text
+            }}
+            viewClassNames={'day-header'}
             eventDrop={handleCalendarDrop}
             eventResize={handleEventResize}
             select={handleCalendarSelect}
@@ -393,6 +416,7 @@ export default function Calendar() {
               right: "today prevYear,prev,next,nextYear",
             }}
           />
+          </BorderStyle>
 
         </Box>
       </Box>
@@ -543,6 +567,8 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
     req,
   })
 
+  const numForDate = new GenNumForDate()
+  const currentColor = dateColor[Number(numForDate.getNum().substring(0, 2))]
   if (!session) {
     return {
       redirect: {
@@ -555,6 +581,7 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
   return {
     props: {
       session,
+      currentColor
     },
   }
 }

@@ -10,6 +10,7 @@ export const telephoneJot = atom(0)
 export const personalAnalysisJot = atom(0)
 export const currentPositionJot = atom(0)
 export const personalStatusJot = atom({statusIndex: 0, quantity: 0})
+export const dateColorJot = atom('')
 
 export const tempEmailJot = atom('')
 export const chatGroupsAtom = atom([]);

@@ -17,7 +17,7 @@ import { Collapse } from '@mui/material'
 import React from 'react'
 import { ArrowDropDown, ArrowLeft } from '@mui/icons-material'
 import IconButton from '@mui/material/IconButton'
-import { language } from "../jotai"
+import { dateColorJot, language } from "../jotai"
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
@@ -26,7 +26,8 @@ import { Fade, ListItemIcon, Menu, MenuItem } from '@mui/material'
 import MenuData from '@constants/Menu.json'
 import { StatusData } from '@constants/Status'
 import { getSession, signOut } from 'next-auth/react'
-
+import { GenNumForDate } from 'class/GenNumForDate'
+import { dateColor } from '@constants/Status'
 
 import ImageUploader from '../components/elements/ImageUploader'
 import { useRouter } from 'next/router'
@@ -51,8 +52,13 @@ export default function Profile() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [status, setStatus] = React.useState(0)
   const [nickname, setNickName] = React.useState('')
+  const [currentColor, setDateColor] = useAtom(dateColorJot)
+  const numForDate = new GenNumForDate()
+  useEffect(()=>{
+    setDateColor(dateColor[Number(numForDate.getNum().substring(0, 2))])
 
-
+  },[])
+  
   const topen = Boolean(anchorEl)
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -249,7 +255,7 @@ export default function Profile() {
             sx={{
               background: 'white',
               borderRadius: 2,
-              border: '1px solid black',
+              border: `5px solid ${currentColor}aa`,
               padding: '12px',
               display: 'inline-grid',
               width: '300px',
@@ -354,7 +360,7 @@ export default function Profile() {
               {energy}%
             </Typography>
           </Box>
-          <Typography>{nickname}</Typography>
+          <Typography sx={{color: 'text.primary'}}>{nickname}</Typography>
           <Button
             variant="contained"
             color="secondary"

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Divider, LinearProgress } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import List from '@mui/material/List'
@@ -9,20 +9,26 @@ import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
 import FullLayout from '@layouts/FullLayout/FullLayout'
 import Image from 'next/image'
-import { language } from "../jotai"
+import { dateColorJot, language } from "../jotai"
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
 import { GenNumForDate } from 'class/GenNumForDate'
+import { dateColor } from '@constants/Status'
 
 export default function Score() {
   const [lang, setLanguage] = useAtom(language)
+  const [currentColor, setDateColor] = useAtom(dateColorJot)
+  const numForDate = new GenNumForDate()
+  useEffect(()=>{
+    setDateColor(dateColor[Number(numForDate.getNum().substring(0, 2))])
 
+  },[])
   const PercentBar = styled('div')({
     height: '10px',
     width: 'calc(100% - 10px)',
     margin: '0 5px',
     borderRadius: '3px',
-    border: '2px solid lime',
+    border: `2px solid ${currentColor}`,
     overflow: 'hidden',
     '& div': {
       position: 'relative',
@@ -33,8 +39,8 @@ export default function Score() {
         position: 'absolute',
         right: '0',
         height: '100%',
-        border: '.5px solid lime',
-        boxShadow: '0 0 2px 1px lime'
+        border: `.5px solid ${currentColor}`,
+        boxShadow: `0 0 2px 1px ${currentColor}`
       }
     }
   })
@@ -64,8 +70,7 @@ export default function Score() {
       dir: 'S6',
     },
   ]
-  const numForDate = new GenNumForDate()
-  console.log('num For Date--- ', numForDate.currentDate, numForDate.getNum())
+  console.log('use atom color: ', currentColor)
   return (
     <FullLayout title="Property">
       <List

@@ -129,8 +129,8 @@ export const lightTheme = createTheme({
             paper: '#88e2ec'
         },
         text: {
-            primary: '#222222aa',
-            secondary: '#22222288',
+            primary: '#222222bb',
+            secondary: '#22222299',
             disabled: 'rgba(255, 255, 255, 0.5)',
         },
         divider: "rgba(255,255,255,0.2)",

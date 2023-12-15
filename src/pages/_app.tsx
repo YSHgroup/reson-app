@@ -19,13 +19,15 @@ import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import DateFnsUtils from '@date-io/date-fns'
 import { useAtom, Provider as JotaiProvider } from 'jotai'
-import { language, modusJot } from '../jotai'
+import { dateColorJot, language, modusJot } from '../jotai'
 import Worker from '../components/worker'
 import { VideoCallProvider } from 'context/VideoCallContext'
 import VideoCallWindow from '@elements/Chat/VideoCallWindowComponent'
 import ParticlesComponent from '@elements/Particles'
 import { darkTheme, lightTheme, defaultTheme } from 'theme'
 import CustomScrollbar from '@elements/CustomScrollbar'
+import { GenNumForDate } from 'class/GenNumForDate'
+import { dateColor } from '@constants/Status'
 
 type LanguageType = number // Replace 'number' with the actual type of your language state
 
@@ -43,6 +45,9 @@ export default function App({ Component, pageProps }: AppProps) {
   //     ? modeFromStorage
   //     : 'default'
   // )
+  const numForDate = new GenNumForDate()
+
+  console.log('num For Date--- ', numForDate.currentDate, numForDate.getNum())
   const [mode, setMode] = React.useState<CustomizePaletteMode>('default')
   const colorMode = React.useMemo(
     () => ({
@@ -78,7 +83,6 @@ export default function App({ Component, pageProps }: AppProps) {
     }
     getCurrentSetting()
   }, [])
-
   React.useEffect(() => {
     localStorage.setItem('color_mode', mode)
 
