@@ -1,10 +1,5 @@
 import FullLayout from '@layouts/FullLayout/FullLayout'
-import {
-  Box,
-  IconButton,
-  Typography,
-  ListItem,
-} from '@mui/material'
+import { Box, IconButton, Typography, ListItem, Divider } from '@mui/material'
 import CommentIcon from '@mui/icons-material/Comment'
 import PersonIcon from '@mui/icons-material/Person'
 import { Stack } from '@mui/system'
@@ -22,7 +17,11 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-import { DesktopAccessDisabled, PersonalVideo, Visibility } from '@mui/icons-material';
+import {
+  DesktopAccessDisabled,
+  PersonalVideo,
+  Visibility,
+} from '@mui/icons-material'
 interface ListObject {
   _id: string | null
   author: string | null
@@ -75,14 +74,14 @@ const ProjectPage = () => {
   })
   const [results, setResults] = useState<Result[]>([])
   const [selectedResult, setSelectedResult] = useState<Result>({
-    author: "",
-    created_at: "",
-    need_id: "",
-    poster: "",
-    description: "",
-    _id: "",
-    status: "",
-    price: ""
+    author: '',
+    created_at: '',
+    need_id: '',
+    poster: '',
+    description: '',
+    _id: '',
+    status: '',
+    price: '',
   })
   const startChatting = (list: Result) => {
     router.push(`/chat?email=${list.author}`)
@@ -115,14 +114,14 @@ const ProjectPage = () => {
 
   const handleChangeExist = async (list: ListObject) => {
     const response = await fetch('/api/need/changeExist', {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({
         _id: list._id,
-        exist: list.exist ? 0 : 1
-      })
+        exist: list.exist ? 0 : 1,
+      }),
     })
     const data = await response.json()
-    if (data.message === "Success") {
+    if (data.message === 'Success') {
       setProjectLists(data.project)
     }
   }
@@ -136,11 +135,11 @@ const ProjectPage = () => {
       method: 'POST',
       body: JSON.stringify({
         _id: id,
-        status: 'accepted'
+        status: 'accepted',
       }),
     })
     const data = await response.json()
-    if (data.message === "Success") {
+    if (data.message === 'Success') {
       setSelectedResult(data.result)
     }
   }
@@ -150,11 +149,11 @@ const ProjectPage = () => {
       method: 'POST',
       body: JSON.stringify({
         _id: id,
-        status: 'rejected'
+        status: 'rejected',
       }),
     })
     const data = await response.json()
-    if (data.message === "Success") {
+    if (data.message === 'Success') {
       setSelectedResult(data.result)
     }
   }
@@ -168,21 +167,37 @@ const ProjectPage = () => {
 
   return (
     <FullLayout title={projectLists.title}>
+          <Divider/>
       <Box
+        display={'flex'}
+        width={'100%'}
+        justifyContent={'space-between'}
+        alignItems={'center'}
+        p={1}
         sx={{
-          p: 1,
-          display: 'flex',
-          width: '100vw',
-          alignItems: 'center',
-          justifyContent: 'flex-end'
+          bgcolor: theme => theme.palette.primary['200']
         }}>
+        <Typography
+          component={'span'}
+          // maxWidth={'70%'}
+          whiteSpace={'nowrap'}
+          textOverflow={'ellipsis'}
+          overflow={'hidden'}
+          >
+          {projectLists.description}
+        </Typography>
         <Button
           onClick={(e) => {
             handleShowDetailProject()
           }}
-          variant='contained'
-        >
-         <Visibility />&nbsp; Detail
+          variant="contained"
+          sx={{
+            minWidth: '7rem',
+            whiteSpace: 'nowrap'
+          }}
+          >
+          <Visibility />
+          &nbsp; Detail
         </Button>
       </Box>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -192,16 +207,19 @@ const ProjectPage = () => {
             disableGutters
             secondaryAction={
               <>
-                <span
-                  aria-label='comment'
-                  style={{
+                <Box
+                  component={'span'}
+                  aria-label="comment"
+                  sx={{
                     padding: '3px 8px',
                     borderRadius: '15px',
-                    background: 'rgb(61 137 199)'
-                  }}
-                >
+                    background: (theme) => theme.palette.primary['200'],
+                    '&:hover': {
+                      backgroundColor: theme =>theme.palette.primary.main
+                    }
+                  }}>
                   {list.status}
-                </span>
+                </Box>
                 <IconButton
                   aria-label="comment"
                   onClick={(e) => {
@@ -212,13 +230,12 @@ const ProjectPage = () => {
                   <CommentIcon />
                 </IconButton>
                 <IconButton
-                  aria-label='person'
+                  aria-label="person"
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
                     handleClickOpen(list.author)
-                  }}
-                >
+                  }}>
                   <PersonIcon />
                 </IconButton>
               </>
@@ -229,14 +246,12 @@ const ProjectPage = () => {
               cursor: 'pointer',
             }}
             onClick={(e) => {
-              e.preventDefault();
+              e.preventDefault()
               handleShowDescription(list)
             }}>
             <Stack sx={{ flexGrow: 1 }}>
               <Typography variant="h5">{list.user?.nickname}</Typography>
-              <Typography variant="h6">{
-                list.author
-              }</Typography>
+              <Typography variant="h6">{list.author}</Typography>
             </Stack>
           </ListItem>
         ))}
@@ -255,72 +270,66 @@ const ProjectPage = () => {
             Description:
           </DialogContentText>
           <DialogContentText id="alert-dialog-description">
-            {!selectedResult.description ? "No description" : selectedResult.description}
+            {!selectedResult.description
+              ? 'No description'
+              : selectedResult.description}
           </DialogContentText>
           <DialogContentText id="alert-dialog-description">
-            Price: {!selectedResult.price ? "No price" : selectedResult.price}
+            Price: {!selectedResult.price ? 'No price' : selectedResult.price}
           </DialogContentText>
           <DialogContentText
             sx={{
               textAlign: 'right',
-              fontSize: '12px'
-            }}
-          >
+              fontSize: '12px',
+            }}>
             {dayjs(selectedResult.created_at).format('MM/DD/YYYY')}
           </DialogContentText>
           <DialogContentText
             sx={{
               textAlign: 'right',
-              fontSize: '12px'
-            }}
-          >
+              fontSize: '12px',
+            }}>
             {selectedResult.author}
           </DialogContentText>
           <DialogContentText
             sx={{
               textAlign: 'right',
-              fontSize: '12px'
-            }}
-          >
+              fontSize: '12px',
+            }}>
             {selectedResult.user?.nickname}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          {selectedResult.status === "pending" && (
+          {selectedResult.status === 'pending' && (
             <>
               <Button
                 onClick={(e) => {
-                  e.preventDefault();
-                  handleAccept(selectedResult._id);
+                  e.preventDefault()
+                  handleAccept(selectedResult._id)
                 }}
-                color="success"
-              >
+                color="success">
                 Accept
               </Button>
               <Button
                 onClick={(e) => {
-                  e.preventDefault();
+                  e.preventDefault()
                   handleReject(selectedResult._id)
                 }}
-                color="error"
-              >
+                color="error">
                 Reject
               </Button>
             </>
           )}
-          {
-            selectedResult.status === "accepted" && (
-              <Button
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleReject(selectedResult._id)
-                }}
-                color="error"
-              >
-                Reject
-              </Button>
-            )
-          }
+          {selectedResult.status === 'accepted' && (
+            <Button
+              onClick={(e) => {
+                e.preventDefault()
+                handleReject(selectedResult._id)
+              }}
+              color="error">
+              Reject
+            </Button>
+          )}
           <Button onClick={handleClose} color="error">
             Close
           </Button>
@@ -341,42 +350,50 @@ const ProjectPage = () => {
             {projectLists.payUnit} Per {projectLists.payType}
           </DialogContentText>
           <DialogContentText id="alert-dialog-description">
-            {projectLists.startLine && `StartLine: ${dayjs(projectLists.startLine).format("DD/MM/YYYY")}`} -{' '}
-            {projectLists.deadLine && `DeadLine: ${dayjs(projectLists.deadLine).format("DD/MM/YYYY")}`}
+            {projectLists.startLine &&
+              `StartLine: ${dayjs(projectLists.startLine).format(
+                'DD/MM/YYYY'
+              )}`}{' '}
+            -{' '}
+            {projectLists.deadLine &&
+              `DeadLine: ${dayjs(projectLists.deadLine).format('DD/MM/YYYY')}`}
           </DialogContentText>
-          <DialogContentText id="alert-dialog-description">
+          <DialogContentText
+            id="alert-dialog-description"
+            sx={{ fontSize: '1.2rem' }}>
             Description:
           </DialogContentText>
           <DialogContentText id="alert-dialog-description">
             {projectLists.description}
           </DialogContentText>
-          {
-            projectLists.file && (
-              <a href={`api/view?name=needFiles/${projectLists.file}`} download style={{
+          {projectLists.file && (
+            <a
+              href={`api/view?name=needFiles/${projectLists.file}`}
+              download
+              style={{
                 textDecorationLine: 'underline',
-                textAlign: 'center'
-              }}>Download files</a>
-            )
-          }
+                textAlign: 'center',
+              }}>
+              Download files
+            </a>
+          )}
         </DialogContent>
         <DialogActions>
           <Button
             onClick={(e) => {
-              e.preventDefault();
-              updateProject();
+              e.preventDefault()
+              updateProject()
             }}
-            color={"primary"}
-          >
+            color={'primary'}>
             Update
           </Button>
           <Button
             onClick={(e) => {
-              e.preventDefault();
-              handleChangeExist(projectLists);
+              e.preventDefault()
+              handleChangeExist(projectLists)
             }}
-            color={projectLists.exist ? "error" : "success"}
-          >
-            {projectLists.exist ? "Disable" : "Enable"}
+            color={projectLists.exist ? 'error' : 'success'}>
+            {projectLists.exist ? 'Disable' : 'Enable'}
           </Button>
           <Button onClick={handleDetailClose} color="error">
             Close
