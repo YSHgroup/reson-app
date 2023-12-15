@@ -376,9 +376,10 @@ export default function SignUp() {
               <PlaceIcon
                 sx={{
                   fontSize: 80,
+                  color: (theme)=> theme.palette.mode === 'light'? '#333': theme.palette.text.primary,
                 }}
               />
-              <Typography>{languagejson[lang].Position}</Typography>
+              <Typography component={'span'}>{languagejson[lang].Position}</Typography>
             </ButtonBase>
             <ButtonBase
               sx={{
@@ -389,12 +390,12 @@ export default function SignUp() {
               onClick = {handleClickOpen}
               >
               <Image
-                src="/images/language.png"
+                src="/images/US_flag.png"
                 alt="language"
                 width={80}
                 height={80}
               />
-              <Typography>{options[lang]}</Typography>
+              <Typography component={'span'}>{options[lang]}</Typography>
             </ButtonBase>
           </Box>
         </Box>

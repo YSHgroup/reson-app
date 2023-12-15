@@ -2,7 +2,7 @@
    [
     {
       "name": "Language",
-      "options": ["English", "German", "Russian", "Ukraine"]
+      "options": ["English", "Deutsch", "Русский", "Українська"]
     },
     {
       "name": "Modus",
