@@ -11,6 +11,10 @@ import PlaceIcon from '@mui/icons-material/Place'
 import React from 'react'
 import CenterLayout from '@layouts/CenterLayout'
 import Image from 'next/image'
+import flag_1 from '../../public/images/US_flag.png'
+import flag_2 from '../../public/images/DE_flag.png'
+import flag_3 from '../../public/images/RU_flag.png'
+import flag_4 from '../../public/images/UA_flag.png'
 import {
   Backdrop,
   ButtonBase,
@@ -102,6 +106,7 @@ export default function SignUp() {
   const [open, setOpen] = React.useState(false)
   const [selectedValue, setSelectedValue] = React.useState(0)
   const [options, setOptions] = React.useState(SettingData[lang][0].options)
+  const flag = [flag_1, flag_2, flag_3, flag_4]
 
   const { setSnack } = React.useContext(SnackbarContext)
   const router = useRouter()
@@ -390,7 +395,7 @@ export default function SignUp() {
               onClick = {handleClickOpen}
               >
               <Image
-                src="/images/US_flag.png"
+                src={flag[selectedValue]}
                 alt="language"
                 width={80}
                 height={80}
