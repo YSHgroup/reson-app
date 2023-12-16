@@ -30,8 +30,8 @@ export const textAnalysisPattern = (text: string, email: string) => {
 
   // Align the variables to return
   let patternObject: any = {}
-  patternObject['current_date'] = current_date
-  patternObject['current_time'] = current_time
+  patternObject['updated_date'] = current_date
+  patternObject['updated_time'] = current_time
   for (let i in taggedWords) {
     var taggedWord = taggedWords[i]
     var word = taggedWord[0]

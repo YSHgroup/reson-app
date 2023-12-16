@@ -27,6 +27,7 @@ import ShowLists from 'components/elements/Search/ShowLists'
 import FullLayout from '@layouts/FullLayout'
 import { favorIdAtom } from 'atoms'
 import { connectToDatabase } from '@lib/db'
+import { analyseText } from 'functions/anaylseText'
 
 // eslint-disable-next-line import/no-webpack-loader-syntax
 // mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
@@ -53,8 +54,8 @@ interface PlaceType {
 }
 
 const minDistance = 5000
-export default function Can({textData}) {
-  console.log('get props textdata-->', JSON.parse(textData))
+export default function Can({ textPattern }) {
+  console.log('get props textdata-->', (textPattern))
   const [lang, setLanguage] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
   const [ip, setIp] = useState<string | null>(null)
@@ -382,19 +383,24 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
     const collection = client.db().collection('search_texts')
 
     const textData = 
-      JSON.stringify(await collection.findOne(
+      await collection.findOne(
         { email: session.user.email },
-        {projection: {_id: 0, email: 0, 'text.user_email': 0}}
-      ))
+        { projection: { _id: 0, email: 0, 'text.user_email': 0 } }
+      )
     
-    console.log('text date get: ', textData)
+    const textPattern = analyseText(textData)
     return {
       props: {
         session,
-        textData
+        textPattern,
       },
     }
   } catch (err) {
-    console.error('server side props: ', err)
+    console.error('server side props error: ', err)
+    return {
+      props: {
+        session,
+      },
+    }
   }
 }
