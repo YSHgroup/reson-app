@@ -22,10 +22,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const projectText = client.db().collection('project_texts')
   let textObj = req.body.need
-  let {
-    title,
-    description
-  } = textObj
+  let { title, description } = textObj
 
   let titleAnalysis = textAnalysisPattern(title, session?.user?.email)
   let desAnalysis = textAnalysisPattern(description, session?.user?.email)
@@ -33,7 +30,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   console.table(titleAnalysis)
   console.table(desAnalysis)
 
-  await projectText.updateOne({email: session.user.email},{$push: {title_texts: titleAnalysis, des_texts: desAnalysis}}, {upsert: true})
+  await projectText.updateOne(
+    { email: session.user.email },
+    {
+      $push: {
+        title_texts: { $each: [titleAnalysis], $slice: -50 },
+        des_texts: { $each: desAnalysis, $slice: -50 },
+      },
+    },
+    { upsert: true }
+  )
 
   client.close()
   return res.status(RS.SUCCESS_OK).json({

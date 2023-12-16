@@ -30,6 +30,7 @@ import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import FullLayout from '@layouts/FullLayout'
+import { connectToDatabase } from '@lib/db'
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoiYW50b25pb2dzdW55ZSIsImEiOiJjbGxub3g5em4wMnoxM2ZvYWNiZXA5dWUyIn0.cw7jmzNVcCy5vQq3iOGEZw'
@@ -57,7 +58,7 @@ interface PlaceType {
   description: string
   structured_formatting: StructuredFormatting
 }
-export default function Need() {
+export default function Need({textData}) {
   const [lang, setLanguage] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
   const [ip, setIp] = useState<string | null>(null)
@@ -508,9 +509,26 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
     }
   }
 
-  return {
-    props: {
-      session,
-    },
+  try {
+    const client = await connectToDatabase()
+    const collection = client.db().collection('project-texts')
+
+    const textData = await collection.findOne(
+      { email: session.user.email },
+      {
+        projection: {
+          email: 0,
+          _id: 0,
+          'title.user_email': 0,
+          'des_texts.user_email': 0,
+        },
+      }
+    )
+  } catch (error) {
+    return {
+      props: {
+        session,
+      },
+    }
   }
 }

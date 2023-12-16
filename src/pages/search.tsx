@@ -1,4 +1,6 @@
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
+import { NextApiRequest } from 'next'
+import { getSession } from 'next-auth/react'
 import Button from '@mui/material/Button'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
@@ -15,10 +17,7 @@ import {
 import { language } from '../jotai'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
-import { useEffect } from 'react'
 import mapboxgl from 'mapbox-gl'
-import { useRouter } from 'next/router'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { Payment as PaymentIcon } from '@mui/icons-material'
 import 'react-swipeable-list/dist/styles.css'
 import GoogleMaps from '@elements/Need/GoogleLocation'
@@ -27,6 +26,7 @@ import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import ShowLists from 'components/elements/Search/ShowLists'
 import FullLayout from '@layouts/FullLayout'
 import { favorIdAtom } from 'atoms'
+import { connectToDatabase } from '@lib/db'
 
 // eslint-disable-next-line import/no-webpack-loader-syntax
 // mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
@@ -53,7 +53,8 @@ interface PlaceType {
 }
 
 const minDistance = 5000
-export default function Can() {
+export default function Can({textData}) {
+  console.log('get props textdata-->', JSON.parse(textData))
   const [lang, setLanguage] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
   const [ip, setIp] = useState<string | null>(null)
@@ -94,7 +95,6 @@ export default function Can() {
     return `${value} ${can.payUnit}`
   }
   const getFavorites = async () => {
-    
     try {
       const response = await fetch('/api/favorite/get-favorites', {
         method: 'GET',
@@ -356,11 +356,45 @@ export default function Can() {
               </div>
             </div>
             <div className="showlists">
-              <ShowLists lists={lists} requestServer={getFavorites}  />
+              <ShowLists lists={lists} requestServer={getFavorites} />
             </div>
           </div>
         </div>
       </Box>
     </FullLayout>
   )
+}
+
+export async function getServerSideProps({ req }: { req: NextApiRequest }) {
+  const session = await getSession({
+    req,
+  })
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/signin',
+        permanent: false,
+      },
+    }
+  }
+  try {
+    const client = await connectToDatabase()
+    const collection = client.db().collection('search_texts')
+
+    const textData = 
+      JSON.stringify(await collection.findOne(
+        { email: session.user.email },
+        {projection: {_id: 0, email: 0, 'text.user_email': 0}}
+      ))
+    
+    console.log('text date get: ', textData)
+    return {
+      props: {
+        session,
+        textData
+      },
+    }
+  } catch (err) {
+    console.error('server side props: ', err)
+  }
 }

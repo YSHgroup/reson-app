@@ -23,8 +23,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const searchTextCollection = client.db().collection('search_texts')
   let { text } = req.body
   let patternObj = textAnalysisPattern(text, session.user.email)
-  
-  await searchTextCollection.updateOne({email: session.user.email}, {$push: {text: patternObj}}, {upsert: true})
+
+  await searchTextCollection.updateOne(
+    { email: session.user.email },
+    { $push: { text: { $each: [patternObj], $slice: -50 } } },
+    { upsert: true }
+  )
 
   client.close()
   return res.status(RS.SUCCESS_OK).json({
