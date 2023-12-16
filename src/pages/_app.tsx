@@ -26,7 +26,7 @@ import VideoCallWindow from '@elements/Chat/VideoCallWindowComponent'
 import ParticlesComponent from '@elements/Particles'
 import { darkTheme, lightTheme, defaultTheme } from 'theme'
 import CustomScrollbar from '@elements/CustomScrollbar'
-import { GenNumForDate } from 'class/GenNumForDate'
+import { GenNumForDate } from 'classes/GenNumForDate'
 import { dateColor } from '@constants/Status'
 
 type LanguageType = number // Replace 'number' with the actual type of your language state

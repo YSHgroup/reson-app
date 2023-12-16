@@ -206,7 +206,7 @@ export default function Can() {
     try {
       await fetch('/api/need/search-analysis', {
         method: 'POST',
-        body: JSON.stringify({ can }),
+        body: JSON.stringify({ text: can.title }),
         headers: {
           'Content-Type': 'application/json',
         },

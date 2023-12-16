@@ -232,7 +232,6 @@ export default function Need() {
     } else {
       CreateData()
     }
-    console.log('---------create need---------')
     try {
       console.table(need)
       await fetch('/api/can/create-analysis', {

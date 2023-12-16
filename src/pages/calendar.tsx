@@ -22,7 +22,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import Autocomplete from '@mui/material/Autocomplete';
 import { Theme } from '@fullcalendar/core/internal'
-import { GenNumForDate } from 'class/GenNumForDate'
+import { GenNumForDate } from 'classes/GenNumForDate'
 import { dateColor } from '@constants/Status'
 
 const start = new Date();

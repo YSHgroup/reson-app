@@ -26,7 +26,7 @@ import { Fade, ListItemIcon, Menu, MenuItem } from '@mui/material'
 import MenuData from '@constants/Menu.json'
 import { StatusData } from '@constants/Status'
 import { getSession, signOut } from 'next-auth/react'
-import { GenNumForDate } from 'class/GenNumForDate'
+import { GenNumForDate } from 'classes/GenNumForDate'
 import { dateColor } from '@constants/Status'
 
 import ImageUploader from '../components/elements/ImageUploader'
