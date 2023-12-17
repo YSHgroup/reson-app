@@ -17,6 +17,7 @@ export const analyseText = (textObject: Record<string, any[]>) => {
   indexesOfNum.forEach((index) => textArray.splice(index, 1)) // remove numerical elements in the array
   let uniqueCharArray = new Set(textArray) // remove duplicates
   textArray = Array.from(uniqueCharArray)
+  textArray = textArray.filter(string => string.length >= 3 )
   textArray.sort((a, b) => countOfChar(b, textArray) - countOfChar(a, textArray))
 //   console.log('analysis text------sort-->', textArray)
   return textArray

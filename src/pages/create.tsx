@@ -31,6 +31,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import FullLayout from '@layouts/FullLayout'
 import { connectToDatabase } from '@lib/db'
+import { analyseText } from 'functions/anaylseText'
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoiYW50b25pb2dzdW55ZSIsImEiOiJjbGxub3g5em4wMnoxM2ZvYWNiZXA5dWUyIn0.cw7jmzNVcCy5vQq3iOGEZw'
@@ -58,7 +59,7 @@ interface PlaceType {
   description: string
   structured_formatting: StructuredFormatting
 }
-export default function Need({textData}) {
+export default function Need({titlePattern,desPattern}) {
   const [lang, setLanguage] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
   const [ip, setIp] = useState<string | null>(null)
@@ -519,11 +520,20 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
         projection: {
           email: 0,
           _id: 0,
-          'title.user_email': 0,
+          'title_texts.user_email': 0,
           'des_texts.user_email': 0,
         },
       }
     )
+    const titlePattern = analyseText(textData['title_texts'])
+    const desPattern = analyseText(textData['des_texts'])
+    return {
+      props: {
+        session,
+        titlePattern,
+        desPattern
+      }
+    }
   } catch (error) {
     return {
       props: {

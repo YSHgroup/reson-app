@@ -1,4 +1,10 @@
-import { useState, useContext, useEffect } from 'react'
+import {
+  useState,
+  useContext,
+  useEffect,
+  KeyboardEventHandler,
+  useRef,
+} from 'react'
 import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
 import Button from '@mui/material/Button'
@@ -13,6 +19,9 @@ import {
   MenuItem,
   Select,
   Slider,
+  Autocomplete,
+  List,
+  ListItem,
 } from '@mui/material'
 import { language } from '../jotai'
 import languagejson from '../language.json'
@@ -28,6 +37,7 @@ import FullLayout from '@layouts/FullLayout'
 import { favorIdAtom } from 'atoms'
 import { connectToDatabase } from '@lib/db'
 import { analyseText } from 'functions/anaylseText'
+import { styled, useTheme } from '@mui/material/styles'
 
 // eslint-disable-next-line import/no-webpack-loader-syntax
 // mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
@@ -54,21 +64,42 @@ interface PlaceType {
 }
 
 const minDistance = 5000
+
+const WordsDropdown = styled('div')(({ theme }) => ({
+  // position: 'absolute',
+  width: '100%',
+  padding: '3px',
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.text.primary,
+  fontSize: '1.2rem',
+  borderRadius: '3px',
+}))
+const TextItem = styled(ListItem)(({ theme }) => ({
+  // padding: '3px 0',
+  '&:hover': {
+    backgroundColor: theme.palette.primary.dark,
+  },
+}))
+
 export default function Can({ textPattern }) {
-  console.log('get props textdata-->', (textPattern))
+  console.log('get props textdata-->', textPattern)
+  const parentRef = useRef(null)
   const [lang, setLanguage] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
   const [ip, setIp] = useState<string | null>(null)
   const [lists, setLists] = useState([])
   const [sliderValue, setSliderValue] = useState<number[]>([0, 5000])
   const [favorIds, setFavorId] = useAtom(favorIdAtom)
-
   const [can, setCan] = useState<CanFormType>({
     title: '',
     payUnit: 'all',
     role: 'all',
   })
   const [where, setWhere] = useState<PlaceType | null>(null)
+  const [predictionWords, setPredictionWords] = useState<any[]>([])
+  const [isPut, setIsPut] = useState(false)
+
+  const theme = useTheme()
 
   const handleSliderChange = (
     event: Event,
@@ -216,9 +247,69 @@ export default function Can({ textPattern }) {
       console.log('search analysis error:', error)
     }
   }
+  const handlTextItemClick = (text: string) => {
+    setCan((pre) => ({
+      ...pre,
+      title: can.title.slice(0, can.title.lastIndexOf(' ') + 1).concat(text),
+    }))
+    setIsPut(true)
+  }
+  const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {
+    if (event.key === 'Tab' && !!predictionWords.length) {
+      setCan((pre) => ({
+        ...pre,
+        title: can.title
+          .slice(0, can.title.lastIndexOf(' ') + 1)
+          .concat(predictionWords[0]),
+      }))
+      setIsPut(true)
+    }
+  }
 
+  useEffect(() => {
+    if (isPut) {
+      setIsPut(false)
+      setPredictionWords([])
+    } else {
+      let prediction: string[] = []
+      let inputedWord = can.title.split(' ').slice(-1)[0]
+      textPattern.forEach(
+        (string: string, i: number) =>
+          !string
+            .toLocaleLowerCase()
+            .slice(0, inputedWord.length)
+            .localeCompare(inputedWord.toLocaleLowerCase()) &&
+          prediction.push(string)
+      )
+      // const objectArray = prediction.slice(0, 6).map((value, index)=> ({
+      //   lable: index,
+      //   value: value
+      // }))
+
+      setPredictionWords(!!inputedWord ? prediction.slice(0, 6) : [])
+    }
+  }, [can.title])
+  if (parentRef.current) {
+    const firstChildElement = parentRef.current.children[1].children[1]
+    if (firstChildElement.tagName === 'INPUT') firstChildElement.focus()
+  }
+
+  console.log('word prediction: ', can.title)
   return (
     <FullLayout title={languagejson[lang].NEED}>
+      {/* <Autocomplete
+        // freeSolo
+        options={predictionWords}
+        renderOption={(props, option)=> (
+          option.label
+        )}
+        // getOptionLabel={(option)=> option.label}
+        renderInput={
+          (params) => (
+            <TextField {...params} label="Movie" />
+          )
+        } 
+        ></Autocomplete> */}
       <Box
         sx={{
           height: '100%',
@@ -228,23 +319,40 @@ export default function Can({ textPattern }) {
         <div className="page">
           <div className="search" style={{ margin: 'auto' }}>
             <div className="main">
-              <TextField
-                sx={{
-                  width: '100%',
-                }}
-                variant="outlined"
-                name="title"
-                label={languagejson[lang].whatYouAreLookingFor}
-                value={can.title}
-                onChange={handleChangeCan}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search />
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              <Box position="relative" width="inherit">
+                <TextField
+                  ref={parentRef}
+                  sx={{
+                    width: '100%',
+                  }}
+                  variant="outlined"
+                  name="title"
+                  label={languagejson[lang].whatYouAreLookingFor}
+                  value={can.title}
+                  onKeyDown={handleKeyDown}
+                  onChange={handleChangeCan}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <WordsDropdown
+                  theme={theme}
+                  sx={{ display: !predictionWords.length ? 'none' : 'block' }}>
+                  <List style={{ listStyle: 'none' }}>
+                    {predictionWords.map((text) => (
+                      <TextItem
+                        role="presentation"
+                        onClick={() => handlTextItemClick(text)}>
+                        {text}
+                      </TextItem>
+                    ))}
+                  </List>
+                </WordsDropdown>
+              </Box>
               <div className="timer">
                 <Box>
                   <PaymentIcon
@@ -382,12 +490,11 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
     const client = await connectToDatabase()
     const collection = client.db().collection('search_texts')
 
-    const textData = 
-      await collection.findOne(
-        { email: session.user.email },
-        { projection: { _id: 0, email: 0, 'text.user_email': 0 } }
-      )
-    
+    const textData = await collection.findOne(
+      { email: session.user.email },
+      { projection: { _id: 0, email: 0, 'text.user_email': 0 } }
+    )
+
     const textPattern = analyseText(textData)
     return {
       props: {

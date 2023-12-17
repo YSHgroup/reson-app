@@ -80,7 +80,7 @@ export default function SignIn() {
     setLoading(true)
     const res = await signIn('credentials', {
       redirect: false,
-      email,
+      email: email.toLowerCase(),
       password,
     })
     setLoading(false)
