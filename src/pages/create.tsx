@@ -259,6 +259,8 @@ export default function Need({ titlePattern, desPattern }) {
       }))
     }
     setIsPut(true)
+    setPredictionWords([])
+
   }
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {
     if (event.key === 'Tab' && !!predictionWords.length) {
@@ -269,6 +271,8 @@ export default function Need({ titlePattern, desPattern }) {
           .concat(predictionWords[0]),
       }))
       setIsPut(true)
+    setPredictionWords([])
+
     }
   }
   const handleKeyDownDes: KeyboardEventHandler<HTMLDivElement> = (event) => {
@@ -281,6 +285,8 @@ export default function Need({ titlePattern, desPattern }) {
           .concat(predictionDesWords[0]),
       }))
       setIsPut(true)
+    setPredictionWords([])
+
     }
   }
   

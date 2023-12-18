@@ -252,6 +252,7 @@ export default function Can({ textPattern }) {
       ...pre,
       title: can.title.slice(0, can.title.lastIndexOf(' ') + 1).concat(text),
     }))
+    setPredictionWords([])
     setIsPut(true)
   }
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {
@@ -262,6 +263,7 @@ export default function Can({ textPattern }) {
           .slice(0, can.title.lastIndexOf(' ') + 1)
           .concat(predictionWords[0]),
       }))
+      setPredictionWords([])
       setIsPut(true)
     }
   }

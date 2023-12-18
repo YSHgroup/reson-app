@@ -524,6 +524,7 @@ export default function Chat({ textPattern }) {
     setInputValue(
       inputValue.slice(0, inputValue.lastIndexOf(' ') + 1).concat(text)
     )
+    setPredictionWords([])
     setIsPut(true)
   }
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {
@@ -533,7 +534,8 @@ export default function Chat({ textPattern }) {
           .slice(0, inputValue.lastIndexOf(' ') + 1)
           .concat(predictionWords[0])
       )
-      setIsPut(true)
+    setPredictionWords([])
+    setIsPut(true)
     }
   }
 
