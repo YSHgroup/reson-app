@@ -1,4 +1,11 @@
-import React, { Fragment, useState, useEffect, useRef, useContext } from 'react'
+import React, {
+  Fragment,
+  useState,
+  useEffect,
+  useRef,
+  useContext,
+  KeyboardEventHandler,
+} from 'react'
 import ReactDOM from 'react-dom'
 import FullLayout from '@layouts/FullLayout/FullLayout'
 import {
@@ -21,6 +28,7 @@ import {
   Typography,
   Avatar,
   Grid,
+  List,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import Box from '@mui/material/Box'
@@ -40,13 +48,16 @@ import CircularProgress from '@mui/material/CircularProgress'
 import styles from '../styles/chat.module.scss'
 import { CacheProvider } from '@emotion/react'
 import createCache from '@emotion/cache'
-import { StyledEngineProvider } from '@mui/material/styles'
+import { StyledEngineProvider, useTheme } from '@mui/material/styles'
 import CallButton from '@elements/Chat/CallButtonComponent'
 import IsCallingContext from 'context/IsCallingContext'
 import MediaViewer from '@elements/Chat/MediaViewerComponent'
 import ChatImage from '@elements/Chat/ChangeImageComponent'
 import { VideoCallContext } from 'context/VideoCallContext'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
+import { connectToDatabase } from '@lib/db'
+import { analyseText } from 'functions/anaylseText'
+import { WordsDropdown, TextItem } from '@elements/PredictionWordBox'
 
 const cache = createCache({
   key: 'css',
@@ -57,7 +68,9 @@ let callLabel = ['Canceled call', 'Declined call', 'Outgoing call']
 
 let callLabel_ = ['Missed call', 'Declined call', 'Incoming call']
 
-export default function Chat() {
+export default function Chat({ textPattern }) {
+  console.log('chat text pattern: ', textPattern)
+  const parentRef = useRef(null)
   const router = useRouter()
   const { email } = router.query
   const { data: session } = useSession()
@@ -100,13 +113,18 @@ export default function Chat() {
   const [disabledButton, setDisabledButton] = useState<boolean>(false)
   // let mediaRecorder: MediaRecorder;
 
+  const [predictionWords, setPredictionWords] = useState<any[]>([])
+  const [isPut, setIsPut] = useState(false)
+
+  const theme = useTheme()
+
   const handleClick = (content: any, type: any) => {
     setSelectedContent({ content: content, type: type })
     setOpen(true)
   }
 
   const handleChangeInput = (e: any) => {
-    e.preventDefault();
+    e.preventDefault()
     e.stopPropagation()
     setInputValue(e.target.value)
   }
@@ -130,7 +148,7 @@ export default function Chat() {
     } catch (error) {
       setSnack(
         new Snack({
-          message: "Not found media device",
+          message: 'Not found media device',
           color: 'error',
           open: true,
         })
@@ -157,7 +175,7 @@ export default function Chat() {
       )
       return
     }
-    mediaRecorder.current?.addEventListener('stop', (e) => { })
+    mediaRecorder.current?.addEventListener('stop', (e) => {})
 
     mediaRecorder.current?.start()
   }
@@ -241,10 +259,11 @@ export default function Chat() {
         <Box sx={{ minWidth: 35 }}>
           <Typography variant="body2" color="text.secondary">
             {`${Math.floor(props.value / 60)}`} :
-            {`${Math.floor(props.value % 60) < 10
-              ? `0${Math.floor(props.value % 60)}`
-              : Math.floor(props.value % 60)
-              }`}
+            {`${
+              Math.floor(props.value % 60) < 10
+                ? `0${Math.floor(props.value % 60)}`
+                : Math.floor(props.value % 60)
+            }`}
           </Typography>
         </Box>
       </Box>
@@ -501,6 +520,50 @@ export default function Chat() {
     )
   }
 
+  const handlTextItemClick = (text: string, role: string) => {
+    setInputValue(
+      inputValue.slice(0, inputValue.lastIndexOf(' ') + 1).concat(text)
+    )
+    setIsPut(true)
+  }
+  const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {
+    if (event.key === 'Tab' && !!predictionWords.length) {
+      setInputValue(
+        inputValue
+          .slice(0, inputValue.lastIndexOf(' ') + 1)
+          .concat(predictionWords[0])
+      )
+      setIsPut(true)
+    }
+  }
+
+  useEffect(() => {
+    if (isPut) {
+      setIsPut(false)
+      setPredictionWords([])
+    } else {
+      let prediction: string[] = []
+      let inputedWord = inputValue.split(' ').slice(-1)[0]
+      textPattern.forEach(
+        (string: string, i: number) =>
+          !string
+            .toLocaleLowerCase()
+            .slice(0, inputedWord.length)
+            .localeCompare(inputedWord.toLocaleLowerCase()) &&
+          prediction.push(string)
+      )
+      setPredictionWords(!!inputedWord ? prediction.slice(0, 6) : [])
+    }
+  }, [inputValue])
+
+  useEffect(() => {
+    console.log('parentReferences is now: ', parentRef)
+    if (parentRef.current) {
+      const desInput = parentRef.current.children[0].children[0]
+      desInput.focus()
+    }
+  }, [predictionWords])
+
   const messageElement = (
     type: string,
     content:
@@ -669,7 +732,7 @@ export default function Chat() {
   }
 
   const handleProfileClick = (e: any) => {
-    e.preventDefault();
+    e.preventDefault()
     router.replace(`/profiles/${email}`)
   }
 
@@ -712,10 +775,9 @@ export default function Chat() {
                     width: 70,
                     height: 70,
                     // padding: 1,
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
-                  onClick={handleProfileClick}
-                >
+                  onClick={handleProfileClick}>
                   <Image
                     src={
                       pic == '' || pic == undefined
@@ -727,7 +789,9 @@ export default function Chat() {
                     height={70}
                   />
                 </Box>
-                <Typography sx={{ flexGrow: 1 }}>{email}</Typography>
+                <Typography sx={{ flexGrow: 1, color: '#fff' }}>
+                  {email}
+                </Typography>
 
                 <IconButton
                   size="large"
@@ -735,9 +799,13 @@ export default function Chat() {
                   color="inherit"
                   aria-label="menu"
                   onClick={router.back}
-                  LinkComponent={Link}
-                >
-                  <Image src="/images/back.png" alt="back" width={26} height={26} />
+                  LinkComponent={Link}>
+                  <Image
+                    src="/images/back.png"
+                    alt="back"
+                    width={26}
+                    height={26}
+                  />
                 </IconButton>
               </Box>
               <Stack
@@ -1020,8 +1088,7 @@ export default function Chat() {
                             height="16"
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
-                            fill="#8A8D91"
-                          >
+                            fill="#8A8D91">
                             <path d="M12 1.999c5.524 0 10.002 4.478 10.002 10.002 0 5.523-4.478 10.001-10.002 10.001-5.524 0-10.002-4.478-10.002-10.001C1.998 6.477 6.476 1.998 12 1.998Zm0 1.5a8.502 8.502 0 1 0 0 17.003A8.502 8.502 0 0 0 12 3.5ZM8.462 14.784A4.491 4.491 0 0 0 12 16.502a4.491 4.491 0 0 0 3.535-1.714.75.75 0 0 1 1.177.93A5.991 5.991 0 0 1 12 18.002a5.991 5.991 0 0 1-4.716-2.29.75.75 0 0 1 1.178-.928ZM9 8.75a1.25 1.25 0 1 1 0 2.499A1.25 1.25 0 0 1 9 8.75Zm6 0a1.25 1.25 0 1 1 0 2.499 1.25 1.25 0 0 1 0-2.499Z"></path>
                           </svg>
                         </Box>
@@ -1058,18 +1125,39 @@ export default function Chat() {
                   p: 2,
                 }}>
                 {messageType ? (
-                  <TextField
-                    value={inputValue}
-                    sx={{ flexGrow: 1 }}
-                    variant="standard"
-                    onChange={handleChangeInput}
-                    onPaste={handleClipboardPaste}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        sendMessage(e)
-                      }
-                    }}
-                  />
+                  <Box position="relative" width="100%">
+                    <WordsDropdown
+                      // theme={theme}
+                      sx={{
+                        display: !predictionWords.length ? 'none' : 'block',
+                      }}>
+                      <List style={{ listStyle: 'none' }}>
+                        {predictionWords.map((text, i) => (
+                          <TextItem
+                            role="presentation"
+                            key={i}
+                            onClick={() => handlTextItemClick(text, 'title')}>
+                            {text}
+                          </TextItem>
+                        ))}
+                      </List>
+                    </WordsDropdown>
+                    <TextField
+                    ref={parentRef}
+                    fullWidth
+                      value={inputValue}
+                      sx={{ flexGrow: 1 }}
+                      variant="standard"
+                      onKeyDown={handleKeyDown}
+                      onChange={handleChangeInput}
+                      onPaste={handleClipboardPaste}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          sendMessage(e)
+                        }
+                      }}
+                    />
+                  </Box>
                 ) : (
                   <Box
                     sx={{
@@ -1191,10 +1279,30 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
       },
     }
   }
+  try {
+    const client = await connectToDatabase()
+    const collection = client.db().collection('messagestagger')
 
-  return {
-    props: {
-      session,
-    },
+    const textData = await collection.findOne(
+      { email: session.user.email },
+      { projection: { _id: 0, email: 0 } }
+    )
+
+    console.log('search text: ', textData)
+    const textPattern = analyseText(textData['texts'])
+    return {
+      props: {
+        session,
+        textPattern,
+      },
+    }
+  } catch (err) {
+    console.error('server side props error: ', err)
+    return {
+      props: {
+        session,
+        textPattern: [],
+      },
+    }
   }
 }

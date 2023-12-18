@@ -4,10 +4,10 @@ const countOfChar = (char: string, charArr: string[]) => charArr.reduce((count, 
     return count
 },0) 
 
-export const analyseText = (textObject: Record<string, any[]>) => {
+export const analyseText = (textObject: any[]) => {
   let textArray = []
   let indexesOfNum = []
-  textObject['text'].forEach((obj) => {
+  textObject.forEach((obj) => {
     delete obj['updated_time']
     delete obj['updated_date']
     textArray.push(Object.values(obj))

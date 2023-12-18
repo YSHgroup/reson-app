@@ -4,7 +4,7 @@ import RS from '@constants/ResponseStatus'
 import { connectToDatabase } from '@lib/db'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
-import { textAnalysisPattern } from 'functions/textAnalysisPattern'
+import { textAnalysisPattern } from 'functions/textAnalysisToSore'
 var pos = require('pos')
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -26,7 +26,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   let titleAnalysis = textAnalysisPattern(title, session?.user?.email)
   let desAnalysis = textAnalysisPattern(description, session?.user?.email)
-  let patternObj = {}
   console.table(titleAnalysis)
   console.table(desAnalysis)
 
@@ -35,7 +34,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     {
       $push: {
         title_texts: { $each: [titleAnalysis], $slice: -50 },
-        des_texts: { $each: desAnalysis, $slice: -50 },
+        des_texts: { $each: [desAnalysis], $slice: -50 },
       },
     },
     { upsert: true }

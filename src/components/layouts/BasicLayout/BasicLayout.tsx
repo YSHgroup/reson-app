@@ -19,7 +19,7 @@ export default function BasicLayout({
   const { mode, toggleColorMode } = React.useContext(ColorModeContext)
   const [style, setStyle] = React.useState({
     position: 'absolute',
-    bottom: 100,
+    bottom: 115,
     right: 12,
     width: 36,
     height: 36,
@@ -29,7 +29,7 @@ export default function BasicLayout({
     e.preventDefault();
     setStyle({
       position: 'absolute',
-      bottom: 100,
+      bottom: 115,
       right: 12,
       width: 36,
       height: 36,
@@ -40,7 +40,7 @@ export default function BasicLayout({
     e.preventDefault();
     setStyle({
       position: 'absolute',
-      bottom: 100,
+      bottom: 115,
       right: 12,
       width: 56,
       height: 56,

@@ -4,6 +4,7 @@ import RS from '@constants/ResponseStatus'
 import { connectToDatabase } from '@lib/db'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]"
+import { textAnalysisPattern } from 'functions/textAnalysisToSore'
 
 var pos = require('pos');
 
@@ -12,17 +13,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return
   }
 
-  var today = new Date()
-  var Y = today.getFullYear()
-  var M = today.getMonth() + 1
-  var D = today.getDate()
-  var h = today.getHours()
-  var m = today.getMinutes()
-  var s = today.getSeconds()
-  
-  var current_date = Y + '/' + M + '/' + D
-  var current_time = h + ':' + m + ':' + s
-  
   // const session = await getSession({
   //     req,
   // })
@@ -33,34 +23,22 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const usersCollection = client.db().collection('users')
 
-  const user = await usersCollection.findOne({
-    email: session?.user?.email,
-  })
-
   const messageCollection = client.db().collection('messagestagger')
 
   let message = req.body.message
 
-  let words = new pos.Lexer().lex(message)
-  var tagger = new pos.Tagger()
-  var taggedWords = tagger.tag(words)
-  let messageObj: any = {}
-  
-  for (let i in taggedWords) {
-    var taggedWord = taggedWords[i]
-    var word = taggedWord[0]
-    var tag = taggedWord[1]
-    messageObj[tag] = word  
-  }
+  let messageAnalysis = textAnalysisPattern(message, session?.user?.email)
+  console.table(messageAnalysis)
 
-  messageObj['user_id'] = user?._id
-  messageObj['current_date'] = current_date
-  messageObj['current_time'] = current_time
-  messageObj['author'] = user?.firstName + ' ' + user?.lastName
-  messageObj['length_of_firstname'] = user?.firstName?.length ?? 0
-  messageObj['length_of_lastname'] = user?.lastName?.length ?? 0
-  
-  await messageCollection.insertOne(messageObj)
+  await messageCollection.updateOne(
+    { email: session.user.email },
+    {
+      $push: {
+        texts: { $each: [messageAnalysis], $slice: -50 },
+      },
+    },
+    { upsert: true }
+  )
 
   client.close()
   return res.status(RS.SUCCESS_OK).json({

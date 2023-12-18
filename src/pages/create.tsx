@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'
+import { useState, useContext, KeyboardEventHandler } from 'react'
 import Button from '@mui/material/Button'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
@@ -12,7 +12,10 @@ import {
   MenuItem,
   Select,
   Typography,
+  List,
+  ListItem,
 } from '@mui/material'
+import { styled } from '@mui/material/styles'
 import { DatePicker, TimePicker } from '@mui/x-date-pickers'
 import { language } from '../jotai'
 import languagejson from '../language.json'
@@ -32,6 +35,7 @@ import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import FullLayout from '@layouts/FullLayout'
 import { connectToDatabase } from '@lib/db'
 import { analyseText } from 'functions/anaylseText'
+import { useTheme } from '@emotion/react'
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoiYW50b25pb2dzdW55ZSIsImEiOiJjbGxub3g5em4wMnoxM2ZvYWNiZXA5dWUyIn0.cw7jmzNVcCy5vQq3iOGEZw'
@@ -59,7 +63,25 @@ interface PlaceType {
   description: string
   structured_formatting: StructuredFormatting
 }
-export default function Need({titlePattern,desPattern}) {
+
+const WordsDropdown = styled('div')(({ theme }) => ({
+  // position: 'absolute',
+  width: '100%',
+  padding: '3px',
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.text.primary,
+  fontSize: '1.2rem',
+  borderRadius: '3px',
+}))
+const TextItem = styled(ListItem)(({ theme }) => ({
+  // padding: '3px 0',
+  '&:hover': {
+    backgroundColor: theme.palette.primary.dark,
+  },
+}))
+
+export default function Need({ titlePattern, desPattern }) {
+  // console.log('server side props: ', titlePattern, desPattern)
   const [lang, setLanguage] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
   const [ip, setIp] = useState<string | null>(null)
@@ -75,7 +97,11 @@ export default function Need({titlePattern,desPattern}) {
     role: 'onsite',
   })
   const [where, setWhere] = useState<PlaceType | null>(null)
-  const router = useRouter()
+  const [predictionWords, setPredictionWords] = useState<any[]>([])
+  const [predictionDesWords, setPredictionDesWords] = useState<any[]>([])
+  const [isPut, setIsPut] = useState(false)
+  const theme = useTheme()
+  const titleRef = useRef(null), desRef = useRef(null)
 
   useEffect(() => {
     showMapBox()
@@ -220,6 +246,97 @@ export default function Need({titlePattern,desPattern}) {
     }
   }
 
+  const handlTextItemClick = (text: string, role: string) => {
+    if(role === 'title'){
+    setNeed((pre) => ({
+      ...pre,
+      title: need.title.slice(0, need.title.lastIndexOf(' ') + 1).concat(text),
+    }))
+    } else if(role === 'description') {
+      setNeed((pre) => ({
+        ...pre,
+        description: need.description.slice(0, need.description.lastIndexOf(' ') + 1).concat(text),
+      }))
+    }
+    setIsPut(true)
+  }
+  const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {
+    if (event.key === 'Tab' && !!predictionWords.length) {
+      setNeed((pre) => ({
+        ...pre,
+        title: need.title
+          .slice(0, need.title.lastIndexOf(' ') + 1)
+          .concat(predictionWords[0]),
+      }))
+      setIsPut(true)
+    }
+  }
+  const handleKeyDownDes: KeyboardEventHandler<HTMLDivElement> = (event) => {
+    console.log(event.key, ' : des key pressed')
+    if (event.key === 'Tab' && !!predictionDesWords.length) {
+      setNeed((pre) => ({
+        ...pre,
+        description: need.description
+          .slice(0, need.description.lastIndexOf(' ') + 1)
+          .concat(predictionDesWords[0]),
+      }))
+      setIsPut(true)
+    }
+  }
+  
+  useEffect(() => {
+    if (isPut) {
+      setIsPut(false)
+      setPredictionWords([])
+    } else {
+      let prediction: string[] = []
+      let inputedWord = need.title.split(' ').slice(-1)[0]
+      titlePattern.forEach(
+        (string: string, i: number) =>
+          !string
+            .toLocaleLowerCase()
+            .slice(0, inputedWord.length)
+            .localeCompare(inputedWord.toLocaleLowerCase()) &&
+          prediction.push(string)
+      )
+      setPredictionWords(!!inputedWord ? prediction.slice(0, 6) : [])
+    }
+    
+  }, [need.title])
+
+  useEffect(()=> {
+    if(titleRef.current){
+      const titleInput = titleRef.current.children[1].children[1]
+      titleInput.focus()
+    }
+  },[predictionWords])
+
+  useEffect(() => {
+    if (isPut) {
+      setIsPut(false)
+      setPredictionDesWords([])
+    } else {
+      let prediction: string[] = []
+      let inputedWord = need.description.split(' ').slice(-1)[0]
+      desPattern.forEach(
+        (string: string, i: number) =>
+          !string
+            .toLocaleLowerCase()
+            .slice(0, inputedWord.length)
+            .localeCompare(inputedWord.toLocaleLowerCase()) &&
+          prediction.push(string)
+      )
+      setPredictionDesWords(!!inputedWord ? prediction.slice(0, 6) : [])
+    }
+  }, [need.description])
+
+  useEffect(()=> {
+    if(desRef.current){
+      const desInput = desRef.current.children[1].children[0]
+      desInput.focus()
+    }
+  },[predictionDesWords])
+  
   const submitPublish = async () => {
     if (need.title === '' || need.description === '' || !need.price) {
       setSnack(
@@ -259,23 +376,41 @@ export default function Need({titlePattern,desPattern}) {
         <div className="page">
           <div className="create" style={{ margin: 'auto' }}>
             <div className="main">
-              <TextField
-                sx={{
-                  width: '100%',
-                }}
-                variant="outlined"
-                name="title"
-                label={languagejson[lang].WhatDoYouNeed}
-                value={need.title}
-                onChange={handleChangeNeedForm}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search />
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              <Box position="relative" width="inherit">
+                <TextField
+                  sx={{
+                    width: '100%',
+                  }}
+                  ref = {titleRef}
+                  variant="outlined"
+                  name="title"
+                  label={languagejson[lang].WhatDoYouNeed}
+                  value={need.title}
+                  onKeyDown={handleKeyDown}
+                  onChange={handleChangeNeedForm}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <WordsDropdown
+                  // theme={theme}
+                  sx={{ display: !predictionWords.length ? 'none' : 'block' }}>
+                  <List style={{ listStyle: 'none' }}>
+                    {predictionWords.map((text, i) => (
+                      <TextItem
+                        role="presentation"
+                        key={i}
+                        onClick={() => handlTextItemClick(text, 'title')}>
+                        {text}
+                      </TextItem>
+                    ))}
+                  </List>
+                </WordsDropdown>
+              </Box>
               <div className="example">
                 <Typography component={'span'} sx={{ color: 'text.primary' }}>
                   {languagejson[lang].Showexample}:
@@ -459,22 +594,39 @@ export default function Need({titlePattern,desPattern}) {
                   </FormControl>
                 </Box>
               </div>
-
-              <TextField
-                value={need.description}
-                onChange={handleChangeNeedForm}
-                name="description"
-                id="outlined-required"
-                required
-                multiline
-                sx={{
-                  width: '100%',
-                  marginTop: '20px',
-                }}
-                rows={4}
-                placeholder="Description..."
-                label="Description"
-              />
+              <Box position={'relative'} width={'inherit'}>
+                <TextField
+                ref={desRef}
+                  value={need.description}
+                  onKeyDown={handleKeyDownDes}
+                  onChange={handleChangeNeedForm}
+                  name="description"
+                  id="outlined-required"
+                  required
+                  multiline
+                  sx={{
+                    width: '100%',
+                    marginTop: '20px',
+                  }}
+                  rows={4}
+                  placeholder="Description..."
+                  label="Description"
+                />
+                <WordsDropdown
+                  // theme={theme}
+                  sx={{ display: !predictionDesWords.length ? 'none' : 'block' }}>
+                  <List style={{ listStyle: 'none' }}>
+                    {predictionDesWords.map((text, i) => (
+                      <TextItem
+                        role="presentation"
+                        key={i}
+                        onClick={() => handlTextItemClick(text, 'description')}>
+                        {text}
+                      </TextItem>
+                    ))}
+                  </List>
+                </WordsDropdown>
+              </Box>
               <GoogleMaps
                 where={where}
                 setWhere={(value: PlaceType) => setWhere(value)}
@@ -512,7 +664,7 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
 
   try {
     const client = await connectToDatabase()
-    const collection = client.db().collection('project-texts')
+    const collection = client.db().collection('project_texts')
 
     const textData = await collection.findOne(
       { email: session.user.email },
@@ -531,13 +683,16 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
       props: {
         session,
         titlePattern,
-        desPattern
-      }
+        desPattern,
+      },
     }
   } catch (error) {
+    console.error('create server error: ', error)
     return {
       props: {
         session,
+        titlePattern: [],
+        desPattern: [],
       },
     }
   }

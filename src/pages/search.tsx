@@ -297,19 +297,6 @@ export default function Can({ textPattern }) {
   console.log('word prediction: ', can.title)
   return (
     <FullLayout title={languagejson[lang].NEED}>
-      {/* <Autocomplete
-        // freeSolo
-        options={predictionWords}
-        renderOption={(props, option)=> (
-          option.label
-        )}
-        // getOptionLabel={(option)=> option.label}
-        renderInput={
-          (params) => (
-            <TextField {...params} label="Movie" />
-          )
-        } 
-        ></Autocomplete> */}
       <Box
         sx={{
           height: '100%',
@@ -343,9 +330,10 @@ export default function Can({ textPattern }) {
                   theme={theme}
                   sx={{ display: !predictionWords.length ? 'none' : 'block' }}>
                   <List style={{ listStyle: 'none' }}>
-                    {predictionWords.map((text) => (
+                    {predictionWords.map((text, i) => (
                       <TextItem
                         role="presentation"
+                        key={i}
                         onClick={() => handlTextItemClick(text)}>
                         {text}
                       </TextItem>
@@ -495,7 +483,8 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
       { projection: { _id: 0, email: 0, 'text.user_email': 0 } }
     )
 
-    const textPattern = analyseText(textData)
+    console.log('search text: ', textData)
+    const textPattern = analyseText(textData['text'])
     return {
       props: {
         session,
@@ -507,6 +496,7 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
     return {
       props: {
         session,
+        textPattern: []
       },
     }
   }

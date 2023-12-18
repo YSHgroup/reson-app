@@ -4,7 +4,7 @@ import RS from '@constants/ResponseStatus'
 import { connectToDatabase } from '@lib/db'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
-import { textAnalysisPattern } from 'functions/textAnalysisPattern'
+import { textAnalysisPattern } from 'functions/textAnalysisToSore'
 var pos = require('pos')
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
