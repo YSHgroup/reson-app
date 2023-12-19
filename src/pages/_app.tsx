@@ -104,11 +104,6 @@ export default function App({ Component, pageProps }: AppProps) {
     if (appRef.current) {
       appRef.current = false
       console.log('%cREASON APP', 'color: dodgerblue; font-size: 30px')
-      console.log(
-        'Number For Current Date: ',
-        `${numForDate.currentDate.month}/${numForDate.currentDate.day} -`,
-        numForDate.getNum()
-      )
     }
   }, [])
 
