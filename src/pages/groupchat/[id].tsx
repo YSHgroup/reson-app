@@ -127,7 +127,6 @@ export default function GroupChat() {
 
     // Close the dropdown if the user clicks outside of it
     window.onclick = function (event: Event) {
-      // setDropDownFlag(true);
       const target = event.target as HTMLElement
       if (!target?.matches('.dropBtn')) {
         let dropdowns = document.getElementsByClassName('reactionEmodicons')
@@ -365,10 +364,6 @@ export default function GroupChat() {
     return (
       <div>
         {
-          // type == "media" ?
-          // (filetype == "image" ? <ChatImage content={content} filetype={filetype} />
-          // : <video src={`/api/view?name=${content}`} width={160} height={90} ></video>)
-          // :
           <Typography className={cn('msgText')} variant="body1">
             {content}
           </Typography>
@@ -406,7 +401,6 @@ export default function GroupChat() {
                   borderRadius: 2,
                   width: 70,
                   height: 70,
-                  // padding: 1,
                 }}>
                 <FormModal
                   users={usersStore}
@@ -472,8 +466,6 @@ export default function GroupChat() {
                             px: 2,
                             maxWidth: '70%',
                           }}>
-                          {/* <Typography>{message.content}</Typography>
-                                      <Typography sx={{fontSize:'10px'}}>{message.time}</Typography> */}
                           {messageElement(
                             message?.type,
                             message?.content,

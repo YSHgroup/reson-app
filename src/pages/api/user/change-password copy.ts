@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-// import { getSession } from 'next-auth/react'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]"
 import RS from '@constants/ResponseStatus'
@@ -10,12 +9,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'PATCH') {
     return
   }
-
-  // const session = await getSession({
-  //   req,
-  // })
   
-  const session = await getServerSession(req, res, authOptions)
+  const session = await getServerSession(req as any, res as any, authOptions as any) as any
 
   if (!session) {
     res.status(RS.CERROR_UNAUTHORIZED).json({
@@ -24,7 +19,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return
   }
 
-  const userEmail = session.user?.email
+  const userEmail = session.user.email
   const oldPassword = req.body.oldPassword
   const newPassword = req.body.newPassword
 

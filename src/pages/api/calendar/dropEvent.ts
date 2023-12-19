@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-// import { getSession } from 'next-auth/react'
 import RS from '@constants/ResponseStatus'
 import { connectToDatabase, string2ObjectId } from '@lib/db'
 import { getServerSession } from "next-auth/next"

@@ -1,11 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-// import { getSession } from 'next-auth/react'
 import RS from '@constants/ResponseStatus'
 import { connectToDatabase } from '@lib/db'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]"
 import { ObjectId } from 'mongodb'
-// import { formatTime, timestampToFormattedDate } from "@lib/utils";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session: any = await getServerSession(req as any, res as any, authOptions as any)

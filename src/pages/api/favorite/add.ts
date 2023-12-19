@@ -42,7 +42,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       success.message = 'Added to favorites'
       res.status(RS.SUCCESS_OK).json(success)
     }
-    // const updateFavorites = await favoritesCollection.findOneAndUpdate({ user_email: session.user.email }, { project_id: id})
   } catch (err) {
     console.log('error', err)
     err.message = 'Internal Server Error'

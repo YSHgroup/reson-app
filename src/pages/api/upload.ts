@@ -3,21 +3,9 @@ import { getSession } from 'next-auth/react'
 import RS from '@constants/ResponseStatus'
 import { connectToDatabase } from '@lib/db'
 var pos = require('pos');
-// import multer from 'multer';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
-
-
-// const upload = multer({
-//   storage: multer.diskStorage({
-//     destination: './public/uploads',
-//     filename: (req, file, cb) => {
-//       const filename = `${uuidv4()}${path.extname(file.originalname)}`;
-//       cb(null, filename);
-//     },
-//   })
-// });
 
 export const config = {
   api: {

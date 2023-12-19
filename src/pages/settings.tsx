@@ -46,9 +46,7 @@ function SimpleDialog(props: SimpleDialogProps) {
   settings.language = lang
   settings.modus = modus
   const handleListItemClick = (value: { index: number; i: number }) => {
-    // console.log('key----->', [keys[value.index], value.index, value.i])
     settings[keys[value.index]] = value.i
-    console.table(settings)
     const modeState = ['dark', 'light', 'default']
     if (keys[value.index] == "modus") {localStorage.setItem('color_mode', modeState[value.i])
     setColorMode(modeState[value.i])}
@@ -56,7 +54,6 @@ function SimpleDialog(props: SimpleDialogProps) {
     setSetting(settings)
     onClose(value.i)
   }
-  // console.log('setting-modus-->', modus)
 
   async function setSetting(settings: object) {
     const response = await fetch('/api/setting/setting', {
@@ -134,8 +131,6 @@ export default function Settings() {
     show_telephone: telephone,
     show_analyse: personalAnalysis,
   }
-  console.log('---settingArr----')
-  console.table(settingArr)
   React.useEffect(() => {
     getGeoPosition()
     const getCurrentSetting = async () => {
@@ -204,8 +199,6 @@ export default function Settings() {
       default:
         setCurrentPosition(values[bal[currentIndex]])
     }
-    // console.log( values[bal[currentIndex]])
-    // setSelectedValues(values)
   }
   return (
     <FullLayout title={'Settings'}>

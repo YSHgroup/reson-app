@@ -167,16 +167,7 @@ export default function GutterlessList(props: any) {
       role: null,
     })
   }
-  const showFavorLists = async () => {
-    const response = await fetch('/api/favorite/get-favorites', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    })
-    const result = await response.json()
-  }
   const favorOperation = async (item: any) => {
-    // const queryString = new URLSearchParams({id: item._id}).toString()
-    // const urlWithParams = `/api/favorite/add-favor?${queryString}`
     let isFavor = !!!favorIds.map(favor => Object.values(favor).includes(item._id)).every(arg => arg === false )
     const response = await fetch(!isFavor?'/api/favorite/add': '/api/favorite/remove', {
       method: 'POST',
@@ -221,7 +212,6 @@ export default function GutterlessList(props: any) {
     }
   }
   React.useEffect(() => {
-    showFavorLists()
     setFavorIdList(favorIds)
   }, [favorIds])
  

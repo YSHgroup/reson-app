@@ -70,14 +70,9 @@ export default function CustomTabPanel(props: TabPanelProps) {
         method: 'GET',
       })
       const personalFavor = await response.json()
-      console.log(
-        !!personalFavor.favorites
-          ? 'getfavorite function result:' + personalFavor.favorites
-          : 'No your favorites'
-      )
       setFavorId(personalFavor.favorites)
     } catch (err) {
-      console.log(err)
+      console.log('It seems to be no favorite items you have.', err)
     }
   }
 

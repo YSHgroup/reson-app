@@ -179,7 +179,6 @@ const ProjectPage = () => {
         }}>
         <Typography
           component={'span'}
-          // maxWidth={'70%'}
           whiteSpace={'nowrap'}
           textOverflow={'ellipsis'}
           overflow={'hidden'}

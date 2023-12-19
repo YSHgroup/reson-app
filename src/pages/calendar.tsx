@@ -1,5 +1,5 @@
 import FullLayout from '@layouts/FullLayout/FullLayout'
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Typography, TextField, MenuItem, Grid, Alert, FormHelperText } from '@mui/material'
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Typography, TextField, MenuItem, Grid, Alert, FormHelperText, useMediaQuery } from '@mui/material'
 import { Close as CloseIcon } from '@mui/icons-material'
 import { NextApiRequest } from 'next'
 import { useRouter } from 'next/router'
@@ -24,6 +24,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { Theme } from '@fullcalendar/core/internal'
 import { GenNumForDate } from 'classes/GenNumForDate'
 import { dateColor } from '@constants/Status'
+import { useTheme } from '@mui/material/styles'
 
 const start = new Date();
 const end = new Date(new Date().setMinutes(start.getMinutes() + 30));
@@ -94,8 +95,6 @@ export default function Calendar({currentColor}) {
   const calendarRef = useRef(null);
   const { data: session } = useSession()
 
-
-console.log('current color: ', currentColor)
 
   const handleClickOpen = () => {
     setModalOpen(true);
@@ -341,7 +340,8 @@ const BorderStyle = styled('div')(({theme}) => ({
     borderColor: `${theme.palette.text.primary} !important`
   }
 }))
-
+const theme = useTheme();
+const brekpointMatch = useMediaQuery(theme.breakpoints.down('sm'))
   return (
     <FullLayout title={languagejson[lang].myEvents}>
       <Box
@@ -354,15 +354,20 @@ const BorderStyle = styled('div')(({theme}) => ({
         <Box
           sx={{
             p: 2,
-            width: '100vw',
+            width: '100%',
             background: (theme) => `${theme.palette.background.default}55`,
             alignItems: 'center',
             textAlign: 'center',
+            
+            '& a': {
+              fontSize: brekpointMatch? '12px !important': 'inherit'
+            }
           }}
         >
           <BorderStyle className='divdiv'>
 
           <FullCalendar
+          
             nowIndicator={true}
             eventClick={handleEventSelect}
             editable={true}
@@ -380,19 +385,12 @@ const BorderStyle = styled('div')(({theme}) => ({
             ref={calendarRef}
             plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin, momentPlugin]}
             initialView="timeGridWeek"
-            // dayCellContent={(arg)=> {
-            //   if(arg.isToday) {
-            //     return <div style={{backgroundColor: '#000'}}>{arg.dayNumberText}</div>
-            //   }
-            //   return arg.dayNumberText
-            // }}
             dayHeaders
             dayHeaderDidMount={(args)=> {
               if(args.isToday){
                 args.el.style.backgroundColor = `${currentColor}66`;
               }
               args.el.style.color = 'primary.main';
-              // return args.text
             }}
             viewClassNames={'day-header'}
             eventDrop={handleCalendarDrop}

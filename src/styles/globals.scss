@@ -28,9 +28,6 @@ body {
 }
 
 .dark_background {
-  // background-image: url('/images/background.jpg');
-  // background-position: center;
-  // background-repeat: no-repeat;
   background-size: cover;
 }
 
@@ -47,10 +44,6 @@ body {
 
 .doneBTN {
   color: black;
-  // display: block;
-  // margin: auto;
-  // position: sticky;
-  // bottom: 20px;
 }
 
 a {
@@ -59,7 +52,6 @@ a {
 }
 
 .page {
-  // width: 50%;
   height: 100vh;
   overflow: auto;
 }
@@ -87,11 +79,6 @@ p {
   font-size: 18px;
   color: $dark-text;
 }
-// .dark_background p {
-//   color: $light-text;
-// }
-// Upload Demo
-// 
 .uploader {
   display: block;
   clear: both;
@@ -175,7 +162,6 @@ p {
 
   progress,
   .progress {
-    // appearance: none;
     display: inline;
     clear: both;
     margin: 0 auto;
@@ -210,9 +196,6 @@ p {
     margin: 0 0 .5rem 0;
     color: $dark-text;
   }
-  // .dark_background div {
-  //   color: $light-text;
-  // }
   .btn {
     display: inline-block;
     margin: .5rem .5rem 1rem .5rem;

@@ -94,9 +94,7 @@ export default function Messages() {
   const [chatGroups, setChatGroups] = React.useState<Array<any>>([])
   const [addGroup, setAddGroup] = React.useState(false)
   const [usersStore, setUsersStore] = useAtom(usersAtom)
-  // const [unreadGroupChats, setUnreadGroupChats] = React.useState<Array<any>>([]);
   const [contacts, setContacts] = React.useState<Array<any>>([])
-  const [showUserModal, setShowUserModal] = React.useState<boolean>(false)
 
   const [contactInfo, setContactInfo] = React.useState<ContactObject>({
     _id: '',
@@ -140,35 +138,11 @@ export default function Messages() {
 
       if (data.data.count > 0) {
         setUnReads(data.data.messages)
-        // let sorted_users = users;
-        // data.data.messages.forEach((msg: any, i: number ) => {
-        //   sorted_users.sort((user1: any, user2: any) => {
-        //     if (user1.email == msg.author) return true;
-        //   })
-        // })
-        // setUsers(sorted_users)
       }
     }
 
-    // const getUnreadGroupChats = async () => {
-    //   const response = await fetch('/api/message/getUnreadGroupChats',{
-    //     method: 'GET',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     }
-    //   })
-
-    //   let data = await response.json()
-
-    //   console.log('getUnreadGroupChats', data)
-
-    //   if(data.data.count > 0){
-    //     setUnreadGroupChats(data.data.unreadGroupChats)
-    //   }
-    // }
 
     getUnreadMessage()
-    // getUnreadGroupChats();
 
     socket = io(String(process.env.NEXT_PUBLIC_CHAT_URI), { secure: true })
     socket.on('connect', () => {
@@ -224,8 +198,6 @@ export default function Messages() {
         if (user1.msgs.length == 0 && user2.msgs.length > 0) return 0
         const msg1 = user1.msgs.slice(-1)
         const msg2 = user2.msgs.slice(-1)
-        // const date1 = msg1[0].date.split("/").reverse().concat(msg1[0].time.split(":"));
-        // const date2 = msg2[0].date.split("/").reverse().concat(msg2[0].time.split(":"));
         let date1 = msg1[0].date.split('/')
         let date2 = msg2[0].date.split('/')
           ;[date1[0], date1[1], date1[2]] = [date1[2], date1[0], date1[1]]
@@ -239,24 +211,7 @@ export default function Messages() {
             else return 0
           }
       })
-      // let temp;
-      // for (let i = 0; i < users_sorted.length - 1; i ++) {
-      //   for (let j = i + 1; j < users_sorted.length; j ++) {
-      //     // if (users_sorted[i] < users_sorted[j]) {
-      //     //   temp = users_sorted[i];
-      //     //   users_sorted[i] = users_sorted[j];
-      //     //   users_sorted[j] = temp;
-      //     // }
-      //     if ( users_sorted[i].unreadCount == 0 && users_sorted[j].unreadCount > 0 ) {
-      //         temp = users_sorted[i];
-      //         users_sorted[i] = users_sorted[j];
-      //         users_sorted[j] = temp;
-      //     }
-      //   }
-      // }
-
       setUsers(users_sorted)
-      // setUsers([...userData.data])
     }
     getUser()
   }, [unReads])
@@ -264,10 +219,6 @@ export default function Messages() {
   React.useEffect(() => {
     setUsersStore(users)
   }, [users])
-
-  // React.useEffect(() => {
-  //   console.log("users data updated=", users)
-  // }, [users])
 
   const router = useRouter()
   const group = parseInt(router.query.group as string) || 0
@@ -343,7 +294,7 @@ export default function Messages() {
         <>
           <List
             sx={{
-              width: '100vw',
+              width: '100%',
             }}>
             {users.map((user: any, i: number) => (
               <React.Fragment key={user._id}>
@@ -362,7 +313,6 @@ export default function Messages() {
                       handleShowProfile(user)
                     }}
                     sx={{
-                      // background: (user.sex != null ? (user.sex == 'male' ? 'rgb(0,176,240)' : 'rgb(255,18,239)') : 'rgb(47,255,79)'),
                       padding: 0,
                       background: 'rgb(47,255,79)',
                       borderRadius: 2,
@@ -394,12 +344,10 @@ export default function Messages() {
           </List>
         </>
       )}
-      {/* END: CHATS SECTION */}
-      {/* BEGIN: GROUPS SECTION */}
       {group === 1 && (
         <List
           sx={{
-            width: '100vw',
+            width: '100%',
           }}>
           {chatGroups.length > 0 &&
             chatGroups.map((item, i) => (
@@ -413,7 +361,6 @@ export default function Messages() {
                   </ListItemText>
                   <IconButton
                     sx={{
-                      // background: (user.sex != null ? (user.sex == 'male' ? 'rgb(0,176,240)' : 'rgb(255,18,239)') : 'rgb(47,255,79)'),
                       padding: 0,
                       background: 'rgb(47,255,79)',
                       borderRadius: 2,
@@ -457,15 +404,13 @@ export default function Messages() {
         <>
           <List
             sx={{
-              width: '100vw',
+              width: '100%',
             }}
-          // subheader={AddContact}
           >
             {contacts.map((contact: any, i: number) => (
               <React.Fragment key={contact._id}>
                 {i !== 0 && <Divider />}
                 <ListItemButton
-                  // href="/profile"
                   LinkComponent={Link}>
                   <Stack sx={{ flexGrow: 1 }}>
                     <Typography variant="h4">{contact.name}</Typography>

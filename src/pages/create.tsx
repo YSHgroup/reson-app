@@ -44,7 +44,7 @@ interface NeedFormType {
   title: string | null
   startLine: Date | null
   deadLine: Date | null
-  price: number | null
+  price: number | string | null
   payType: string
   description: string | null
   payUnit: string
@@ -65,7 +65,6 @@ interface PlaceType {
 }
 
 const WordsDropdown = styled('div')(({ theme }) => ({
-  // position: 'absolute',
   width: '100%',
   padding: '3px',
   backgroundColor: theme.palette.primary.main,
@@ -74,14 +73,12 @@ const WordsDropdown = styled('div')(({ theme }) => ({
   borderRadius: '3px',
 }))
 const TextItem = styled(ListItem)(({ theme }) => ({
-  // padding: '3px 0',
   '&:hover': {
     backgroundColor: theme.palette.primary.dark,
   },
 }))
 
 export default function Need({ titlePattern, desPattern }) {
-  // console.log('server side props: ', titlePattern, desPattern)
   const [lang, setLanguage] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
   const [ip, setIp] = useState<string | null>(null)
@@ -90,7 +87,7 @@ export default function Need({ titlePattern, desPattern }) {
     title: '',
     startLine: null,
     deadLine: null,
-    price: null,
+    price: '',
     description: '',
     payType: 'piece',
     payUnit: 'usd',
@@ -101,7 +98,8 @@ export default function Need({ titlePattern, desPattern }) {
   const [predictionDesWords, setPredictionDesWords] = useState<any[]>([])
   const [isPut, setIsPut] = useState(false)
   const theme = useTheme()
-  const titleRef = useRef(null), desRef = useRef(null)
+  const titleRef = useRef(null),
+    desRef = useRef(null)
 
   useEffect(() => {
     showMapBox()
@@ -247,20 +245,23 @@ export default function Need({ titlePattern, desPattern }) {
   }
 
   const handlTextItemClick = (text: string, role: string) => {
-    if(role === 'title'){
-    setNeed((pre) => ({
-      ...pre,
-      title: need.title.slice(0, need.title.lastIndexOf(' ') + 1).concat(text),
-    }))
-    } else if(role === 'description') {
+    if (role === 'title') {
       setNeed((pre) => ({
         ...pre,
-        description: need.description.slice(0, need.description.lastIndexOf(' ') + 1).concat(text),
+        title: need.title
+          .slice(0, need.title.lastIndexOf(' ') + 1)
+          .concat(text),
+      }))
+    } else if (role === 'description') {
+      setNeed((pre) => ({
+        ...pre,
+        description: need.description
+          .slice(0, need.description.lastIndexOf(' ') + 1)
+          .concat(text),
       }))
     }
     setIsPut(true)
     setPredictionWords([])
-
   }
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {
     if (event.key === 'Tab' && !!predictionWords.length) {
@@ -271,12 +272,10 @@ export default function Need({ titlePattern, desPattern }) {
           .concat(predictionWords[0]),
       }))
       setIsPut(true)
-    setPredictionWords([])
-
+      setPredictionWords([])
     }
   }
   const handleKeyDownDes: KeyboardEventHandler<HTMLDivElement> = (event) => {
-    console.log(event.key, ' : des key pressed')
     if (event.key === 'Tab' && !!predictionDesWords.length) {
       setNeed((pre) => ({
         ...pre,
@@ -285,11 +284,10 @@ export default function Need({ titlePattern, desPattern }) {
           .concat(predictionDesWords[0]),
       }))
       setIsPut(true)
-    setPredictionWords([])
-
+      setPredictionWords([])
     }
   }
-  
+
   useEffect(() => {
     if (isPut) {
       setIsPut(false)
@@ -307,15 +305,14 @@ export default function Need({ titlePattern, desPattern }) {
       )
       setPredictionWords(!!inputedWord ? prediction.slice(0, 6) : [])
     }
-    
   }, [need.title])
 
-  useEffect(()=> {
-    if(titleRef.current){
+  useEffect(() => {
+    if (titleRef.current) {
       const titleInput = titleRef.current.children[1].children[1]
       titleInput.focus()
     }
-  },[predictionWords])
+  }, [predictionWords])
 
   useEffect(() => {
     if (isPut) {
@@ -336,13 +333,13 @@ export default function Need({ titlePattern, desPattern }) {
     }
   }, [need.description])
 
-  useEffect(()=> {
-    if(desRef.current){
+  useEffect(() => {
+    if (desRef.current) {
       const desInput = desRef.current.children[1].children[0]
       desInput.focus()
     }
-  },[predictionDesWords])
-  
+  }, [predictionDesWords])
+
   const submitPublish = async () => {
     if (need.title === '' || need.description === '' || !need.price) {
       setSnack(
@@ -387,7 +384,7 @@ export default function Need({ titlePattern, desPattern }) {
                   sx={{
                     width: '100%',
                   }}
-                  ref = {titleRef}
+                  ref={titleRef}
                   variant="outlined"
                   name="title"
                   label={languagejson[lang].WhatDoYouNeed}
@@ -566,7 +563,7 @@ export default function Need({ titlePattern, desPattern }) {
                     <Select
                       value={need.payUnit}
                       onChange={handleChangeNeedForm}
-                      id="outlined"
+                      id="payment-select"
                       displayEmpty
                       inputProps={{ 'aria-label': 'Without label' }}
                       label="Pay Unit"
@@ -587,7 +584,7 @@ export default function Need({ titlePattern, desPattern }) {
                     <Select
                       value={need.role}
                       onChange={handleChangeNeedForm}
-                      id="outlined"
+                      id="work-select"
                       displayEmpty
                       inputProps={{ 'aria-label': 'Without label' }}
                       label="Role"
@@ -602,7 +599,7 @@ export default function Need({ titlePattern, desPattern }) {
               </div>
               <Box position={'relative'} width={'inherit'}>
                 <TextField
-                ref={desRef}
+                  ref={desRef}
                   value={need.description}
                   onKeyDown={handleKeyDownDes}
                   onChange={handleChangeNeedForm}
@@ -620,7 +617,9 @@ export default function Need({ titlePattern, desPattern }) {
                 />
                 <WordsDropdown
                   // theme={theme}
-                  sx={{ display: !predictionDesWords.length ? 'none' : 'block' }}>
+                  sx={{
+                    display: !predictionDesWords.length ? 'none' : 'block',
+                  }}>
                   <List style={{ listStyle: 'none' }}>
                     {predictionDesWords.map((text, i) => (
                       <TextItem

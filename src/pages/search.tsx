@@ -13,13 +13,11 @@ import TextField from '@mui/material/TextField'
 import Search from '@mui/icons-material/Search'
 import {
   Box,
-  IconButton,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
   Slider,
-  Autocomplete,
   List,
   ListItem,
 } from '@mui/material'
@@ -28,9 +26,7 @@ import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import mapboxgl from 'mapbox-gl'
 import { Payment as PaymentIcon } from '@mui/icons-material'
-import 'react-swipeable-list/dist/styles.css'
 import GoogleMaps from '@elements/Need/GoogleLocation'
-import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import ShowLists from 'components/elements/Search/ShowLists'
 import FullLayout from '@layouts/FullLayout'
@@ -38,9 +34,9 @@ import { favorIdAtom } from 'atoms'
 import { connectToDatabase } from '@lib/db'
 import { analyseText } from 'functions/anaylseText'
 import { styled, useTheme } from '@mui/material/styles'
-
-// eslint-disable-next-line import/no-webpack-loader-syntax
-// mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
+import { WordsDropdown, TextItem } from '@elements/PredictionWordBox'
+import 'react-swipeable-list/dist/styles.css'
+import 'mapbox-gl/dist/mapbox-gl.css'
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoiYW50b25pb2dzdW55ZSIsImEiOiJjbGxub3g5em4wMnoxM2ZvYWNiZXA5dWUyIn0.cw7jmzNVcCy5vQq3iOGEZw'
@@ -65,24 +61,7 @@ interface PlaceType {
 
 const minDistance = 5000
 
-const WordsDropdown = styled('div')(({ theme }) => ({
-  // position: 'absolute',
-  width: '100%',
-  padding: '3px',
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.text.primary,
-  fontSize: '1.2rem',
-  borderRadius: '3px',
-}))
-const TextItem = styled(ListItem)(({ theme }) => ({
-  // padding: '3px 0',
-  '&:hover': {
-    backgroundColor: theme.palette.primary.dark,
-  },
-}))
-
 export default function Can({ textPattern }) {
-  console.log('get props textdata-->', textPattern)
   const parentRef = useRef(null)
   const [lang, setLanguage] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
@@ -188,17 +167,6 @@ export default function Can({ textPattern }) {
       [e.target.name]: e.target.value,
     }))
   }
-  const submitPublish = async () => {
-    if (can.title === '') {
-      setSnack(
-        new Snack({
-          message: 'Title and description are required items.',
-          color: 'error',
-          open: true,
-        })
-      )
-    }
-  }
 
   const handleSearch = async () => {
     if (can.title !== '') {
@@ -283,20 +251,17 @@ export default function Can({ textPattern }) {
             .localeCompare(inputedWord.toLocaleLowerCase()) &&
           prediction.push(string)
       )
-      // const objectArray = prediction.slice(0, 6).map((value, index)=> ({
-      //   lable: index,
-      //   value: value
-      // }))
 
       setPredictionWords(!!inputedWord ? prediction.slice(0, 6) : [])
     }
   }, [can.title])
-  if (parentRef.current) {
-    const firstChildElement = parentRef.current.children[1].children[1]
-    if (firstChildElement.tagName === 'INPUT') firstChildElement.focus()
-  }
+  useEffect(() => {
+    if (parentRef.current) {
+      const firstChildElement = parentRef.current.children[1].children[1]
+      if (firstChildElement.tagName === 'INPUT') firstChildElement.focus()
+    }
+  },[predictionWords])
 
-  console.log('word prediction: ', can.title)
   return (
     <FullLayout title={languagejson[lang].NEED}>
       <Box
@@ -485,7 +450,6 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
       { projection: { _id: 0, email: 0, 'text.user_email': 0 } }
     )
 
-    console.log('search text: ', textData)
     const textPattern = analyseText(textData['text'])
     return {
       props: {
@@ -494,7 +458,7 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
       },
     }
   } catch (err) {
-    console.error('server side props error: ', err)
+    console.error('search router - server side props error: ', err)
     return {
       props: {
         session,

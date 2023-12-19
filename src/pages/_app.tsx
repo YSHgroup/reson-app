@@ -4,7 +4,6 @@ import Head from 'next/head'
 import {
   PaletteMode,
   ThemeProvider,
-  createTheme,
   Snackbar,
   Alert,
   CssBaseline,
@@ -18,8 +17,7 @@ import { SessionProvider } from 'next-auth/react'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import DateFnsUtils from '@date-io/date-fns'
-import { useAtom, Provider as JotaiProvider } from 'jotai'
-import { dateColorJot, language, modusJot } from '../jotai'
+import { Provider as JotaiProvider } from 'jotai'
 import Worker from '../components/worker'
 import { VideoCallProvider } from 'context/VideoCallContext'
 import VideoCallWindow from '@elements/Chat/VideoCallWindowComponent'
@@ -27,27 +25,12 @@ import ParticlesComponent from '@elements/Particles'
 import { darkTheme, lightTheme, defaultTheme } from 'theme'
 import CustomScrollbar from '@elements/CustomScrollbar'
 import { GenNumForDate } from 'classes/GenNumForDate'
-import { dateColor } from '@constants/Status'
-
-type LanguageType = number // Replace 'number' with the actual type of your language state
 
 // Customize the PaletteMode type to add the value of 'default'
 type CustomizePaletteMode = PaletteMode | 'default'
 
 export default function App({ Component, pageProps }: AppProps) {
-  const [lang, setLanguage] = useAtom<LanguageType>(language)
-  const [modus] = useAtom(modusJot)
-  // const modeFromStorage = localStorage.getItem('color_mode')
-  // const [mode, setMode] = React.useState<CustomizePaletteMode>(
-  //   modeFromStorage === 'default' ||
-  //     modeFromStorage === 'light' ||
-  //     modeFromStorage === 'dark'
-  //     ? modeFromStorage
-  //     : 'default'
-  // )
   const numForDate = new GenNumForDate()
-
-  console.log('num For Date--- ', numForDate.currentDate, numForDate.getNum())
   const [mode, setMode] = React.useState<CustomizePaletteMode>('default')
   const colorMode = React.useMemo(
     () => ({
@@ -64,7 +47,7 @@ export default function App({ Component, pageProps }: AppProps) {
       mode,
       setColorMode: (value) => {
         setMode(value)
-      }
+      },
     }),
     [mode]
   )
@@ -85,7 +68,6 @@ export default function App({ Component, pageProps }: AppProps) {
   }, [])
   React.useEffect(() => {
     localStorage.setItem('color_mode', mode)
-
   }, [mode])
 
   // Update the theme only if the mode changes
@@ -94,7 +76,6 @@ export default function App({ Component, pageProps }: AppProps) {
       mode === 'dark' ? darkTheme : mode === 'light' ? lightTheme : defaultTheme
     return customProps
   }, [mode])
-
 
   const [snack, setSnack] = React.useState(
     new Snack({
@@ -117,12 +98,18 @@ export default function App({ Component, pageProps }: AppProps) {
       })
     )
   }
-
+  const appRef = React.useRef(true)
+  // Logging Brand
   React.useEffect(() => {
-    const localLanguage = localStorage.getItem('language')
-    // if (localLanguage) {
-    //   setLanguage(parseInt(localLanguage))
-    // }
+    if (appRef.current) {
+      appRef.current = false
+      console.log('%cREASON APP', 'color: dodgerblue; font-size: 30px')
+      console.log(
+        'Number For Current Date: ',
+        `${numForDate.currentDate.month}/${numForDate.currentDate.day} -`,
+        numForDate.getNum()
+      )
+    }
   }, [])
 
   return (
@@ -142,26 +129,26 @@ export default function App({ Component, pageProps }: AppProps) {
                     <title>ResonApp</title>
                   </Head>
                   <CustomScrollbar>
-                  <CssBaseline/>
-                  <Component {...pageProps} />
-                  <VideoCallWindow />
-                  <Snackbar
-                    open={snack.open}
-                    autoHideDuration={snack.autoHideDuration}
-                    onClose={handleClose}
-                    anchorOrigin={{
-                      vertical: 'top',
-                      horizontal: 'center',
-                    }}>
-                    <Alert
+                    <CssBaseline />
+                    <Component {...pageProps} />
+                    <VideoCallWindow />
+                    <Snackbar
+                      open={snack.open}
+                      autoHideDuration={snack.autoHideDuration}
                       onClose={handleClose}
-                      severity={snack.color}
-                      sx={{
-                        width: '100%',
+                      anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
                       }}>
-                      {snack.message || 'A New Message'}
-                    </Alert>
-                  </Snackbar>
+                      <Alert
+                        onClose={handleClose}
+                        severity={snack.color}
+                        sx={{
+                          width: '100%',
+                        }}>
+                        {snack.message || ''}
+                      </Alert>
+                    </Snackbar>
                   </CustomScrollbar>
                 </SnackbarContext.Provider>
               </VideoCallProvider>

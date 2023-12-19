@@ -68,7 +68,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
      const hashedPassword = await hashPassword(password)
   
     const enable = false
-    // const verify_code = (Math.floor(100000 + Math.random() * 900000)).toString()
     const verify_code = randomMaker(20);
     const code_send_time = Date.now()
   
@@ -107,7 +106,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   
     const message = `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/verify/${user.insertedId}/${verify_code}`
     sendEmail(email, "Verify Email" ,message)
-    // sendCode(email, verify_code)
   
     res.status(RS.SUCCESS_CREATED).json({
       message: 'Created user!',
@@ -117,33 +115,5 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
   // client.close()
 }
-// function sendCode(emailAddress: string, code: string) {
-
-//   console.log("Email Address", emailAddress)
-
-//   const transporter: Transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//         user: 'tonylobbin7712@gmail.com',
-//         pass: 'qkdcndquf'
-//     }
-//   });
-
-//   const mailOptions = {
-//     from: 'tonylobbin7712@gmail.com',
-//     to: emailAddress,
-//     subject: 'Email Verification Code',
-//     text: code
-//   };
-
-//   transporter.sendMail(mailOptions, (error, info) => {
-//     if (error) {
-//         console.log("Email Log Here!")
-//         console.log(error);
-//     } else {
-//         console.log('Email sent: ' + info.response);
-//     }
-//   });
-// }
 
 export default handler

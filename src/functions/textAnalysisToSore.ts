@@ -38,11 +38,9 @@ export const textAnalysisPattern = (text: string, email: string) => {
     var tag = taggedWord[1]
     if([',','.',':','(',')', ';', '\'', '"' ].includes(word)) continue
     if (Object.keys(patternObject).includes(tag)) {
-        // console.log('if tag iterated: ',Object.keys(patternObject).includes(tag), Object.keys(patternObject), '-tag: ', tag)
         tagSuffix(tag, true)
         patternObject[tag + tagSuffix(tag)] = word
       } else {
-      // console.log(word + ' /' + tag)
       patternObject[tag] = word
     }
   }

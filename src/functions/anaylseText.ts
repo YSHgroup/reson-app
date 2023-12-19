@@ -19,6 +19,5 @@ export const analyseText = (textObject: any[]) => {
   textArray = Array.from(uniqueCharArray)
   textArray = textArray.filter(string => string.length >= 3 )
   textArray.sort((a, b) => countOfChar(b, textArray) - countOfChar(a, textArray))
-//   console.log('analysis text------sort-->', textArray)
   return textArray
 }

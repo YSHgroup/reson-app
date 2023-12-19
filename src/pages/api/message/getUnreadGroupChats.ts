@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-// import { getSession } from 'next-auth/react'
 import { connectToDatabase } from '@lib/db'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]"
@@ -27,12 +26,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const groupchatCollection = client.db().collection('groupchat');
   const groupMsgsCollection = client.db().collection('groupMsgs');
 
-  // const unreadCount = await groupMsgsCollection.countDocuments({
-  //   readers: {
-  //     $nin: [email]
-  //   }
-  // });
-
   const myGroups = await groupchatCollection.find({
     members: {
       $in: [email]
@@ -49,7 +42,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }).toArray();
 
   const data = {
-    // count: unreadCount,
     unreadGroupChats: unreadGroupChats,
   }
 

@@ -23,7 +23,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   })
 
   const sex = user?.sex
-  // const time_birth = user?.time_birth
   const day_birth = user?.day_birth
   const month_birth = user?.month_birth
   const year_birth = user?.year_birth

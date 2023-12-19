@@ -69,7 +69,6 @@ let callLabel = ['Canceled call', 'Declined call', 'Outgoing call']
 let callLabel_ = ['Missed call', 'Declined call', 'Incoming call']
 
 export default function Chat({ textPattern }) {
-  console.log('chat text pattern: ', textPattern)
   const parentRef = useRef(null)
   const router = useRouter()
   const { email } = router.query
@@ -102,16 +101,12 @@ export default function Chat({ textPattern }) {
   const [socketId, setSocketId] = useState<string | null>(null)
 
   const localStreamRef = useRef<any | undefined>(undefined)
-  // voice message : false, general message: true
   const [messageType, setMessageType] = useState(true)
-  // recoding time max: 5min
   const [recordingTime, setRecordingTime] = useState(0)
   const [isUploadBlob, setIsUploadBlob] = useState(false)
-  //
   const recordedChunks = useRef<Blob[]>([])
   const mediaRecorder = useRef<MediaRecorder | null>(null)
   const [disabledButton, setDisabledButton] = useState<boolean>(false)
-  // let mediaRecorder: MediaRecorder;
 
   const [predictionWords, setPredictionWords] = useState<any[]>([])
   const [isPut, setIsPut] = useState(false)
@@ -244,7 +239,6 @@ export default function Chat({ textPattern }) {
     }
   }
 
-  //
   const LinearProgressWithLabel = (
     props: LinearProgressProps & { value: number }
   ) => {
@@ -324,14 +318,12 @@ export default function Chat({ textPattern }) {
     socket.on('connect', () => {
       // Fetch existing messages from the server
       socket.emit('emailMapId', { email: session?.user?.email })
-      // socket.emit('getMessages', { to: email, author: session?.user?.email });
     })
     socket.on('getid', (sockId: string) => {
       setSocketId(sockId)
     })
     // Close the dropdown if the user clicks outside of it
     window.onclick = function (event: Event) {
-      // setDropDownFlag(true);
       const target = event.target as HTMLElement
       if (!target?.matches('.dropBtn')) {
         let dropdowns = document.getElementsByClassName('reactionEmodicons')
@@ -351,9 +343,6 @@ export default function Chat({ textPattern }) {
   }, [])
 
   useEffect(() => {
-    // socket.on('messages', (msgs: any) => {
-    //     setMessages(msgs);
-    // });
 
     socket.on('newMessage', (msg: any) => {
       if (msg.author == email || msg.author == session?.user?.email)
@@ -559,7 +548,6 @@ export default function Chat({ textPattern }) {
   }, [inputValue])
 
   useEffect(() => {
-    console.log('parentReferences is now: ', parentRef)
     if (parentRef.current) {
       const desInput = parentRef.current.children[0].children[0]
       desInput.focus()
@@ -689,8 +677,6 @@ export default function Chat({ textPattern }) {
   }
 
   const handleReactionDropdown = (index: number) => {
-    // let reactDropdown = reactDropdownRef.current;
-    // if (dropdownFlag) {
     const element = document.getElementById(`reactDropdownContent-${index}`)
     if (element) {
       let dropdowns = document.getElementsByClassName('reactionEmodicons')
@@ -708,8 +694,6 @@ export default function Chat({ textPattern }) {
       }
       element.classList.toggle('showDropdownContent')
     }
-    // }
-    // setDropDownFlag((prevState) => !prevState);
   }
 
   const reactEmoji = async (msgId: string, emojiId: number) => {
@@ -776,7 +760,6 @@ export default function Chat({ textPattern }) {
                     borderRadius: 2,
                     width: 70,
                     height: 70,
-                    // padding: 1,
                     cursor: 'pointer',
                   }}
                   onClick={handleProfileClick}>
@@ -791,7 +774,7 @@ export default function Chat({ textPattern }) {
                     height={70}
                   />
                 </Box>
-                <Typography sx={{ flexGrow: 1, color: '#fff' }}>
+                <Typography sx={{ flexGrow: 1, color: '#fff', width: '50%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {email}
                 </Typography>
 
@@ -1129,7 +1112,7 @@ export default function Chat({ textPattern }) {
                 {messageType ? (
                   <Box position="relative" width="100%">
                     <WordsDropdown
-                      // theme={theme}
+                      theme={theme}
                       sx={{
                         display: !predictionWords.length ? 'none' : 'block',
                       }}>

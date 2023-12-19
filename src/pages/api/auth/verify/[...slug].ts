@@ -7,22 +7,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return
   }
   
-//   const {verificationCode, tempEmail} = req.body
   const { slug } = req.query
 
   const client = await connectToDatabase()
-  
   const usersCollection = client.db().collection('users')
   if (slug == undefined)
     return res.status(400).send({ error: 'Input Error' })
   
-  console.log(slug)
   const user = await usersCollection.findOne({'_id': new ObjectId(slug[0])});
 
-  console.log('------',user)
   if (user?.verify_code == slug[1]) {
     await usersCollection.updateOne({'_id': new ObjectId(slug[0])}, {$set: {enable: true}})
-    // return res.json({ status: 200, msg: 'success' });
     client.close()
     try {
       res.redirect(307, '/signin')

@@ -414,12 +414,15 @@ export default function Home() {
                     theme.palette.mode === 'dark' ? '#00000066' : '#ffffff19',
                 },
                 position: 'absolute',
-              }}>
+              }}
+              onClick={() => routerToProfile()}
+              >
               <Image
                 src="/images/main.png"
                 alt="main"
                 width={100}
                 height={100}
+                priority
                 // onClick={() => routerToProfile()}
               />
               <div
@@ -430,7 +433,7 @@ export default function Home() {
                 zIndex: '10',
                 cursor: 'pointer',
               }}
-              onClick={() => routerToProfile()}></div>
+              ></div>
               <Typography
               variant="h2"
               sx={{

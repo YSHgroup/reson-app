@@ -1,9 +1,14 @@
-import React, { useState, useEffect, useRef, useContext, useCallback } from 'react'
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useContext,
+  useCallback,
+} from 'react'
 import { Minimize, CallEnd, PhoneEnabled } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 import { Close } from '@mui/icons-material'
-import LinearProgress, {
-} from '@mui/material/LinearProgress'
+import LinearProgress from '@mui/material/LinearProgress'
 import { Stack } from '@mui/material'
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import { getSession, useSession } from 'next-auth/react'
@@ -104,56 +109,58 @@ const VideoCallWindow = () => {
   const getLocalStream = useCallback(async (toChat: string) => {
     socketRef.current.emit('callUser', {
       from: session?.user?.email,
-      to: toChat
+      to: toChat,
     })
-    navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: false
-    }).then((localStream) => {
-      localStreamRef.current = localStream
-      audio1.current.play()
-      audio1.current.loop = true
-      setIsCalling(true)
-      isCallingRef.current = true
-      if (localVideoRef.current) localVideoRef.current.srcObject = localStream
-      console.log(socketRef.current, "socket.current")
-      if (!socketRef.current) return
-      const payload = {
-        to: toChat,
-      }
-      fetch('/api/message/newCall', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then(async (res: any) => {
-        const resData = await res.json()
-        callIdRef.current = resData.newCallInfo.insertedId
+    navigator.mediaDevices
+      .getUserMedia({
+        audio: true,
+        video: false,
       })
-      socketRef.current.emit('join_room', {
-        room: session?.user?.email,
-        email: session?.user?.email,
-        nickname: session?.user?.name,
-      })
-    }).catch((error) => {
-      setSnack(
-        new Snack({
-          message: "Not found media device",
-          color: 'error',
-          open: true,
+      .then((localStream) => {
+        localStreamRef.current = localStream
+        audio1.current.play()
+        audio1.current.loop = true
+        setIsCalling(true)
+        isCallingRef.current = true
+        if (localVideoRef.current) localVideoRef.current.srcObject = localStream
+        if (!socketRef.current) return
+        const payload = {
+          to: toChat,
+        }
+        fetch('/api/message/newCall', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }).then(async (res: any) => {
+          const resData = await res.json()
+          callIdRef.current = resData.newCallInfo.insertedId
         })
-      )
-      audio1.current.pause()
-      audio2.current.pause()
-      audio4.current.play()
-      setIsCalling(false)
-      setMinimizeCall(false)
-      setBeingCalled(false)
-      setSnackText('')
-      setFromChat('')
-      setToChat('')
-    })
+        socketRef.current.emit('join_room', {
+          room: session?.user?.email,
+          email: session?.user?.email,
+          nickname: session?.user?.name,
+        })
+      })
+      .catch((error) => {
+        setSnack(
+          new Snack({
+            message: 'Not found media device',
+            color: 'error',
+            open: true,
+          })
+        )
+        audio1.current.pause()
+        audio2.current.pause()
+        audio4.current.play()
+        setIsCalling(false)
+        setMinimizeCall(false)
+        setBeingCalled(false)
+        setSnackText('')
+        setFromChat('')
+        setToChat('')
+      })
   }, [])
 
   const acceptCall = useCallback(async (toChat: string) => {
@@ -164,7 +171,7 @@ const VideoCallWindow = () => {
     try {
       const localStream = await navigator.mediaDevices.getUserMedia({
         audio: true,
-        video: false
+        video: false,
       })
       localStreamRef.current = localStream
       setCallAccepted(true)
@@ -180,7 +187,7 @@ const VideoCallWindow = () => {
     } catch (e) {
       setSnack(
         new Snack({
-          message: "Not found media device",
+          message: 'Not found media device',
           color: 'error',
           open: true,
         })
@@ -202,7 +209,6 @@ const VideoCallWindow = () => {
         const pc = new RTCPeerConnection(pc_config)
         pc.onicecandidate = (e) => {
           if (!(socketRef.current && e.candidate)) return
-          console.log('onicecandidate')
           socketRef.current.emit('candidate', {
             candidate: e.candidate,
             candidateSendID: socketRef.current.id,
@@ -225,7 +231,6 @@ const VideoCallWindow = () => {
           )
         }
         if (localStreamRef.current) {
-          console.log('localstream add')
           localStreamRef.current.getTracks().forEach((track) => {
             if (!localStreamRef.current) return
             pc.addTrack(track, localStreamRef.current)
@@ -326,8 +331,6 @@ const VideoCallWindow = () => {
       }
     )
     socketRef.current.on('callingMe', (data: any) => {
-      console.log(data.to, "calling Me")
-      console.log(session?.user?.email, "session")
       if (data.to === session?.user?.email) {
         setToChat(data.from)
         setFromChat(data.to)
@@ -345,7 +348,6 @@ const VideoCallWindow = () => {
       }
     })
     socketRef.current.on('acceptCall', (data: any) => {
-      console.log(data.to, "acceptCall")
       if (data.to === session?.user?.email) {
         setCallAccepted(true)
         callStatusRef.current = 'receivedCall'
@@ -370,7 +372,6 @@ const VideoCallWindow = () => {
         audio1.current.pause()
         audio3.current.play()
       }
-
     })
     socketRef.current.on(
       'getCandidate',
@@ -378,11 +379,9 @@ const VideoCallWindow = () => {
         candidate: RTCIceCandidateInit
         candidateSendID: string
       }) => {
-        console.log('get candidate')
         const pc: RTCPeerConnection = pcsRef.current[data.candidateSendID]
         if (!pc) return
         await pc.addIceCandidate(new RTCIceCandidate(data.candidate))
-        console.log('candidate add success')
       }
     )
     socketRef.current.on('user_exit', (data: { id: string }) => {
@@ -398,8 +397,7 @@ const VideoCallWindow = () => {
   }, [createPeerConnection, getLocalStream, acceptCall])
 
   const handleCloseVideoCall = (flag: Boolean = true) => {
-    console.log(toChat, "toChat===========")
-    if (callStatusRef.current == "callee") {
+    if (callStatusRef.current == 'callee') {
       fetch('/api/message/declinedCall', {
         method: 'POST',
         body: JSON.stringify({ callId: callIdRef.current }),
@@ -417,7 +415,7 @@ const VideoCallWindow = () => {
     } else {
       socketRef.current.emit('cancelCall', {
         from: session?.user?.email,
-        to: toChat
+        to: toChat,
       })
       callendInit()
     }
@@ -449,7 +447,6 @@ const VideoCallWindow = () => {
     handleCloseVideoCall()
   }
   const answerCall = () => {
-    console.log(toChat)
     acceptCall(toChat)
   }
   return (
@@ -555,11 +552,11 @@ const VideoCallWindow = () => {
           </Stack>
         </div>
       )}
-      {callAccepted ? (
-        users.map((user, index) =>
-          (<AudioComponent key={user.email} stream={user.stream} />)
-        )
-      ) : null}
+      {callAccepted
+        ? users.map((user, index) => (
+            <AudioComponent key={user.email} stream={user.stream} />
+          ))
+        : null}
     </>
   )
 }

@@ -20,23 +20,19 @@ export class GenNumForDate {
     let indexFistDay = Math.floor((month - 1) * 2 / this.Suffix.length)
     let indexFistDay_suffix = (month - 1) * 2 % this.Suffix.length
     let prefix = this.Prefix[Math.floor((day + indexFistDay_suffix - 1) / this.Suffix.length) + indexFistDay]
-    console.log('first index of prefix: ', indexFistDay)
     return prefix
   }
 
   private calcSufFix({month, day}: {month: number, day: number}) {
     let indexFistDay = (month - 1) * 2 % this.Suffix.length
-    // console.log('index first day: ',day, indexFistDay, (day + indexFistDay - 1) % this.Suffix.length)
     let suffix = this.Suffix[(day + indexFistDay - 1) % this.Suffix.length]
     return suffix
   }
 
   public getNum() {
-      // console.log('class day-->', this.date.day)
       let suffix = this.calcSufFix(this.date).toString()
       let prefix = this.calcPrefix(this.date).toString()
 
-    console.log('class number for date', prefix)
     return prefix + suffix
   }
 }

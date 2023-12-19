@@ -3,7 +3,6 @@ var pos = require('pos');
 import multer from 'multer';
 import fs from 'fs';
 
-// const uniqueSuffix = Date.now()+'-'+Math.round(Math.random() * 1E9)+".wav";
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         if (!fs.existsSync('./uploads/voiceMessages')) {
