@@ -1,5 +1,4 @@
 export class DateProcessor {
-  // [x: string]: any;
   private birthday: Record<string, string | number>
   private processedArray: any[]
   constructor(birthday: Record<string, string | number>) {
@@ -26,11 +25,8 @@ export class DateProcessor {
   }
 
   private organizeToArray(date: Record<string, string | number>): any {
-    // const dayStr = day.toString().padStart(2, '0');
-    // console.log(date, ':class-org')
     let dateArg = Object.values(date)
     let analysedDate = []
-    // let
     let i = 0
     const analyseDate = (num: number | string, j = 0) => {
       if (i < 3) {
@@ -49,14 +45,6 @@ export class DateProcessor {
     }
     analyseDate(dateArg[0])
 
-    //testing.
-    // let separatedNumber = this.separateDigits(dateArg[2])
-    // analysedDate[i] = []
-    // analysedDate[i].push(separatedNumber)
-    // let sum = this.sumDigits(separatedNumber)
-    // console.log(separatedNumber, sum, '--class separatedNumber')
-
-    //testing end
     return analysedDate
   }
 
@@ -68,7 +56,6 @@ export class DateProcessor {
     let digitalRootAnalysis = this.sumDigits(separatedAnalyseDigits)
     let separatedDRA = this.separateDigits(digitalRootAnalysis)
     dateArray.push([separatedAnalyseDigits, separatedDRA])
-    // console.log('class addAnalysisResult: ',dateArray)
     return dateArray
   }
 
@@ -81,7 +68,6 @@ export class DateProcessor {
       preProcessedArray.map((individual) => this.addAnalysisResult(individual))
     )
 
-    console.log('class completeAnalysis: ', this.processedArray)
     return {
       analysisOfBD: preProcessedArray[0],
       analysisOfCD: preProcessedArray[1],

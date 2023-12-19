@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { DateProcessor } from '../classes/DateProcessor'
 
 const counterIndividualNumber = (numArr: number[] | string[]) => {
@@ -7,7 +7,6 @@ const counterIndividualNumber = (numArr: number[] | string[]) => {
   q.forEach((_, i) => {
     q[i] = numArr.filter((num) => num === (i + 1).toString()).length
   })
-  console.log('q: ', q)
   return q
 }
 
@@ -34,9 +33,5 @@ export const usePersonalAnalysis = (date: Record<string, string | number>): [num
     },
     [date]
   )
-//   console.log('personal analysis value: ', value)
-
-  // console.log('class result: ', Object.values(result.currentDate)[0].toString().split(''))
-  console.log('use class to calculate the result: ',date, value)
   return [ value, resultAnalysis ]
 }

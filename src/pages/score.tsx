@@ -70,7 +70,6 @@ export default function Score() {
       dir: 'S6',
     },
   ]
-  console.log('use atom color: ', currentColor)
   return (
     <FullLayout title="Property">
       <List

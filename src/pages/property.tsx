@@ -22,8 +22,6 @@ export default function Property({ userInfo }) {
   const isFirstRender = useRef(true)
   const [personalStatus, setStatus] = useState({ statusIndex: 0, quantity: 0 })
   const [analysisResult, setAnalysis] = usePersonalAnalysis(userInfo)
-  // console.log('analysis result document: ', analysisDoc['EN'][personalStatus.statusIndex].description)
-  console.log('user Info: ', analysisResult, personalStatus)
   const [lang] = useAtom(language)
   const list = [
     'Pro1',

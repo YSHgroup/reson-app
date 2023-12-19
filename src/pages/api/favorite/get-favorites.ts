@@ -27,7 +27,6 @@ const findUserFavorite = async (
   collectionName: string,
   ids: string[]
 ) => {
-  console.log('favorite id: ', ids)
   const projectCollection = client.db().collection(collectionName)
   try {
     const favorites = await projectCollection
@@ -37,7 +36,6 @@ const findUserFavorite = async (
         },
       })
       .toArray()
-    console.log('is favorites? ', favorites.length)
     return favorites
   } catch (error) {
     throw error
@@ -70,14 +68,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     ).favor_id
     if (ids.length === 0) {
       error.message = 'No Favorites'
-      console.error('id error-->', error)
       return res.status(RS.CERROR_NOTFOUND).json({ error })
     }
-    console.log('favor ids-->', ids)
 
     // Get the user's favorite list from mongodb by favorite ids
     const favorites  = await findUserFavorite(client, 'needs', ids)
-    console.table(favorites.map(favor => favor._id))
     if (ids.length === 0) {
       error.message = 'DataBase error!'
       return res.status(RS.SERROR_INTERNAL).json({ error })
