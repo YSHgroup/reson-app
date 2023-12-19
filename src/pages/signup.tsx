@@ -168,7 +168,6 @@ export default function SignUp() {
     const password: string = formData.get('password') as string
     const sex: string = formData.get('sex') as string
     const language: number = selectedValue as number
-    console.log(sex)
     const repeatPassword: string = formData.get('repeat-password') as string
     // Validation
     if (!nickname) {

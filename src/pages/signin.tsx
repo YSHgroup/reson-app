@@ -85,7 +85,6 @@ export default function SignIn() {
     })
     setLoading(false)
     if (res?.ok && !res.error) {
-      console.log("login res=", res)
       setSnack(
         new Snack({
           message: languagejson[lang].signInSuccess,

@@ -23,37 +23,6 @@ export const defaultTheme  = createTheme({
         divider: "rgba(255,255,255,0.2)"
 
     },
-    // components: {
-    //     MuiTextField: {
-    //       styleOverrides: {
-    //         root: {
-    //           // Apply a border color for text fields
-    //           '& .MuiOutlinedInput-notchedOutline': {
-    //             borderColor: 'rgba(220, 220, 220, 0.23)', // Example gray border
-    //           },
-    //           '& .css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator': {
-    //             color: 'rgba(220, 220, 220, 0.73)', // Example gray border
-    //           },
-    //           '& .css-i4bv87-MuiSvgIcon-root': {
-    //             color: 'rgba(220, 220, 220, 0.73)'
-    //           }
-    //         },
-    //       },
-    //     },
-    //     MuiSelect: {
-    //         styleOverrides: {
-    //           root: {
-    //             // Apply a border color for text fields
-    //             '& .MuiOutlinedInput-notchedOutline': {
-    //               borderColor: 'rgba(220, 220, 220, 0.23)', // Example gray border
-    //             },
-    //             '& .css-10d36jd-MuiSvgIcon-root-MuiSelect-icon': {
-    //                 color: '#fff'
-    //             }
-    //           },
-    //         },
-    //       },
-    // }
 })
 
 export const darkTheme  = createTheme({
@@ -79,37 +48,6 @@ export const darkTheme  = createTheme({
         divider: "rgba(255,255,255,0.2)"
 
     },
-    // components: {
-    //     MuiTextField: {
-    //       styleOverrides: {
-    //         root: {
-    //           // Apply a border color for text fields
-    //           '& .MuiOutlinedInput-notchedOutline': {
-    //             borderColor: 'rgba(220, 220, 220, 0.23)', // Example gray border
-    //           },
-    //           '& .css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator': {
-    //             color: 'rgba(220, 220, 220, 0.73)', // Example gray border
-    //           },
-    //           '& .css-i4bv87-MuiSvgIcon-root': {
-    //             color: 'rgba(220, 220, 220, 0.73)'
-    //           }
-    //         },
-    //       },
-    //     },
-    //     MuiSelect: {
-    //         styleOverrides: {
-    //           root: {
-    //             // Apply a border color for text fields
-    //             '& .MuiOutlinedInput-notchedOutline': {
-    //               borderColor: 'rgba(220, 220, 220, 0.23)', // Example gray border
-    //             },
-    //             '& .css-10d36jd-MuiSvgIcon-root-MuiSelect-icon': {
-    //                 color: '#fff'
-    //             }
-    //           },
-    //         },
-    //       },
-    // }
 })
 
 export const lightTheme = createTheme({
@@ -119,7 +57,6 @@ export const lightTheme = createTheme({
             main: '#88e2ec',
             100: '#88e2ec77',
             200: '#88e2ecaa',
-            // main: '#0B635D'
         },
         secondary: {
             main: '#fff'
@@ -135,35 +72,4 @@ export const lightTheme = createTheme({
         },
         divider: "rgba(255,255,255,0.2)",
     },
-    // components: {
-    //     MuiTextField: {
-    //       styleOverrides: {
-    //         root: {
-    //           // Apply a border color for text fields
-    //           '& .MuiOutlinedInput-notchedOutline': {
-    //             borderColor: 'rgba(220, 220, 220, 0.23)', // Example gray border
-    //           },
-    //           '& .css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator': {
-    //             color: 'rgba(220, 220, 220, 0.73)', // Example gray border
-    //           },
-    //           '& .css-i4bv87-MuiSvgIcon-root': {
-    //             color: 'rgba(220, 220, 220, 0.73)'
-    //           }
-    //         },
-    //       },
-    //     },
-    //     MuiSelect: {
-    //         styleOverrides: {
-    //           root: {
-    //             // Apply a border color for text fields
-    //             '& .MuiOutlinedInput-notchedOutline': {
-    //               borderColor: 'rgba(220, 220, 220, 0.23)', // Example gray border
-    //             },
-    //             '& .css-10d36jd-MuiSvgIcon-root-MuiSelect-icon': {
-    //                 color: '#fff'
-    //             }
-    //           },
-    //         },
-    //       },
-    // }
 })

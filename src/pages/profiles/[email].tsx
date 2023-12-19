@@ -15,8 +15,8 @@ import { Collapse } from '@mui/material'
 import React from 'react'
 import { ArrowDropDown, ArrowLeft } from '@mui/icons-material'
 import IconButton from '@mui/material/IconButton'
-import { language } from "../../jotai"
-import languagejson from "../../language.json"
+import { language } from '../../jotai'
+import languagejson from '../../language.json'
 import { useAtom } from 'jotai'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { Fade, ListItemIcon, Menu, MenuItem } from '@mui/material'
@@ -53,7 +53,6 @@ export default function ProfileItem() {
   const [status, setStatus] = React.useState(0)
   const [nickname, setNickName] = React.useState('')
 
-
   const topen = Boolean(anchorEl)
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -63,7 +62,7 @@ export default function ProfileItem() {
   }
 
   useEffect(() => {
-    getpic();
+    getpic()
   }, [])
 
   const handleChange = () => {
@@ -79,46 +78,44 @@ export default function ProfileItem() {
     })
   }
 
-
   const handleSignOut = async () => {
     try {
-      await signOut({ callbackUrl: process.env.NEXT_PUBLIC_BASE_URL + '/signin' });
+      await signOut({
+        callbackUrl: process.env.NEXT_PUBLIC_BASE_URL + '/signin',
+      })
     } catch (error) {
-      console.error('There was an error signing out:', error);
+      console.error('There was an error signing out:', error)
     }
 
-    const router = useRouter();
-    router.replace(`${process.env.NEXT_PUBLIC_BASE_URL}/signin`);
-  };
+    const router = useRouter()
+    router.replace(`${process.env.NEXT_PUBLIC_BASE_URL}/signin`)
+  }
   function getpic() {
     loadpic()
   }
 
   async function loadpic() {
     await fetch('/api/user/getUserByEmail', {
-      method: "POST",
-      body: JSON.stringify({ email: userEmail })
-    }).then(res => res.json()).then(
-      res => {
-        setEmail(res.data.email || "");
-        setFirstName(res.data.firstName || "");
-        setLastName(res.data.lastName || "");
-        setCompany(res.data.company || "");
-        setTelephone(res.data.telephone || "");
-        setAddress(res.data.address || "");
-        setProfession(res.data.profession || "");
-        setEducation(res.data.education || "");
-        setHobby(res.data.hobby || "");
-        setStatus(parseInt(res.data.status) || 0);
-        setStatus(res.data.carExist || "");
+      method: 'POST',
+      body: JSON.stringify({ email: userEmail }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setEmail(res.data.email || '')
+        setFirstName(res.data.firstName || '')
+        setLastName(res.data.lastName || '')
+        setCompany(res.data.company || '')
+        setTelephone(res.data.telephone || '')
+        setAddress(res.data.address || '')
+        setProfession(res.data.profession || '')
+        setEducation(res.data.education || '')
+        setHobby(res.data.hobby || '')
+        setStatus(parseInt(res.data.status) || 0)
+        setStatus(res.data.carExist || '')
         setPic(res.data.picpath || null)
-        setNickName(res.data.nickname || "")
-      }
-    ).catch(
-      err => {
-
-      }
-    )
+        setNickName(res.data.nickname || '')
+      })
+      .catch((err) => {})
   }
 
   return (
@@ -180,12 +177,12 @@ export default function ProfileItem() {
             <MenuItem key={'profile'} dense>
               <Box
                 component={Link}
-                href={"/profile"}
+                href={'/profile'}
                 sx={{ display: 'inherit' }}>
                 <ListItemIcon>
                   <Image
                     src={`/images/profile.png`}
-                    alt={"profile"}
+                    alt={'profile'}
                     width={20}
                     height={20}
                   />
@@ -211,12 +208,6 @@ export default function ProfileItem() {
               display: 'inline-grid',
               width: '300px',
             }}>
-            {/* <Image
-              src="/images/avatar.png"
-              alt="avatar"
-              width={150}
-              height={150}
-            /> */}
             <ImageUploader />
           </Box>
           <Box
@@ -311,33 +302,59 @@ export default function ProfileItem() {
               {energy}%
             </Typography>
           </Box>
-          <Typography>{nickname}</Typography>
+          <Typography
+            sx={{
+              color: (theme) => theme.palette.text.primary,
+            }}>
+            {nickname}
+          </Typography>
           <Button
             variant="contained"
             color="secondary"
             size="large"
             sx={{
               mt: 2,
+              color: (theme) => theme.palette.text.primary,
             }}
             LinkComponent={Link}
             href="/property"
-            onClick={analyze}
-          >
+            onClick={analyze}>
             {languagejson[lang].Seeyourindividualanalysis}
           </Button>
           <div>
             <Button
               variant="text"
               size="large"
+              sx={{
+                color: (theme) => theme.palette.text.secondary,
+              }}
               onClick={handleChange}
               endIcon={open ? <ArrowLeft /> : <ArrowDropDown />}>
               {languagejson[lang].Completetheinformation}
             </Button>
           </div>
           <Collapse in={open}>
-            <TextField fullWidth value={email} margin="normal" label="Email" disabled />
-            <TextField fullWidth value={firstName} margin="normal" label="Firstname" disabled />
-            <TextField fullWidth value={lastName} margin="normal" label="Surname" disabled />
+            <TextField
+              fullWidth
+              value={email}
+              margin="normal"
+              label="Email"
+              disabled
+            />
+            <TextField
+              fullWidth
+              value={firstName}
+              margin="normal"
+              label="Firstname"
+              disabled
+            />
+            <TextField
+              fullWidth
+              value={lastName}
+              margin="normal"
+              label="Surname"
+              disabled
+            />
             <TextField
               fullWidth
               margin="normal"
@@ -366,14 +383,43 @@ export default function ProfileItem() {
               }}
               disabled
             />
-            <TextField fullWidth value={address} margin="normal" label="Address" disabled />
-            <TextField fullWidth value={profession} margin="normal" label="Profession" disabled />
-            <TextField fullWidth value={education} margin="normal" label="Education" disabled />
-            <TextField fullWidth value={carExist} margin="normal" label="Do you have Car" disabled />
-            <TextField fullWidth value={hobby} margin="normal" label="Hobby" disabled />
+            <TextField
+              fullWidth
+              value={address}
+              margin="normal"
+              label="Address"
+              disabled
+            />
+            <TextField
+              fullWidth
+              value={profession}
+              margin="normal"
+              label="Profession"
+              disabled
+            />
+            <TextField
+              fullWidth
+              value={education}
+              margin="normal"
+              label="Education"
+              disabled
+            />
+            <TextField
+              fullWidth
+              value={carExist}
+              margin="normal"
+              label="Do you have Car"
+              disabled
+            />
+            <TextField
+              fullWidth
+              value={hobby}
+              margin="normal"
+              label="Hobby"
+              disabled
+            />
           </Collapse>
         </Box>
-
       </Box>
     </FullLayout>
   )

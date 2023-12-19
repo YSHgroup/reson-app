@@ -3,6 +3,7 @@ const path = require('path')
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  productionBrowserSourceMaps: true, // it will be removed when fully tested
   reactStrictMode: false,
   sassOptions: {
     includePaths: [path.join(__dirname, 'src')]
