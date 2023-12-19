@@ -221,7 +221,7 @@ export default function ImageUploader() {
     if (path != null && path != "") {
       document.getElementById('file-image').src = `api/view?name=chats/${path}`;
     } else {
-      document.getElementById('file-image').src = `/images/${res.data[0].sex}.png`;
+      document.getElementById('file-image').src = `/images/${res.data.sex}.png`;
     }
   }
 
