@@ -219,7 +219,7 @@ export default function ImageUploader() {
     document.getElementById('notimage').classList.add("hidden");
     document.getElementById('file-image').classList.remove("hidden");
     if (path != null && path != "") {
-      document.getElementById('file-image').src = `api/view?name=chats/${path}`;
+      document.getElementById('file-image').src = `/api/view?name=chats/${path}`;
     } else {
       document.getElementById('file-image').src = `/images/${res.data.sex}.png`;
     }
