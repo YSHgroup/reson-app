@@ -85,6 +85,7 @@ export default function Home() {
         },
       })
       let settingData = await response.json()
+      console.log('Bug tracking:',settingData.data , JSON.stringify(settingData))
       if (!settingData.data || !settingData.data.language) throw new Error
       localStorage.setItem('language', settingData.data.language)
       setLanguage(settingData.data.language)
@@ -101,25 +102,6 @@ export default function Home() {
         localStorage.setItem('language', '0')
       setLanguage(0)
       }
-    }
-
-    getCurrentSetting()
-  }, [])
-
-  useEffect(() => {
-    // Todo
-
-    const getCurrentSetting = async () => {
-      const response = await fetch('/api/setting/currentSetting', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      let settingData = await response.json()
-      localStorage.setItem('language', settingData.data.language)
-      setLanguage(settingData.data.language)
     }
 
     getCurrentSetting()
