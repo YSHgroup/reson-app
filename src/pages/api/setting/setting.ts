@@ -10,7 +10,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session: any = await getServerSession(req as any, res as any, authOptions as any)
 
   const { language: lang, modus, status, show_firstname: firstname, show_lastname: lastname, show_email: email, show_telephone: telephone, show_analyse: personalAnalysis } = req.body
-  
   const client = await connectToDatabase()
   
   const usersCollection = client.db().collection('users')
@@ -21,18 +20,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     {'user_id': user._id},
     {
       $set: {
-        language: lang,
-        modus: modus,
-        status: status,
-        show_firstname: firstname,
-        show_lastname: lastname,
-        show_email: email,
-        show_telephone: telephone,
-        show_analyse: personalAnalysis,
+        language: lang?? 0,
+        modus: modus?? 0,
+        status: status?? 0,
+        show_firstname: firstname?? 0,
+        show_lastname: lastname?? 0,
+        show_email: email?? 0,
+        show_telephone: telephone?? 0,
+        show_analyse: personalAnalysis?? 0,
       }
-    }
+    },
+    {upsert: true}
   )
-
   client.close()
   return res.json({ status: 200, setting: setting });
 }

@@ -1,3 +1,4 @@
+import { NextApiRequest } from 'next'
 import * as React from 'react'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
@@ -29,7 +30,7 @@ import { GenNumForDate } from 'classes/GenNumForDate'
 // Customize the PaletteMode type to add the value of 'default'
 type CustomizePaletteMode = PaletteMode | 'default'
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps, settingData }: AppProps & {settingData: any}) {
   const numForDate = new GenNumForDate()
   const [mode, setMode] = React.useState<CustomizePaletteMode>('default')
   const colorMode = React.useMemo(
@@ -54,14 +55,34 @@ export default function App({ Component, pageProps }: AppProps) {
   React.useEffect(() => {
     const modeState = ['dark', 'light', 'default']
     const getCurrentSetting = async () => {
-      const response = await fetch('/api/setting/currentSetting', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      let settingData = await response.json()
-      const indexOfMode = Number(settingData.data.modus)
+      // const response = await fetch('/api/setting/currentSetting', {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // })
+      // let settingData = await response.json()
+      // console.log('setting:  ', settingData)
+      // if (!settingData.data && !settingData.data.language) {
+      //   const response = await fetch('/api/setting/setting', {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       language: 0,
+      //       modus: 0,
+      //       status: 0,
+      //       show_firstname: 0,
+      //       show_lastname: 0,
+      //       show_email: 0,
+      //       show_telephone: 0,
+      //       show_analyse: 0,
+      //     }),
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //   })
+      //   console.log('setting recall response: ', response)
+      // }
+      const indexOfMode = Number(settingData?.data.modus?? 2)
       setMode(modeState[indexOfMode] as CustomizePaletteMode)
     }
     getCurrentSetting()
@@ -154,4 +175,51 @@ export default function App({ Component, pageProps }: AppProps) {
       </ColorModeContext.Provider>
     </LocalizationProvider>
   )
+}
+
+export async function getServerSideProps({ req }: { req: NextApiRequest }) {
+try {
+  const response = await fetch('/api/setting/currentSetting', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  let settingData = await response.json()
+  if (!settingData.data && !settingData.data.language) throw new Error
+  return {
+    props: {
+      settingData
+    }
+  }
+} catch (error) {
+  await fetch('/api/setting/setting', {
+    method: 'POST',
+    body: JSON.stringify({
+      language: 0,
+      modus: 0,
+      status: 0,
+      show_firstname: 0,
+      show_lastname: 0,
+      show_email: 0,
+      show_telephone: 0,
+      show_analyse: 0,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  const response = await fetch('/api/setting/currentSetting', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  let settingData = await response.json()
+  return {
+    props: {
+      settingData
+    }
+  }
+}
 }
