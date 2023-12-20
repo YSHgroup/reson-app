@@ -219,6 +219,34 @@ export default function Settings() {
         setCurrentPosition(values[bal[currentIndex]])
     }
   }
+  React.useEffect(() => {
+    let settingData = {
+      lang,
+      modus,
+      status,
+      firstname,
+      lastname,
+      email,
+      telephone,
+      personalAnalysis,
+    }
+    fetch('/api/setting/setting', {
+      method: 'POST',
+      body: JSON.stringify(settingData),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((res) => console.log(res))
+  }, [
+    lang,
+    modus,
+    status,
+    firstname,
+    lastname,
+    email,
+    telephone,
+    personalAnalysis,
+  ])
   return (
     <FullLayout title={'Settings'}>
       <List
