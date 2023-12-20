@@ -21,13 +21,11 @@ import { useAtom } from 'jotai'
 import NotificationChat from '../components/elements/NotificationChat'
 import NotificationCalendar from '../components/elements/NotificationCalendar'
 import io from 'socket.io-client'
-import { connectToDatabase } from '@lib/db'
 
 const { data: MenuDatas } = MenuData
 let socket: any
 
-export default function Home({settingData}) {
-  const router = useRouter()
+export default function Home() {
   const { data: session } = useSession()
   const [lang, setLanguage] = useAtom(language)
   const energy = 54
@@ -45,6 +43,7 @@ export default function Home({settingData}) {
     setAnchorEl(null)
   }
 
+  const router = useRouter()
   const { isDragging } = useSwipe({
     up: () => {
       router.push('/create')
@@ -76,6 +75,40 @@ export default function Home({settingData}) {
 
   useEffect(() => {
     // Todo
+
+    const getCurrentSetting = async () => {
+      try {
+        const response = await fetch('/api/setting/currentSetting', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      let settingData = await response.json()
+      if (!settingData.data || !settingData.data.language) throw new Error
+      localStorage.setItem('language', settingData.data.language)
+      setLanguage(settingData.data.language)
+      } catch (error) {
+        await fetch('/api/setting/setting', {
+          method: 'POST',
+          body: JSON.stringify({
+            language: 0,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        localStorage.setItem('language', '0')
+      setLanguage(0)
+      }
+    }
+
+    getCurrentSetting()
+  }, [])
+
+  useEffect(() => {
+    // Todo
+
     const getCurrentSetting = async () => {
       const response = await fetch('/api/setting/currentSetting', {
         method: 'GET',
@@ -85,28 +118,6 @@ export default function Home({settingData}) {
       })
 
       let settingData = await response.json()
-
-      // console.log('setting:  ', settingData)
-      // if (!settingData?.data && !settingData?.data.language) {
-      //   await fetch('/api/setting/setting', {
-      //     method: 'POST',
-      //     body: JSON.stringify({
-      //       language: 0,
-      //       modus: 0,
-      //       status: 0,
-      //       show_firstname: 0,
-      //       show_lastname: 0,
-      //       show_email: 0,
-      //       show_telephone: 0,
-      //       show_analyse: 0,
-      //     }),
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //   })
-      //   router.reload()
-      //   console.log('setting recall response: ', response)
-      // }
       localStorage.setItem('language', settingData.data.language)
       setLanguage(settingData.data.language)
     }
@@ -593,63 +604,10 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
       },
     }
   }
-  try {
-    const response = await fetch('/api/setting/currentSetting', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    let settingData = await response.json()
-    if (!settingData.data && !settingData.data.language) throw new Error
-    return {
-      props: {
-        settingData,
-        session
-      }
-    }
-  } catch (error) {
 
-    const client = await connectToDatabase()
-  
-  const usersCollection = client.db().collection('users')
-  const settingsCollection = client.db().collection('settings')
-  
-  const user = await usersCollection.findOne({'email': session?.user?.email})
-  const setting = settingsCollection.updateOne(
-    {'user_id': user._id},
-    {
-      $set: {
-        language:0,
-        modus: 0,
-        status: 0,
-        show_firstname:0,
-        show_lastname: 0,
-        show_email: 0,
-        show_telephone: 0,
-        show_analyse: 0,
-      }
+  return {
+    props: {
+      session,
     },
-    {upsert: true}
-  ).then( (res)=> {
-    console.log('Dashboard setting data props: ', res)
-    }).catch(err => console.error('dashboard-props error: ', err))
-  }finally {
-    const settingData = {
-      language:0,
-        modus: 0,
-        status: 0,
-        show_firstname:0,
-        show_lastname: 0,
-        show_email: 0,
-        show_telephone: 0,
-        show_analyse: 0,
-    }
-    return {
-      props: {
-        settingData,
-        session
-      }
-    }
   }
 }

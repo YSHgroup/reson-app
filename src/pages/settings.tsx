@@ -37,7 +37,7 @@ function SimpleDialog(props: SimpleDialogProps) {
   const [lang, setLanguage] = useAtom(language)
   const { onClose, selectedValue, open, index, settings } = props
   const { name: title, options } = SettingData[lang][index]
-  const { setColorMode } = useContext(ColorModeContext)
+ const {setColorMode} = useContext(ColorModeContext)
   const handleClose = () => {
     onClose(selectedValue)
   }
@@ -48,17 +48,14 @@ function SimpleDialog(props: SimpleDialogProps) {
   const handleListItemClick = (value: { index: number; i: number }) => {
     settings[keys[value.index]] = value.i
     const modeState = ['dark', 'light', 'default']
-    if (keys[value.index] == 'modus') {
-      localStorage.setItem('color_mode', modeState[value.i])
-      setColorMode(modeState[value.i])
-    }
+    if (keys[value.index] == "modus") {localStorage.setItem('color_mode', modeState[value.i])
+    setColorMode(modeState[value.i])}
     setModus(value.i)
     setSetting(settings)
     onClose(value.i)
   }
 
   async function setSetting(settings: object) {
-    console.log('setting function excution: ', settings)
     const response = await fetch('/api/setting/setting', {
       method: 'POST',
       body: JSON.stringify(settings),
@@ -68,7 +65,7 @@ function SimpleDialog(props: SimpleDialogProps) {
     })
 
     const data = await response.json()
-    console.log('setting data-->', data)
+
     if (!response.ok) {
       return {
         status: 'error',
@@ -144,24 +141,6 @@ export default function Settings() {
         },
       })
       let settingData = await response.json()
-      if (!settingData.data || !settingData.data.language) {
-        await fetch('/api/setting/setting', {
-          method: 'POST',
-          body: JSON.stringify({
-            language: 0,
-            modus: 0,
-            status: 0,
-            show_firstname: 0,
-            show_lastname: 0,
-            show_email: 0,
-            show_telephone: 0,
-            show_analyse: 0,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-      }
       setLanguage(settingData.data.language)
       setModus(settingData.data.modus)
       setStatus(settingData.data.status)
@@ -175,6 +154,7 @@ export default function Settings() {
       )
     }
     getCurrentSetting()
+
   }, [])
 
   const getGeoPosition = async () => {
@@ -220,34 +200,6 @@ export default function Settings() {
         setCurrentPosition(values[bal[currentIndex]])
     }
   }
-  React.useEffect(() => {
-    let settingData = {
-      lang,
-      modus,
-      status,
-      firstname,
-      lastname,
-      email,
-      telephone,
-      personalAnalysis,
-    }
-    fetch('/api/setting/setting', {
-      method: 'POST',
-      body: JSON.stringify(settingData),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((res) => console.log(res))
-  }, [
-    lang,
-    modus,
-    status,
-    firstname,
-    lastname,
-    email,
-    telephone,
-    personalAnalysis,
-  ])
   return (
     <FullLayout title={'Settings'}>
       <List
