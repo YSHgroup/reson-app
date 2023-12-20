@@ -58,6 +58,7 @@ function SimpleDialog(props: SimpleDialogProps) {
   }
 
   async function setSetting(settings: object) {
+    console.log('setting function excution: ', settings)
     const response = await fetch('/api/setting/setting', {
       method: 'POST',
       body: JSON.stringify(settings),
@@ -67,7 +68,7 @@ function SimpleDialog(props: SimpleDialogProps) {
     })
 
     const data = await response.json()
-
+    console.log('setting data-->', data)
     if (!response.ok) {
       return {
         status: 'error',
