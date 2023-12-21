@@ -85,7 +85,7 @@ export default function Home() {
         },
       })
       let settingData = await response.json()
-      console.log('Bug tracking:',settingData.data , JSON.stringify(settingData))
+      // console.log('Bug tracking:',settingData.data , JSON.stringify(settingData))
       if (!settingData.data || !settingData.data.language) throw new Error
       localStorage.setItem('language', settingData.data.language)
       setLanguage(settingData.data.language)

@@ -78,6 +78,34 @@ const TextItem = styled(ListItem)(({ theme }) => ({
   },
 }))
 
+const textForlan = {
+  uploadFile: ['Upload File', 'Datei hochladen', 'Файл загрузки', 'Завантажити файл'],
+  startLine: ['Start Line', 'Startlinie', 'Стартовая линия', 'Стартова лінія'],
+  deadline: ['Deadline', 'Frist', 'Крайний срок', 'Кінцевий термін'],
+  perPrice: {
+    tag: ['Per Price', 'Pro Preis', 'За цену', 'За ціною'],
+    list: {
+      perPiece: ['Per Piece', 'Pro Stück', 'За штуку', 'За штуку'],
+      perHour: ['Per Hour', 'Pro Stunde', 'За час', 'За годину'],
+      perMonth: ['Per Month', 'Pro Monat', 'За месяц', 'За місяць'],
+      perYear: ['Per Year', 'Pro Jahr', 'За год', 'За рік'],
+      perUnit: ['Per Unit', 'Pro Einheit', 'За единицу', 'За одиницю'],
+      forFree: ['For Free', 'Kostenlos', 'Бесплатно', 'Безкоштовно']
+    }
+  },
+  role: {
+    tag: ['Role', 'Rolle', 'Роль', 'Роль'],
+    list: {
+      AllRole: ['All Role', 'Alle Rollen', 'Все роли', 'Усі ролі'],
+      Onsite: ['Onsite', 'Vor Ort', 'На месте', 'На сайті'],
+      Hybrid: ['Hybrid', 'Hybrid', 'Гибридный', 'Гібрид'],
+      Remote: ['Remote', 'Fernbedienung', 'Удаленный', 'Дистанційний'],
+    },
+  },
+  description: ['Description', 'Beschreibung', 'Описание', 'Опис'],
+  publish: ['Publish', 'Veröffentlichen', 'Опубликовать', 'Опублікувати']
+};
+
 export default function Need({ titlePattern, desPattern }) {
   const [lang, setLanguage] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
@@ -460,7 +488,7 @@ export default function Need({ titlePattern, desPattern }) {
                     justifyContent: 'space-between',
                   }}>
                   <DatePicker
-                    label="StartLine"
+                    label={textForlan.startLine[lang]}
                     value={need.startLine}
                     onChange={(value) => {
                       setNeed((prevState) => ({
@@ -473,7 +501,7 @@ export default function Need({ titlePattern, desPattern }) {
                     )}
                   />
                   <DatePicker
-                    label="DeadLine"
+                    label={textForlan.deadline[lang]}
                     value={need.deadLine}
                     onChange={(value) => {
                       setNeed((prevState) => ({
@@ -519,7 +547,7 @@ export default function Need({ titlePattern, desPattern }) {
                   />
                   <FormControl sx={{ width: '45%' }}>
                     <InputLabel id="per-price-select-label">
-                      Per Price
+                      {textForlan.perPrice.tag[lang]}
                     </InputLabel>
                     <Select
                       value={need.payType}
@@ -530,12 +558,12 @@ export default function Need({ titlePattern, desPattern }) {
                       label="Per Price"
                       labelId="per-price-select-label"
                       name="payType">
-                      <MenuItem value={'piece'}>per Piece</MenuItem>
-                      <MenuItem value={'hour'}>per Hour</MenuItem>
-                      <MenuItem value={'month'}>per Month</MenuItem>
-                      <MenuItem value={'year'}>per Year</MenuItem>
-                      <MenuItem value={'unit'}>per Unit</MenuItem>
-                      <MenuItem value={'free'}>for Free</MenuItem>
+                      <MenuItem value={'piece'}>{textForlan.perPrice.list.perPiece[lang]}</MenuItem>
+                      <MenuItem value={'hour'}>{textForlan.perPrice.list.perHour[lang]}</MenuItem>
+                      <MenuItem value={'month'}>{textForlan.perPrice.list.perMonth[lang]}</MenuItem>
+                      <MenuItem value={'year'}>{textForlan.perPrice.list.perYear[lang]}</MenuItem>
+                      <MenuItem value={'unit'}>{textForlan.perPrice.list.perUnit[lang]}</MenuItem>
+                      <MenuItem value={'free'}>{textForlan.perPrice.list.forFree[lang]}</MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
@@ -558,7 +586,7 @@ export default function Need({ titlePattern, desPattern }) {
                   }}>
                   <FormControl sx={{ width: '45%' }}>
                     <InputLabel id="per-price-select-label">
-                      Pay Unit
+                      {['Pay Unit', 'Lohneinheit', 'Единица оплаты', 'Платна одиниця'][lang]}
                     </InputLabel>
                     <Select
                       value={need.payUnit}
@@ -580,7 +608,7 @@ export default function Need({ titlePattern, desPattern }) {
                     </Select>
                   </FormControl>
                   <FormControl sx={{ width: '45%' }}>
-                    <InputLabel id="per-price-select-label">Role</InputLabel>
+                    <InputLabel id="per-price-select-label">{textForlan.role.tag[lang]}</InputLabel>
                     <Select
                       value={need.role}
                       onChange={handleChangeNeedForm}
@@ -590,9 +618,9 @@ export default function Need({ titlePattern, desPattern }) {
                       label="Role"
                       labelId="role-select-label"
                       name="role">
-                      <MenuItem value={'onsite'}>Onsite</MenuItem>
-                      <MenuItem value={'hybrid'}>Hybrid</MenuItem>
-                      <MenuItem value={'remote'}>Remote</MenuItem>
+                      <MenuItem value={'onsite'}>{textForlan.role.list.Onsite[lang]}</MenuItem>
+                      <MenuItem value={'hybrid'}>{textForlan.role.list.Hybrid[lang]}</MenuItem>
+                      <MenuItem value={'remote'}>{textForlan.role.list.Remote[lang]}</MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
@@ -633,6 +661,7 @@ export default function Need({ titlePattern, desPattern }) {
                 </WordsDropdown>
               </Box>
               <GoogleMaps
+                label={['Where?', 'Wo?', 'Где?', 'Де?'][lang]}
                 where={where}
                 setWhere={(value: PlaceType) => setWhere(value)}
               />
@@ -642,7 +671,7 @@ export default function Need({ titlePattern, desPattern }) {
 
               <div className="actions">
                 <Button variant="contained" onClick={submitPublish}>
-                  PUBLISH
+                  {textForlan.publish[lang]}
                 </Button>
               </div>
             </div>

@@ -1,6 +1,6 @@
 const isNumeric = (character: string | number): boolean => !isNaN(+character)
 const countOfChar = (char: string, charArr: string[]) => charArr.reduce((count, current) => {
-    char === current && count++
+  char === current && count++
     return count
 },0) 
 
@@ -15,9 +15,9 @@ export const analyseText = (textObject: any[]) => {
   textArray = textArray.flat(2)
   textArray.forEach((elem, i) => isNumeric(elem) && indexesOfNum.push(i)) // push the index of the numerical to a variable
   indexesOfNum.forEach((index) => textArray.splice(index, 1)) // remove numerical elements in the array
-  let uniqueCharArray = new Set(textArray) // remove duplicates
-  textArray = Array.from(uniqueCharArray)
   textArray = textArray.filter(string => string.length >= 3 )
   textArray.sort((a, b) => countOfChar(b, textArray) - countOfChar(a, textArray))
+  let uniqueCharArray = new Set(textArray) // remove duplicates
+  textArray = Array.from(uniqueCharArray)
   return textArray
 }

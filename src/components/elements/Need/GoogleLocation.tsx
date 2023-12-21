@@ -45,7 +45,7 @@ interface GoogleMapsProps {
     setWhere: (value: PlaceType) => void
 }
 
-const GoogleMaps: React.FC<GoogleMapsProps> = ({ where, setWhere }) => {
+const GoogleMaps: React.FC<GoogleMapsProps & {label: string}> = ({label, where, setWhere }) => {
   const [value, setValue] = React.useState<PlaceType | null>(null)
   const [inputValue, setInputValue] = React.useState('')
   const [options, setOptions] = React.useState<readonly PlaceType[]>([])
@@ -148,7 +148,7 @@ const GoogleMaps: React.FC<GoogleMapsProps> = ({ where, setWhere }) => {
         setInputValue(newInputValue)
       }}
       renderInput={(params) => (
-        <TextField {...params} label="Where?" fullWidth />
+        <TextField {...params} label={label} fullWidth />
       )}
       renderOption={(props, option) => {
         const matches =

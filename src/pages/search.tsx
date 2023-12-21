@@ -60,8 +60,26 @@ interface PlaceType {
 }
 
 const minDistance = 5000
+const textForlan = {
+  payUnit: {
+      tag: ['Pay Unit', 'Lohneinheit', 'Единица оплаты', 'Платна одиниця'],
+      allUnit: ['All Unit', 'Alle Einheiten', 'Все единицы', 'Усі одиниці']
+  },
+  role: {
+    tag: ['Role', 'Rolle', 'Роль', 'Роль'],
+    list: {
+      AllRole: ['All Role', 'Alle Rollen', 'Все роли', 'Усі ролі'],
+      Onsite: ['Onsite', 'Vor Ort', 'На месте', 'На сайті'],
+      Hybrid: ['Hybrid', 'Hybrid', 'Гибридный', 'Гібрид'],
+      Remote: ['Remote', 'Fernbedienung', 'Удаленный', 'Дистанційний'],
+    },
+  },
+  where: ['Where?', 'Wo?', 'Где?', 'Де?'],
+  search: ['Search', 'Suchen', 'Поиск', 'Пошук']
+}
 
 export default function Can({ textPattern }) {
+  console.log('text pattern: ', textPattern)
   const parentRef = useRef(null)
   const [lang, setLanguage] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
@@ -260,7 +278,7 @@ export default function Can({ textPattern }) {
       const firstChildElement = parentRef.current.children[1].children[1]
       if (firstChildElement.tagName === 'INPUT') firstChildElement.focus()
     }
-  },[predictionWords])
+  }, [predictionWords])
 
   return (
     <FullLayout title={languagejson[lang].NEED}>
@@ -364,7 +382,7 @@ export default function Can({ textPattern }) {
                   }}>
                   <FormControl sx={{ width: '45%' }}>
                     <InputLabel id="per-price-select-label">
-                      Pay Unit
+                    {textForlan.payUnit.tag[lang]}
                     </InputLabel>
                     <Select
                       value={can.payUnit}
@@ -375,7 +393,7 @@ export default function Can({ textPattern }) {
                       label="Pay Unit"
                       labelId="pay-unit-select-label"
                       name="payUnit">
-                      <MenuItem value={'all'}>All Unit</MenuItem>
+                      <MenuItem value={'all'}>{textForlan.payUnit.allUnit[lang]}</MenuItem>
                       <MenuItem value={'usd'}>USD</MenuItem>
                       <MenuItem value={'uah'}>UAH</MenuItem>
                       <MenuItem value={'eur'}>EUR</MenuItem>
@@ -387,7 +405,7 @@ export default function Can({ textPattern }) {
                     </Select>
                   </FormControl>
                   <FormControl sx={{ width: '45%' }}>
-                    <InputLabel id="role-select-label">Role</InputLabel>
+                    <InputLabel id="role-select-label">{textForlan.role.tag[lang]}</InputLabel>
                     <Select
                       value={can.role}
                       onChange={handleChangeCan}
@@ -397,15 +415,16 @@ export default function Can({ textPattern }) {
                       label="Role"
                       labelId="role-select-label"
                       name="role">
-                      <MenuItem value={'all'}>All Role</MenuItem>
-                      <MenuItem value={'onsite'}>Onsite</MenuItem>
-                      <MenuItem value={'hybrid'}>Hybrid</MenuItem>
-                      <MenuItem value={'remote'}>Remote</MenuItem>
+                      <MenuItem value={'all'}>{textForlan.role.list.AllRole[lang]}</MenuItem>
+                      <MenuItem value={'onsite'}>{textForlan.role.list.Onsite[lang]}</MenuItem>
+                      <MenuItem value={'hybrid'}>{textForlan.role.list.Hybrid[lang]}</MenuItem>
+                      <MenuItem value={'remote'}>{textForlan.role.list.Remote[lang]}</MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
               </div>
               <GoogleMaps
+              label={textForlan.where[lang]}
                 where={where}
                 setWhere={(value: PlaceType) => setWhere(value)}
               />
@@ -415,7 +434,7 @@ export default function Can({ textPattern }) {
 
               <div className="actions">
                 <Button variant="contained" onClick={handleSearch}>
-                  SEARCH
+                  {textForlan.search[lang].toLocaleUpperCase()}
                 </Button>
               </div>
             </div>
@@ -462,7 +481,7 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
     return {
       props: {
         session,
-        textPattern: []
+        textPattern: [],
       },
     }
   }
