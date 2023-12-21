@@ -79,32 +79,38 @@ export default function CustomTabPanel(props: TabPanelProps) {
   }
 
   const getHistory = async () => {
-        const response = await fetch('/api/search-history/get', {
-          method: 'GET' })
-        const {history} = await response.json()
-        // console.log("get history results --> ", history.data.map(item => item.results).flat(2))
-        return (history.data.map(item => item.results).flat(2))
+    try {
+      const response = await fetch('/api/search-history/get', {
+        method: 'GET',
+      })
+      const { history } = await response.json()
+      if (!history && history?.data.length === 0) throw new Error()
+      return history.data.map((item: any) => item.results).flat(2)
+    } catch (err) {
+      console.log('Your search history will be not exists.', err)
+      return []
     }
+  }
 
-    // Use useMemo to store the previous data.
-  const historyData = useMemo(()=> {
+  // Use useMemo to store the previous data.
+  const historyData = useMemo(() => {
     let data: any
-    (async () => {
+    ;(async () => {
       data = await getHistory()
       setLists(data)
     })()
     return data
   }, [])
 
-  useEffect(()=> {
-      // Only call loadData if the data hasn't been loaded yet.
-      if(!historyData) {
-        (async ()=> {
-          const data =await getHistory()
-          setLists(data)
-        })()
-      }
-    }, [historyData])
+  useEffect(() => {
+    // Only call loadData if the data hasn't been loaded yet.
+    if (!historyData) {
+      ;(async () => {
+        const data = await getHistory()
+        setLists(data)
+      })()
+    }
+  }, [historyData])
 
   useEffect(() => {
     getFavorites()
@@ -128,8 +134,10 @@ export default function CustomTabPanel(props: TabPanelProps) {
       {...other}>
       {value === 0 && <ProjectsItems lists={projectLists} />}
       {value === 1 && <ApplyItems lists={applyLists} />}
-      {value === 2 && <Search lists = {lists} onItemChange={getFavorites} />}
-      {value === 3 && <Favorites lists={favorIds} onItemChange={getFavorites} />}
+      {value === 2 && <Search lists={lists} onItemChange={getFavorites} />}
+      {value === 3 && (
+        <Favorites lists={favorIds} onItemChange={getFavorites} />
+      )}
     </div>
   )
 }
