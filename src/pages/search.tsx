@@ -79,7 +79,6 @@ const textForlan = {
 }
 
 export default function Can({ textPattern }) {
-  console.log('text pattern: ', textPattern)
   const parentRef = useRef(null)
   const [lang, setLanguage] = useAtom(language)
   const { setSnack } = useContext(SnackbarContext)
