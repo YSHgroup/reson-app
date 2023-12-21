@@ -37,7 +37,7 @@ function SimpleDialog(props: SimpleDialogProps) {
   const [lang, setLanguage] = useAtom(language)
   const { onClose, selectedValue, open, index, settings } = props
   const { name: title, options } = SettingData[lang][index]
- const {setColorMode} = useContext(ColorModeContext)
+  const { setColorMode } = useContext(ColorModeContext)
   const handleClose = () => {
     onClose(selectedValue)
   }
@@ -48,8 +48,10 @@ function SimpleDialog(props: SimpleDialogProps) {
   const handleListItemClick = (value: { index: number; i: number }) => {
     settings[keys[value.index]] = value.i
     const modeState = ['dark', 'light', 'default']
-    if (keys[value.index] == "modus") {localStorage.setItem('color_mode', modeState[value.i])
-    setColorMode(modeState[value.i])}
+    if (keys[value.index] == 'modus') {
+      localStorage.setItem('color_mode', modeState[value.i])
+      setColorMode(modeState[value.i])
+    }
     setModus(value.i)
     setSetting(settings)
     onClose(value.i)
@@ -154,9 +156,31 @@ export default function Settings() {
       )
     }
     getCurrentSetting()
-
   }, [])
-
+  React.useEffect(() => {
+    setSelectedValues([
+      [0, 1, 2, 3],
+      [modus, 1, 2],
+      [status, 1, 2, 3],
+      [firstname, 1, 2],
+      [lastname, 1, 2],
+      [telephone, 1, 2],
+      [personalAnalysis, 1, 2],
+      [email, 1, 2],
+      [currentPosition, 1],
+    ])
+    // selectedValues[]
+  }, [
+    lang,
+    modus,
+    status,
+    firstname,
+    lastname,
+    telephone,
+    personalAnalysis,
+    email,
+    currentPosition,
+  ])
   const getGeoPosition = async () => {
     const response = await fetch(`https://ipapi.co/json`)
     const countryCode = await response.json()
