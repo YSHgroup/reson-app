@@ -44,6 +44,6 @@ export const textAnalysisPattern = (text: string, email: string) => {
       patternObject[tag] = word
     }
   }
-  console.table(patternObject)
+  // console.table(patternObject)
   return patternObject
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import ProjectsItems from './ProjectItems'
 import ApplyItems from './ApplyItems'
 import Search from './Search'
@@ -40,6 +40,7 @@ export default function CustomTabPanel(props: TabPanelProps) {
   const [projectLists, setProjectLists] = useState<ListObject[]>([])
   const [applyLists, setApplyLists] = useState<ApplyObject[]>([])
   const [favorIds, setFavorId] = useAtom(favorIdAtom)
+  const [lists, setLists] = useState([])
   const getProjects = async () => {
     try {
       const response = await fetch('/api/need/get_projects', {
@@ -71,10 +72,39 @@ export default function CustomTabPanel(props: TabPanelProps) {
       })
       const personalFavor = await response.json()
       setFavorId(personalFavor.favorites)
+      return personalFavor.favorites
     } catch (err) {
       console.log('It seems to be no favorite items you have.', err)
     }
   }
+
+  const getHistory = async () => {
+        const response = await fetch('/api/search-history/get', {
+          method: 'GET' })
+        const {history} = await response.json()
+        // console.log("get history results --> ", history.data.map(item => item.results).flat(2))
+        return (history.data.map(item => item.results).flat(2))
+    }
+
+    // Use useMemo to store the previous data.
+  const historyData = useMemo(()=> {
+    let data: any
+    (async () => {
+      data = await getHistory()
+      setLists(data)
+    })()
+    return data
+  }, [])
+
+  useEffect(()=> {
+      // Only call loadData if the data hasn't been loaded yet.
+      if(!historyData) {
+        (async ()=> {
+          const data =await getHistory()
+          setLists(data)
+        })()
+      }
+    }, [historyData])
 
   useEffect(() => {
     getFavorites()
@@ -98,7 +128,7 @@ export default function CustomTabPanel(props: TabPanelProps) {
       {...other}>
       {value === 0 && <ProjectsItems lists={projectLists} />}
       {value === 1 && <ApplyItems lists={applyLists} />}
-      {value === 2 && <Search onItemChange={getFavorites} />}
+      {value === 2 && <Search lists = {lists} onItemChange={getFavorites} />}
       {value === 3 && <Favorites lists={favorIds} onItemChange={getFavorites} />}
     </div>
   )

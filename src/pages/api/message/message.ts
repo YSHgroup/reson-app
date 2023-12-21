@@ -19,7 +19,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   let message = req.body.message
 
   let messageAnalysis = textAnalysisPattern(message, session?.user?.email)
-  console.table(messageAnalysis)
+  // console.table(messageAnalysis)
 
   await messageCollection.updateOne(
     { email: session.user.email },

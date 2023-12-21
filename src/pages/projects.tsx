@@ -38,7 +38,6 @@ export default function Projects() {
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
-  const router = useRouter()
   const labels = ["Projects", "Task", "Search", "Favorites"]
   return (
     <FullLayout title={languagejson[lang].Myproject}>

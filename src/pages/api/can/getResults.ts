@@ -3,9 +3,38 @@ import RS from '@constants/ResponseStatus'
 import { connectToDatabase } from '@lib/db'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
+import { MongoClient } from 'mongodb'
+
+const saveResutls = async (
+  email: string,
+  results: any
+) => {
+  let date = new Date()
+  let year = date.getFullYear()
+  let month = date.getMonth()+1
+  let day = date.getDate()
+  const data = {results, searchedDate: `${year} / ${month} / ${day}`}
+  const client = await connectToDatabase()
+  console.log('request saving function: ', email)
+  const searchHistoryCollection = client.db().collection('search_history')
+  try {
+    const response = await searchHistoryCollection.updateOne(
+      { email: email },
+      { $push: { data } },
+      { upsert: true }
+    )
+    console.log('save the search history: ', response)
+  } catch (error) {
+    console.log('save the search history error: ', error)
+  }
+}
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
+  const session: any = await getServerSession(
+    req as any,
+    res as any,
+    authOptions as any
+  )
   if (session == undefined)
     return res.status(RS.CERROR_UNAUTHORIZED).json({
       message: 'Unauthorized',
@@ -19,32 +48,35 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const data = JSON.parse(req.body)
   const client = await connectToDatabase()
   const needsCollection = client.db().collection('needs')
-  const titleKeywords = data.title.split(" ");
+  const titleKeywords = data.title.split(' ')
   const titleQuery = titleKeywords.map((e: string) => {
-    return new RegExp(e, 'i');
+    return new RegExp(e, 'i')
   })
-  let query:any = [
+  let query: any = [
     { exist: 1 },
     { price: { $gt: data.min * 1, $lt: data.max * 1 } },
-    { author: { $ne: session?.user?.email } }
-  ];
+    { author: { $ne: session?.user?.email } },
+  ]
   if (data.where) {
     query.push({ where: { $regex: data.where, $options: 'i' } })
   }
-  if(data.role) {
-    data.role !== 'all' && query.push({ role: data.role });
+  if (data.role) {
+    data.role !== 'all' && query.push({ role: data.role })
   }
-  if(data.payUnit) {
-    data.payUnit !== 'all' && query.push({ payUnit: data.payUnit });
+  if (data.payUnit) {
+    data.payUnit !== 'all' && query.push({ payUnit: data.payUnit })
   }
   try {
     const results = await needsCollection
       .find({
         $and: query,
-        title: { $in: titleQuery }
+        title: { $in: titleQuery },
       })
       .sort({ createdAt: -1 })
       .toArray()
+
+    //Save the results searched by user
+    saveResutls(session.user.email, results)
 
     client.close()
     return res.status(200).json({

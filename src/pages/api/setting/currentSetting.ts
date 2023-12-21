@@ -20,15 +20,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const currentUser = await usersCollection.findOne({
     email: session?.user?.email,
   })
-  console.log('user in current: ', currentUser?._id)
+  // console.log('user in current: ', currentUser?._id)
   try {
     const currentSetting = await settingsCollection.findOne({
       user_id: currentUser._id,
     })
-    console.log('user current setting: ', currentSetting)
+    // console.log('user current setting: ', currentSetting)
 
     if (!currentSetting) throw new error()
-    console.log('user current setting after case of the error: ', currentSetting)
+    // console.log('user current setting after case of the error: ', currentSetting)
 
     client.close()
     return res.json({ status: 200, data: currentSetting })

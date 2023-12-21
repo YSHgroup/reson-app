@@ -56,8 +56,10 @@ export default function GutterlessList(props: any) {
   const [open, setOpen] = React.useState(false)
   const [applyDesc, setApplyDesc] = React.useState('')
   const [applyPrice, setApplyPrice] = React.useState('')
-  const [favorIds] = useAtom(favorIdAtom)
+  const [favorIds, setFavorId] = useAtom(favorIdAtom)
   const [favoridList, setFavorIdList] = React.useState([])
+  const [isProcessing, setIsProcessing] = React.useState([])
+
   const startChatting = (item: ListObject) => {
     router.push(`/chat?email=${item.author}`)
   }
@@ -168,36 +170,50 @@ export default function GutterlessList(props: any) {
     })
   }
   const favorOperation = async (item: any) => {
-    let isFavor = !!!favorIds.map(favor => Object.values(favor).includes(item._id)).every(arg => arg === false )
-    const response = await fetch(!isFavor?'/api/favorite/add': '/api/favorite/remove', {
-      method: 'POST',
-      body: JSON.stringify({ id: item._id }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-    if(response.status !== 200 || !response.ok) {
-      setSnack(
-        new Snack({
-          message: 'Failed to add',
-          color: 'error',
-          open: true,
-        })
+    if (!isProcessing.includes(item._id)) {
+      setIsProcessing(pre => [...pre, item._id])
+      let isFavor =
+        !!favorIds &&
+        !!!favorIds
+          .map((favor) => Object.values(favor).includes(item._id))
+          .every((arg) => arg === false)
+      const response = await fetch(
+        !isFavor ? '/api/favorite/add' : '/api/favorite/remove',
+        {
+          method: 'POST',
+          body: JSON.stringify({ id: item._id }),
+          headers: { 'Content-Type': 'application/json' },
+        }
       )
-      return
-    }
-    const result = await response.json()
-    if(result.message) {
-      setSnack(
-        new Snack({
-          message: result.message,
-          color: 'success',
-          open: true,
-        })
-      )
-      props.requestServer()
-    } else {
-      console.log('favorite item operation error: ', result)
+      if (response.status !== 200 || !response.ok) {
+        setSnack(
+          new Snack({
+            message: 'Failed to add',
+            color: 'error',
+            open: true,
+          })
+        )
+        return
+      }
+      const result = await response.json()
+      if (result.message) {
+        setSnack(
+          new Snack({
+            message: result.message,
+            color: 'success',
+            open: true,
+          })
+        )
+        const favorlist = props.requestServer()
+        setFavorId(favorlist)
+      } else {
+        console.log('favorite item operation error: ', result)
+      }
+
+      setIsProcessing(pre => pre.filter(el => el !== item._id))
     }
   }
+  
   const getStarColor = (id: string) => {
     //Evaluate if the entered id is the favorite id, return a color
     if (favoridList !== undefined) {
@@ -214,7 +230,7 @@ export default function GutterlessList(props: any) {
   React.useEffect(() => {
     setFavorIdList(favorIds)
   }, [favorIds])
- 
+
   return (
     <>
       <List sx={{ width: '100%', bgcolor: 'primary' }}>
@@ -239,9 +255,9 @@ export default function GutterlessList(props: any) {
             <ListItemText secondary={'No result'} />
           </ListItem>
         ) : (
-          props.lists.map((item: ListObject) => (
+          props.lists.map((item: ListObject, i: number) => (
             <ListItem
-              key={item._id}
+              key={item._id + i}
               disableGutters
               secondaryAction={
                 <>

@@ -25,8 +25,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   let titleAnalysis = textAnalysisPattern(title, session?.user?.email)
   let desAnalysis = textAnalysisPattern(description, session?.user?.email)
-  console.table(titleAnalysis)
-  console.table(desAnalysis)
+  // console.table(titleAnalysis)
+  // console.table(desAnalysis)
 
   await projectText.updateOne(
     { email: session.user.email },

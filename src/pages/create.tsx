@@ -383,7 +383,7 @@ export default function Need({ titlePattern, desPattern }) {
       CreateData()
     }
     try {
-      console.table(need)
+      // console.table(need)
       await fetch('/api/can/create-analysis', {
         method: 'POST',
         body: JSON.stringify({ need }),
