@@ -389,7 +389,7 @@ export default function Can({ textPattern }) {
                       id="outlined"
                       displayEmpty
                       inputProps={{ 'aria-label': 'Without label' }}
-                      label="Pay Unit"
+                      label={textForlan.payUnit.tag[lang]}
                       labelId="pay-unit-select-label"
                       name="payUnit">
                       <MenuItem value={'all'}>{textForlan.payUnit.allUnit[lang]}</MenuItem>

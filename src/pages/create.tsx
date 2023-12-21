@@ -594,7 +594,7 @@ export default function Need({ titlePattern, desPattern }) {
                       id="payment-select"
                       displayEmpty
                       inputProps={{ 'aria-label': 'Without label' }}
-                      label="Pay Unit"
+                      label={['Pay Unit', 'Lohneinheit', 'Единица оплаты', 'Платна одиниця'][lang]}
                       labelId="pay-unit-select-label"
                       name="payUnit">
                       <MenuItem value={'usd'}>USD</MenuItem>
