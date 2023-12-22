@@ -12,7 +12,7 @@ import Image from 'next/image'
 import { dateColorJot, language } from "../jotai"
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
-import { GenNumForDate } from 'classes/GenNumForDate'
+import { GenNumForDate } from 'utils/GenNumForDate'
 import { dateColor } from '@constants/Status'
 
 export default function Score() {

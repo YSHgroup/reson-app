@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import FullLayout from '@layouts/FullLayout/FullLayout'
-import { Divider, keyframes } from '@mui/material'
+import { Divider, keyframes, useMediaQuery } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
@@ -48,6 +48,7 @@ export default function Property({ userInfo }) {
     'Pro9',
   ]
   const currentLangMode = ['EN', 'DE', 'RU', 'UA']
+  const phoneBreakpoint = useMediaQuery('(max-width: 480px)')
   useEffect(() => {
     setAnalysis()
   }, [])
@@ -67,8 +68,11 @@ export default function Property({ userInfo }) {
           position: 'relative',
         }}>
         <Typography
-          variant="h3"
+          variant={phoneBreakpoint ? 'h4' : 'h3'}
           sx={{
+            width: '50%',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
             '&:first-letter': {
               fontSize: '130%',
             },
@@ -86,6 +90,15 @@ export default function Property({ userInfo }) {
             right: 0,
             top: 0,
           }}>
+          <Typography
+            position={'absolute'}
+            top={'5%'}
+            left={'-10%'}
+            fontFamily={'fantasy'}
+            color="text.secondary"
+            fontSize={'24px'}>
+            {`${Math.round((personalStatus.quantity / 6) * 100)}%`}
+          </Typography>
           <IconButton
             sx={{
               transition: '.5S',
@@ -102,7 +115,7 @@ export default function Property({ userInfo }) {
                   ? personalStatus.quantity % 6
                   : 1
               }.png`}
-              alt="S2"
+              alt="Your status image"
               priority
               width={140}
               height={140}
@@ -154,7 +167,11 @@ export default function Property({ userInfo }) {
                   })
                 }>
                 <ListItemText
-                  primary={<Typography variant="h4">{item}</Typography>}
+                  primary={
+                    <Typography variant={phoneBreakpoint ? 'h5' : 'h4'}>
+                      {item}
+                    </Typography>
+                  }
                 />
                 <Image
                   src={`/images/S${analysisResult[0][i]}.png`}

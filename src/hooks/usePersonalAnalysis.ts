@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { DateProcessor } from '../classes/DateProcessor'
+import { DateProcessor } from '../utils/DateProcessor'
 
 const counterIndividualNumber = (numArr: number[] | string[]) => {
   let q = new Array<number>(9)

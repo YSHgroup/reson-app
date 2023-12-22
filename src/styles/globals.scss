@@ -120,6 +120,7 @@ p {
     float: left;
     clear: both;
     width: 100%;
+    padding: 10px 5px;
     &.hidden {
       display: none;
     }
@@ -142,8 +143,8 @@ p {
   }
 
   #file-image {
-    display: inline;
-    margin: 0 auto .5rem auto;
+    display: block;
+    // margin: 0 auto .5rem auto;
     width: 200px;
     height: 200px;
     &.hidden {

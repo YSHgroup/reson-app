@@ -15,12 +15,14 @@ import React, { useEffect } from 'react'
 import { MenuData } from '@constants/Menu.js'
 import { useSwipe } from 'hooks/useSwipe'
 import { useRouter } from 'next/router'
-import { language } from '../jotai'
+import { dateColorJot, language } from '../jotai'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import NotificationChat from '../components/elements/NotificationChat'
 import NotificationCalendar from '../components/elements/NotificationCalendar'
 import io from 'socket.io-client'
+import { GenNumForDate } from 'utils/GenNumForDate'
+import { dateColor } from '@constants/Status'
 
 const { data: MenuDatas } = MenuData
 let socket: any
@@ -33,6 +35,13 @@ export default function Home() {
   const [unread, SetUnread] = React.useState(0)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [totalUnreadChats, setTotalUnreadChats] = React.useState<any>([])
+  const [currentColor, setDateColor] = useAtom(dateColorJot)
+  const numForDate = new GenNumForDate()
+
+  useEffect(()=>{
+    setDateColor(dateColor[Number(numForDate.getNum().substring(0, 2))])
+
+  },[])
   const [isNotificationCalendar, setIsNotificationCalendar] =
     React.useState<boolean>(false)
   const open = Boolean(anchorEl)
@@ -42,7 +51,6 @@ export default function Home() {
   const handleClose = () => {
     setAnchorEl(null)
   }
-
   const router = useRouter()
   const { isDragging } = useSwipe({
     up: () => {
@@ -534,7 +542,7 @@ export default function Home() {
             height={'100%'}
             bgcolor={'transparent'}
             marginLeft={'13px'}
-            border={'2px solid lime'}
+            border={`2px solid ${currentColor}`}
             borderRadius={'5px'}
             overflow={'hidden'}
           >
@@ -553,8 +561,8 @@ export default function Home() {
                 top: '0',
                 // height: '100%',
                 width: '100%',
-                border: `.5px solid ${'lime'}`,
-                boxShadow: `0 0 2px 1px ${'lime'}`
+                border: `.5px solid ${currentColor}`,
+                boxShadow: `0 0 2px 1px ${currentColor}`
               }
             }}>
             </Box>

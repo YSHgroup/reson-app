@@ -24,13 +24,11 @@ import VideoCallWindow from '@elements/Chat/VideoCallWindowComponent'
 import ParticlesComponent from '@elements/Particles'
 import { darkTheme, lightTheme, defaultTheme } from 'theme'
 import CustomScrollbar from '@elements/CustomScrollbar'
-import { GenNumForDate } from 'classes/GenNumForDate'
 
 // Customize the PaletteMode type to add the value of 'default'
 type CustomizePaletteMode = PaletteMode | 'default'
 
 export default function App({ Component, pageProps }: AppProps) {
-  const numForDate = new GenNumForDate()
   const [mode, setMode] = React.useState<CustomizePaletteMode>('default')
   const colorMode = React.useMemo(
     () => ({

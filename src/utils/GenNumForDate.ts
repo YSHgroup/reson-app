@@ -16,22 +16,26 @@ export class GenNumForDate {
     }
   }
 
-  private calcPrefix({month, day}: {month: number, day: number}) {
-    let indexFistDay = Math.floor((month - 1) * 2 / this.Suffix.length)
-    let indexFistDay_suffix = (month - 1) * 2 % this.Suffix.length
-    let prefix = this.Prefix[Math.floor((day + indexFistDay_suffix - 1) / this.Suffix.length) + indexFistDay]
+  private calcPrefix({ month, day }: { month: number; day: number }) {
+    let indexFistDay = Math.floor(((month - 1) * 2) / this.Suffix.length)
+    let indexFistDay_suffix = ((month - 1) * 2) % this.Suffix.length
+    let prefix =
+      this.Prefix[
+        Math.floor((day + indexFistDay_suffix - 1) / this.Suffix.length) +
+          indexFistDay
+      ]
     return prefix
   }
 
-  private calcSufFix({month, day}: {month: number, day: number}) {
-    let indexFistDay = (month - 1) * 2 % this.Suffix.length
+  private calcSufFix({ month, day }: { month: number; day: number }) {
+    let indexFistDay = ((month - 1) * 2) % this.Suffix.length
     let suffix = this.Suffix[(day + indexFistDay - 1) % this.Suffix.length]
     return suffix
   }
 
   public getNum() {
-      let suffix = this.calcSufFix(this.date).toString()
-      let prefix = this.calcPrefix(this.date).toString()
+    let suffix = this.calcSufFix(this.date).toString()
+    let prefix = this.calcPrefix(this.date).toString()
 
     return prefix + suffix
   }

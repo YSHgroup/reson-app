@@ -49,9 +49,7 @@ export class DateProcessor {
   }
 
   private addAnalysisResult(dateArray: Array<any>) {
-    let analyseDigits = this.sumDigits(dateArray.map((date) =>
-      date[1]
-    ).flat())
+    let analyseDigits = this.sumDigits(dateArray.map((date) => date[1]).flat())
     let separatedAnalyseDigits = this.separateDigits(analyseDigits)
     let digitalRootAnalysis = this.sumDigits(separatedAnalyseDigits)
     let separatedDRA = this.separateDigits(digitalRootAnalysis)
@@ -59,13 +57,16 @@ export class DateProcessor {
     return dateArray
   }
 
-  public processDates() {
+  public processDates(): {
+    analysisOfBD: number[][][]
+    analysisOfCD: number[][][]
+  } {
     let preProcessedArray = [this.birthday, this.currentDate].map((date) =>
       this.organizeToArray(date)
     )
 
-    this.processedArray = (
-      preProcessedArray.map((individual) => this.addAnalysisResult(individual))
+    this.processedArray = preProcessedArray.map((individual) =>
+      this.addAnalysisResult(individual)
     )
 
     return {

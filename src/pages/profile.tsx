@@ -24,19 +24,17 @@ import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { type AlertColor } from '@mui/material/Alert'
 import { Fade, ListItemIcon, Menu, MenuItem } from '@mui/material'
 import MenuData from '@constants/Menu.json'
-import { StatusData } from '@constants/Status'
 import { getSession, signOut } from 'next-auth/react'
-import { GenNumForDate } from 'classes/GenNumForDate'
+import { GenNumForDate } from 'utils/GenNumForDate'
 import { dateColor } from '@constants/Status'
 
 import ImageUploader from '../components/elements/ImageUploader'
-import { useRouter } from 'next/router'
 
 const { data: MenuDatas } = MenuData;
 export default function Profile() {
-  const [lang, setLanguage] = useAtom(language)
   const energy = 54
   const opportunity = 21
+  const [lang, setLanguage] = useAtom(language)
   const { setSnack } = React.useContext(SnackbarContext)
   const [open, setOpen] = React.useState(false)
   const [email, setEmail] = React.useState('')

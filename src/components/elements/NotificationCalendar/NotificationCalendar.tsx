@@ -4,7 +4,12 @@ import Typography from '@mui/material/Typography'
 import dayjs from 'dayjs'
 import { Divider } from '@mui/material'
 
+import { dateColorJot, language } from "../../../jotai"
+import { useAtom } from 'jotai'
+
 export default function AlignItemsList({}) {
+  const [currentColor, setDateColor] = useAtom(dateColorJot)
+
     return (
         <List
             className='notificationCalendar'
@@ -24,7 +29,7 @@ export default function AlignItemsList({}) {
                     bottom: 0,
                     right: 0,
                     left: 0,
-                    bgcolor: 'primary.light',
+                    bgcolor: `${currentColor}77`,
                     opacity: 0.6
                   }
             }}

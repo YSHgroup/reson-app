@@ -22,7 +22,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import Autocomplete from '@mui/material/Autocomplete';
 import { Theme } from '@fullcalendar/core/internal'
-import { GenNumForDate } from 'classes/GenNumForDate'
+import { GenNumForDate } from 'utils/GenNumForDate'
 import { dateColor } from '@constants/Status'
 import { useTheme } from '@mui/material/styles'
 
@@ -73,7 +73,7 @@ interface initValues {
 interface Option {
   email: string;
 }
-export default function Calendar({currentColor}) {
+export default function Calendar() {
   const router = useRouter();
   const [lang, setLanguage] = useAtom(language)
   const [modalOpen, setModalOpen] = useState(false);
@@ -89,11 +89,13 @@ export default function Calendar({currentColor}) {
     to: '',
   });
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
-
+  
   const [isChange, setIsChange] = useState(false);
   const [objectId, setObjectId] = useState('');
   const calendarRef = useRef(null);
   const { data: session } = useSession()
+  const numForDate = new GenNumForDate()
+  const currentColor = dateColor[Number(numForDate.getNum().substring(0, 2))]
 
 
   const handleClickOpen = () => {
@@ -388,7 +390,7 @@ const brekpointMatch = useMediaQuery(theme.breakpoints.down('sm'))
             dayHeaders
             dayHeaderDidMount={(args)=> {
               if(args.isToday){
-                args.el.style.backgroundColor = `${currentColor}66`;
+                args.el.style.backgroundColor = `${currentColor}77`;
               }
               args.el.style.color = 'primary.main';
             }}
@@ -575,7 +577,6 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
       },
     }
   }
-
   return {
     props: {
       session,

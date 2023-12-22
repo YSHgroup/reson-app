@@ -69,7 +69,7 @@ export default function ImageUploader() {
         var isGood = (/\.(?=gif|jpg|png|jpeg)/gi).test(imageName);
         if (isGood) {
           document.getElementById('start').classList.add("hidden");
-          document.getElementById('response').classList.remove("hidden");
+          // document.getElementById('response').classList.remove("hidden");
           document.getElementById('notimage').classList.add("hidden");
           // Thumbnail Preview
           document.getElementById('file-image').classList.remove("hidden");
@@ -215,7 +215,7 @@ export default function ImageUploader() {
   async function setPic(res: any) {
     const path: any = res.data.picpath;
     document.getElementById('start').classList.add("hidden");
-    document.getElementById('response').classList.remove("hidden");
+    // document.getElementById('response').classList.remove("hidden");
     document.getElementById('notimage').classList.add("hidden");
     document.getElementById('file-image').classList.remove("hidden");
     if (path != null && path != "") {
@@ -237,13 +237,13 @@ export default function ImageUploader() {
 
   return (
     <form id="file-upload-form" className="uploader" action="/api/upload">
-      <input id="file-upload" type="file" name="fileUpload" accept="image/*" />
+      <input id="file-upload" style={{margin: '5px 0'}} type="file" name="fileUpload" accept="image/*" />
 
       <label htmlFor="file-upload" id="file-drag">
         <img id="file-image" src="#" alt="Preview" className="hidden" />
         <div id="start">
           <i className="fa fa-download" aria-hidden="true"></i>
-          <div>Select a file or drag here</div>
+          <div style={{margin: '0 5px'}}>Select a file or drag here</div>
           <div id="notimage" className="hidden">Please select an image</div>
           <span id="file-upload-btn" className="btn btn-primary">Select a file</span>
         </div>
