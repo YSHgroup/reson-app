@@ -9,7 +9,16 @@ import Typography from '@mui/material/Typography'
 import Image from 'next/image'
 import Menubar from '@elements/Menubar'
 import { useRouter } from 'next/router'
-import { language, modusJot, statusJot, firstnameJot, lastnameJot, emailJot, telephoneJot, personalAnalysisJot } from "../../../jotai"
+import {
+  language,
+  modusJot,
+  statusJot,
+  firstnameJot,
+  lastnameJot,
+  emailJot,
+  telephoneJot,
+  personalAnalysisJot,
+} from '../../../jotai'
 import { useAtom } from 'jotai'
 
 type FullLayoutProps = {
@@ -37,7 +46,14 @@ export default function FullLayout({
   const router = useRouter()
   const handleClose = () => {
     let settingData = {
-      lang, modus, status, firstname, lastname, email, telephone, personalAnalysis
+      lang,
+      modus,
+      status,
+      firstname,
+      lastname,
+      email,
+      telephone,
+      personalAnalysis,
     }
     if (router.pathname.substring(1, router.pathname.length) == 'settings') {
       fetch('/api/setting/setting', {
@@ -46,7 +62,7 @@ export default function FullLayout({
         headers: {
           'Content-Type': 'application/json',
         },
-      }).then(res => console.log(res))
+      }).then((res) => console.log(res))
     }
     router.replace('/dashboard')
   }
@@ -72,14 +88,18 @@ export default function FullLayout({
                 }}>
                 {title}
               </Typography>
-              <IconButton 
-                size="large" 
-                edge="end" 
+              <IconButton
+                size="large"
+                edge="end"
                 color="inherit"
                 aria-label="menu"
-                onClick={handleClose}
-              >
-                <Image src="/images/back.png" alt="back" width={26} height={26} />
+                onClick={handleClose}>
+                <Image
+                  src="/images/back.png"
+                  alt="back"
+                  width={26}
+                  height={26}
+                  />
               </IconButton>
             </Toolbar>
           </AppBar>
@@ -87,6 +107,7 @@ export default function FullLayout({
         <Box
           sx={{
             overflow: 'auto',
+            overflowX: 'hidden',
             flexGrow: 1,
             width: '100%',
           }}>

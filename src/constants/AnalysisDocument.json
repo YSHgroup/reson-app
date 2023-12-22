@@ -49,7 +49,7 @@
             ]
         },
         {
-            "criteria": {"male": "Logik", "female":"Loveliness", "diverse": "Intuition"},
+            "criteria": {"male": "Logic", "female":"Loveliness", "diverse": "Intuition"},
             "description": [
                 null,
                 "Deceptive logic. Risk of error.",
