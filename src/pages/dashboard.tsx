@@ -529,14 +529,35 @@ export default function Home() {
             </Box>
           )}
           <Box
+            position={'relative'}
             width={'20px'}
             height={'100%'}
-            bgcolor={'white'}
+            bgcolor={'transparent'}
             marginLeft={'13px'}
             border={'2px solid lime'}
             borderRadius={'5px'}
+            overflow={'hidden'}
           >
-
+            <Box
+            position={'absolute'}
+            sx={{
+              bottom: '0',
+              width: '100%',
+              height: '70%',
+              bgcolor: 'white',
+              borderTop: '1px solid lime',
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                left: '0',
+                top: '0',
+                // height: '100%',
+                width: '100%',
+                border: `.5px solid ${'lime'}`,
+                boxShadow: `0 0 2px 1px ${'lime'}`
+              }
+            }}>
+            </Box>
           </Box>
         </Box>
         <Box
