@@ -266,7 +266,7 @@ export default function Home() {
                 '&::after': {
                   content: '" "',
                   position: 'absolute',
-                  left: '-14px',
+                  left: '-13px',
                   top: '0',
                   marginLeft: '-14px',
                   borderWidth: '14px',
@@ -278,7 +278,7 @@ export default function Home() {
               {opportunity}%
             </Typography>
           </Box>
-          <ButtonBase href="/search" LinkComponent={Link}>
+          <ButtonBase href="/search" sx={{width: '50%', margin: '0 auto'}} LinkComponent={Link}>
             <Typography
               variant="h4"
               sx={{
@@ -499,7 +499,7 @@ export default function Home() {
             textAlign: 'center',
             position: 'relative',
           }}>
-          <ButtonBase href="/create" LinkComponent={Link}>
+          <ButtonBase href="/create" sx={{width: '50%', margin: '0 auto'}} LinkComponent={Link}>
             <Typography
               variant="h4"
               sx={{
@@ -528,6 +528,16 @@ export default function Home() {
               />
             </Box>
           )}
+          <Box
+            width={'20px'}
+            height={'100%'}
+            bgcolor={'white'}
+            marginLeft={'13px'}
+            border={'2px solid lime'}
+            borderRadius={'5px'}
+          >
+
+          </Box>
         </Box>
         <Box
           sx={{

@@ -256,9 +256,9 @@ export default function Profile() {
               background: 'white',
               borderRadius: 2,
               border: `5px solid ${currentColor}aa`,
-              padding: '12px',
+              // padding: '12px',
               display: 'inline-grid',
-              width: '300px',
+              width: 'fit-content',
             }}>
             {/* <Image
               src="/images/avatar.png"
@@ -388,7 +388,7 @@ export default function Profile() {
               LinkComponent={Link}
               href="/projects"
             >
-              Show My Projects
+              {['Show My Projects', 'Meine Projekte anzeigen', 'Показать мои проекты', 'Показати мої проекти'][lang]}
             </Button>
           </div>
           <div>

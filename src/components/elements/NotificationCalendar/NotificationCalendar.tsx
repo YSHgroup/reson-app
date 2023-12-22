@@ -24,7 +24,7 @@ export default function AlignItemsList({}) {
                     bottom: 0,
                     right: 0,
                     left: 0,
-                    bgcolor: 'background.paper',
+                    bgcolor: 'primary.light',
                     opacity: 0.6
                   }
             }}

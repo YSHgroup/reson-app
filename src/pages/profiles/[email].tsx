@@ -204,9 +204,10 @@ export default function ProfileItem() {
               background: 'white',
               borderRadius: 2,
               border: '1px solid black',
-              padding: '12px',
+              // padding: '12px',
               display: 'inline-grid',
-              width: '300px',
+              width: 'fit-content',
+              // width: '300px',
             }}>
             <ImageUploader />
           </Box>

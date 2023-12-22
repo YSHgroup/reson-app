@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import FullLayout from '@layouts/FullLayout/FullLayout'
-import { Divider } from '@mui/material'
+import { Divider, keyframes } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
@@ -17,6 +17,19 @@ import analysisDoc from '../constants/AnalysisDocument.json'
 import { useAtom } from 'jotai'
 import { usePersonalAnalysis } from 'hooks/usePersonalAnalysis'
 import { connectToDatabase } from '@lib/db'
+
+const animationBtn = keyframes`
+0% {
+  transform: scale(1);
+}
+70% {
+  transform: scale(1.2) rotate(180deg);
+  opacity: 0.5;
+}
+100% {
+  transform: scale(1) rotate(360deg);
+}
+`
 
 export default function Property({ userInfo }) {
   const isFirstRender = useRef(true)
@@ -39,11 +52,11 @@ export default function Property({ userInfo }) {
     setAnalysis()
   }, [])
   useEffect(() => {
-    if(isFirstRender.current) {
+    if (isFirstRender.current) {
       isFirstRender.current = false
       return
     }
-    const index = analysisResult[0].findIndex(( first ) => first !== 0)
+    const index = analysisResult[0].findIndex((first) => first !== 0)
     setStatus({ statusIndex: index, quantity: analysisResult[0][index] })
   }, [analysisResult])
   return (
@@ -73,9 +86,22 @@ export default function Property({ userInfo }) {
             right: 0,
             top: 0,
           }}>
-          <IconButton LinkComponent={Link} href="/score">
+          <IconButton
+            sx={{
+              transition: '.5S',
+              '&:hover': {
+                // transform: 'rotate(180deg)',
+                animation: `${animationBtn} 0.5s linear`,
+              },
+            }}
+            LinkComponent={Link}
+            href="/score">
             <Image
-              src={`/images/S${(personalStatus.quantity ) % 6 !== 0 ? (personalStatus.quantity ) % 6 : 1}.png`}
+              src={`/images/S${
+                personalStatus.quantity % 6 !== 0
+                  ? personalStatus.quantity % 6
+                  : 1
+              }.png`}
               alt="S2"
               priority
               width={140}
