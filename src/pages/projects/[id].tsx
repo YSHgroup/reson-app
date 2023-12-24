@@ -167,7 +167,7 @@ const ProjectPage = () => {
 
   return (
     <FullLayout title={projectLists.title}>
-          <Divider/>
+      <Divider />
       <Box
         display={'flex'}
         width={'100%'}
@@ -175,16 +175,41 @@ const ProjectPage = () => {
         alignItems={'center'}
         p={1}
         sx={{
-          bgcolor: theme => theme.palette.primary['200']
+          bgcolor: (theme) => theme.palette.primary['200'],
         }}>
-        <Typography
-          component={'span'}
-          whiteSpace={'nowrap'}
-          textOverflow={'ellipsis'}
-          overflow={'hidden'}
-          >
-          {projectLists.description}
-        </Typography>
+        <Box component={'div'} height={'100px'} minWidth={'60%'}>
+          <Typography
+            component={'span'}
+            whiteSpace={'nowrap'}
+            textOverflow={'ellipsis'}
+            overflow={'hidden'}>
+            {projectLists.price} {projectLists.payUnit? projectLists.payUnit.toLocaleUpperCase(): ''} per{' '}
+            {projectLists.payType? projectLists.payType.toLocaleUpperCase(): ''}
+          </Typography>
+          <Typography
+            component={'span'}
+            whiteSpace={'nowrap'}
+            textOverflow={'ellipsis'}
+            overflow={'hidden'}>
+              <br />
+            {projectLists.startLine
+              ? dayjs(projectLists.startLine).format('DD/MM/YYYY')
+              : 'Undefined'}{' '}
+            -{' '}
+            {projectLists.deadLine
+              ? dayjs(projectLists.deadLine).format('DD/MM/YYYY')
+              : 'Undefined'}
+          </Typography>
+          <Typography
+            component={'span'}
+            display={'block'}
+            whiteSpace={'nowrap'}
+            width={'100%'}
+            textOverflow={'ellipsis'}
+            overflow={'hidden'}>
+            {projectLists.description}
+          </Typography>
+        </Box>
         <Button
           onClick={(e) => {
             handleShowDetailProject()
@@ -192,9 +217,8 @@ const ProjectPage = () => {
           variant="contained"
           sx={{
             minWidth: '7rem',
-            whiteSpace: 'nowrap'
-          }}
-          >
+            whiteSpace: 'nowrap',
+          }}>
           <Visibility />
           &nbsp; Detail
         </Button>
@@ -214,8 +238,8 @@ const ProjectPage = () => {
                     borderRadius: '15px',
                     background: (theme) => theme.palette.primary['200'],
                     '&:hover': {
-                      backgroundColor: theme =>theme.palette.primary.main
-                    }
+                      backgroundColor: (theme) => theme.palette.primary.main,
+                    },
                   }}>
                   {list.status}
                 </Box>
