@@ -11,6 +11,7 @@ export const personalAnalysisJot = atom(0)
 export const currentPositionJot = atom(0)
 export const personalStatusJot = atom({statusIndex: 0, quantity: 0})
 export const dateColorJot = atom('')
+export const genderJot = atom('diverse')
 
 export const tempEmailJot = atom('')
 export const chatGroupsAtom = atom([]);

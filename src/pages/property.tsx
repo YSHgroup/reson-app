@@ -11,7 +11,7 @@ import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { getSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { language, personalStatusJot } from '../jotai'
+import { language, genderJot, personalStatusJot } from '../jotai'
 import languagejson from '../language.json'
 import analysisDoc from '../constants/AnalysisDocument.json'
 import { useAtom } from 'jotai'
@@ -36,6 +36,7 @@ export default function Property({ userInfo }) {
   const [personalStatus, setStatus] = useState({ statusIndex: 0, quantity: 0 })
   const [analysisResult, setAnalysis] = usePersonalAnalysis(userInfo)
   const [lang] = useAtom(language)
+  const [gender] = useAtom(genderJot)
   const list = [
     'Pro1',
     'Pro2',
@@ -81,7 +82,7 @@ export default function Property({ userInfo }) {
           }}>
           {
             analysisDoc[currentLangMode[lang]][personalStatus.statusIndex]
-              .criteria['male']
+              .criteria[gender]
           }
         </Typography>
         <Box
@@ -210,14 +211,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   try {
     const email = session.user.email
-    console.log('email: ', email)
     const client = await connectToDatabase()
     const userCollection = client.db().collection('users')
     const userInfo = await userCollection.findOne(
       { email: email },
       { projection: { _id: 0, day_birth: 1, month_birth: 1, year_birth: 1 } }
     )
-    console.log('user info: ', userInfo)
 
     if (!userInfo) throw new Error('--User info not found--')
     return {

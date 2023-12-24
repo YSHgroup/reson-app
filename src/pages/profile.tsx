@@ -17,7 +17,7 @@ import { Collapse } from '@mui/material'
 import React from 'react'
 import { ArrowDropDown, ArrowLeft } from '@mui/icons-material'
 import IconButton from '@mui/material/IconButton'
-import { dateColorJot, language } from "../jotai"
+import { dateColorJot, genderJot, language } from "../jotai"
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
@@ -50,6 +50,7 @@ export default function Profile() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [status, setStatus] = React.useState(0)
   const [nickname, setNickName] = React.useState('')
+  const [gender, setGender] = useAtom(genderJot)
   const [currentColor, setDateColor] = useAtom(dateColorJot)
   const numForDate = new GenNumForDate()
   useEffect(()=>{
@@ -127,6 +128,7 @@ export default function Profile() {
         setStatus(parseInt(res.data.status) || 0);
         setStatus(res.data.carExist || "");
         setNickName(res.data.nickname || "")
+        setGender(res.data.sex)
       }
     ).catch(
       err => {

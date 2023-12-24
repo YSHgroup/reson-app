@@ -38,10 +38,9 @@ export default function Home() {
   const [currentColor, setDateColor] = useAtom(dateColorJot)
   const numForDate = new GenNumForDate()
 
-  useEffect(()=>{
+  useEffect(() => {
     setDateColor(dateColor[Number(numForDate.getNum().substring(0, 2))])
-
-  },[])
+  }, [])
   const [isNotificationCalendar, setIsNotificationCalendar] =
     React.useState<boolean>(false)
   const open = Boolean(anchorEl)
@@ -87,16 +86,16 @@ export default function Home() {
     const getCurrentSetting = async () => {
       try {
         const response = await fetch('/api/setting/currentSetting', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      let settingData = await response.json()
-      // console.log('Bug tracking:',settingData.data , JSON.stringify(settingData))
-      if (!settingData.data || !settingData.data.language) throw new Error
-      localStorage.setItem('language', settingData.data.language)
-      setLanguage(settingData.data.language)
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        let settingData = await response.json()
+        // console.log('Bug tracking:',settingData.data , JSON.stringify(settingData))
+        if (!settingData.data || !settingData.data.language) throw new Error()
+        localStorage.setItem('language', settingData.data.language)
+        setLanguage(settingData.data.language)
       } catch (error) {
         await fetch('/api/setting/setting', {
           method: 'POST',
@@ -108,7 +107,7 @@ export default function Home() {
           },
         })
         localStorage.setItem('language', '0')
-      setLanguage(0)
+        setLanguage(0)
       }
     }
 
@@ -286,7 +285,10 @@ export default function Home() {
               {opportunity}%
             </Typography>
           </Box>
-          <ButtonBase href="/search" sx={{width: '50%', margin: '0 auto'}} LinkComponent={Link}>
+          <ButtonBase
+            href="/search"
+            sx={{ width: '50%', margin: '0 auto' }}
+            LinkComponent={Link}>
             <Typography
               variant="h4"
               sx={{
@@ -419,8 +421,7 @@ export default function Home() {
                 },
                 position: 'absolute',
               }}
-              onClick={() => routerToProfile()}
-              >
+              onClick={() => routerToProfile()}>
               <Image
                 src="/images/main.png"
                 alt="main"
@@ -430,22 +431,21 @@ export default function Home() {
                 // onClick={() => routerToProfile()}
               />
               <div
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                zIndex: '10',
-                cursor: 'pointer',
-              }}
-              ></div>
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  zIndex: '10',
+                  cursor: 'pointer',
+                }}></div>
               <Typography
-              variant="h2"
-              sx={{
-                position: 'absolute',
-                color: 'white',
-              }}>
-              I
-            </Typography>
+                variant="h2"
+                sx={{
+                  position: 'absolute',
+                  color: 'white',
+                }}>
+                I
+              </Typography>
             </IconButton>
             {/* <div
               style={{
@@ -507,7 +507,10 @@ export default function Home() {
             textAlign: 'center',
             position: 'relative',
           }}>
-          <ButtonBase href="/create" sx={{width: '50%', margin: '0 auto'}} LinkComponent={Link}>
+          <ButtonBase
+            href="/create"
+            sx={{ width: '50%', margin: '0 auto' }}
+            LinkComponent={Link}>
             <Typography
               variant="h4"
               sx={{
@@ -545,39 +548,36 @@ export default function Home() {
             border={`2px solid ${currentColor}`}
             borderRadius={'5px'}
             // overflow={'hidden'}
-            sx={{
-            }}
-          >
+            sx={{}}>
             <Box
-            position={'absolute'}
-            sx={{
-              bottom: '0',
-              width: '100%',
-              height: '70%',
-              bgcolor: 'white',
-              borderTop: '1px solid lime',
-              
-              '&::before': {
-                content: '"70%"',
-                position: 'absolute',
-                // width: 'fit-content',
-                // height: '50px',
-                top: '-5px',
-                right: '-250%',
-                fontSize: '1rem'
-              },
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                left: '0',
-                top: '0',
-                // height: '100%',
+              position={'absolute'}
+              sx={{
+                bottom: '0',
                 width: '100%',
-                border: `.5px solid ${currentColor}`,
-                boxShadow: `0 0 2px 1px ${currentColor}`
-              }
-            }}>
-            </Box>
+                height: '70%',
+                bgcolor: 'white',
+                borderTop: '1px solid lime',
+
+                '&::before': {
+                  content: '"70%"',
+                  position: 'absolute',
+                  // width: 'fit-content',
+                  // height: '50px',
+                  top: '-5px',
+                  right: '-250%',
+                  fontSize: '1rem',
+                },
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  left: '0',
+                  top: '0',
+                  // height: '100%',
+                  width: '100%',
+                  border: `.5px solid ${currentColor}`,
+                  boxShadow: `0 0 2px 1px ${currentColor}`,
+                },
+              }}></Box>
           </Box>
         </Box>
         <Box
@@ -637,7 +637,6 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
       },
     }
   }
-
   return {
     props: {
       session,
