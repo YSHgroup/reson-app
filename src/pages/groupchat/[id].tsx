@@ -225,6 +225,21 @@ export default function GroupChat() {
         console.log(error)
       }
     }
+    const fetchData = async () => {
+      const payload = { message: message.content }
+      try {
+        await fetch('/api/message/message', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchData()
     saveMsg()
     setInputMsg('')
   }

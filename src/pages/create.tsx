@@ -49,6 +49,8 @@ interface NeedFormType {
   description: string | null
   payUnit: string
   role: string
+  longitude: string | null
+  latitude: string | null
 }
 interface MainTextMatchedSubstrings {
   offset: number
@@ -79,7 +81,12 @@ const TextItem = styled(ListItem)(({ theme }) => ({
 }))
 
 const textForlan = {
-  uploadFile: ['Upload File', 'Datei hochladen', 'Файл загрузки', 'Завантажити файл'],
+  uploadFile: [
+    'Upload File',
+    'Datei hochladen',
+    'Файл загрузки',
+    'Завантажити файл',
+  ],
   startLine: ['Start Line', 'Startlinie', 'Стартовая линия', 'Стартова лінія'],
   deadline: ['Deadline', 'Frist', 'Крайний срок', 'Кінцевий термін'],
   perPrice: {
@@ -90,8 +97,8 @@ const textForlan = {
       perMonth: ['Per Month', 'Pro Monat', 'За месяц', 'За місяць'],
       perYear: ['Per Year', 'Pro Jahr', 'За год', 'За рік'],
       perUnit: ['Per Unit', 'Pro Einheit', 'За единицу', 'За одиницю'],
-      forFree: ['For Free', 'Kostenlos', 'Бесплатно', 'Безкоштовно']
-    }
+      forFree: ['For Free', 'Kostenlos', 'Бесплатно', 'Безкоштовно'],
+    },
   },
   role: {
     tag: ['Role', 'Rolle', 'Роль', 'Роль'],
@@ -103,8 +110,8 @@ const textForlan = {
     },
   },
   description: ['Description', 'Beschreibung', 'Описание', 'Опис'],
-  publish: ['Publish', 'Veröffentlichen', 'Опубликовать', 'Опублікувати']
-};
+  publish: ['Publish', 'Veröffentlichen', 'Опубликовать', 'Опублікувати'],
+}
 
 export default function Need({ titlePattern, desPattern }) {
   const [lang, setLanguage] = useAtom(language)
@@ -120,6 +127,8 @@ export default function Need({ titlePattern, desPattern }) {
     payType: 'piece',
     payUnit: 'usd',
     role: 'onsite',
+    longitude: null,
+    latitude: null,
   })
   const [where, setWhere] = useState<PlaceType | null>(null)
   const [predictionWords, setPredictionWords] = useState<any[]>([])
@@ -139,11 +148,18 @@ export default function Need({ titlePattern, desPattern }) {
   const getCountry = async () => {
     const response = await fetch(`https://ipapi.co/json`)
     const countryCode = await response.json()
+    setNeed((pre) => ({
+      ...pre,
+      longitude: countryCode.longitude,
+      latitude: countryCode.latitude,
+    }))
     showMapBox(`${countryCode.city}, ${countryCode.country_name}`)
     setIp(`${countryCode.city}, ${countryCode.country_name}`)
   }
   const showMapBox = async (country?: string) => {
     const select = where ? where.description : ip
+    // can get current location
+    console.log(select, ' >>my location')
     fetch(
       `https://api.mapbox.com/geocoding/v5/mapbox.places/${
         country || select
@@ -151,6 +167,9 @@ export default function Need({ titlePattern, desPattern }) {
     )
       .then((response) => response.json())
       .then((data) => {
+
+        //Here we can get the longitude and latitude of the selected location
+        // console.log('fetched location: ', data )
         if (data.features.length > 0) {
           const { center } = data.features[0]
           const map = new mapboxgl.Map({
@@ -208,7 +227,8 @@ export default function Need({ titlePattern, desPattern }) {
           })
         )
         setFile(null)
-        setNeed({
+        setNeed((pre) => ({
+          ...pre,
           title: '',
           startLine: null,
           deadLine: null,
@@ -217,7 +237,7 @@ export default function Need({ titlePattern, desPattern }) {
           payType: 'piece',
           payUnit: 'usd',
           role: 'onsite',
-        })
+        }))
         setWhere(null)
       }
     } catch (err) {
@@ -249,7 +269,8 @@ export default function Need({ titlePattern, desPattern }) {
             open: true,
           })
         )
-        setNeed({
+        setNeed((pre) => ({
+          ...pre,
           title: '',
           startLine: null,
           deadLine: null,
@@ -258,7 +279,7 @@ export default function Need({ titlePattern, desPattern }) {
           payType: 'piece',
           payUnit: 'usd',
           role: 'onsite',
-        })
+        }))
         setWhere(null)
       }
     } catch (err) {
@@ -558,12 +579,24 @@ export default function Need({ titlePattern, desPattern }) {
                       label="Per Price"
                       labelId="per-price-select-label"
                       name="payType">
-                      <MenuItem value={'piece'}>{textForlan.perPrice.list.perPiece[lang]}</MenuItem>
-                      <MenuItem value={'hour'}>{textForlan.perPrice.list.perHour[lang]}</MenuItem>
-                      <MenuItem value={'month'}>{textForlan.perPrice.list.perMonth[lang]}</MenuItem>
-                      <MenuItem value={'year'}>{textForlan.perPrice.list.perYear[lang]}</MenuItem>
-                      <MenuItem value={'unit'}>{textForlan.perPrice.list.perUnit[lang]}</MenuItem>
-                      <MenuItem value={'free'}>{textForlan.perPrice.list.forFree[lang]}</MenuItem>
+                      <MenuItem value={'piece'}>
+                        {textForlan.perPrice.list.perPiece[lang]}
+                      </MenuItem>
+                      <MenuItem value={'hour'}>
+                        {textForlan.perPrice.list.perHour[lang]}
+                      </MenuItem>
+                      <MenuItem value={'month'}>
+                        {textForlan.perPrice.list.perMonth[lang]}
+                      </MenuItem>
+                      <MenuItem value={'year'}>
+                        {textForlan.perPrice.list.perYear[lang]}
+                      </MenuItem>
+                      <MenuItem value={'unit'}>
+                        {textForlan.perPrice.list.perUnit[lang]}
+                      </MenuItem>
+                      <MenuItem value={'free'}>
+                        {textForlan.perPrice.list.forFree[lang]}
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
@@ -586,7 +619,14 @@ export default function Need({ titlePattern, desPattern }) {
                   }}>
                   <FormControl sx={{ width: '45%' }}>
                     <InputLabel id="per-price-select-label">
-                      {['Pay Unit', 'Lohneinheit', 'Единица оплаты', 'Платна одиниця'][lang]}
+                      {
+                        [
+                          'Pay Unit',
+                          'Lohneinheit',
+                          'Единица оплаты',
+                          'Платна одиниця',
+                        ][lang]
+                      }
                     </InputLabel>
                     <Select
                       value={need.payUnit}
@@ -594,7 +634,14 @@ export default function Need({ titlePattern, desPattern }) {
                       id="payment-select"
                       displayEmpty
                       inputProps={{ 'aria-label': 'Without label' }}
-                      label={['Pay Unit', 'Lohneinheit', 'Единица оплаты', 'Платна одиниця'][lang]}
+                      label={
+                        [
+                          'Pay Unit',
+                          'Lohneinheit',
+                          'Единица оплаты',
+                          'Платна одиниця',
+                        ][lang]
+                      }
                       labelId="pay-unit-select-label"
                       name="payUnit">
                       <MenuItem value={'usd'}>USD</MenuItem>
@@ -608,7 +655,9 @@ export default function Need({ titlePattern, desPattern }) {
                     </Select>
                   </FormControl>
                   <FormControl sx={{ width: '45%' }}>
-                    <InputLabel id="per-price-select-label">{textForlan.role.tag[lang]}</InputLabel>
+                    <InputLabel id="per-price-select-label">
+                      {textForlan.role.tag[lang]}
+                    </InputLabel>
                     <Select
                       value={need.role}
                       onChange={handleChangeNeedForm}
@@ -618,9 +667,15 @@ export default function Need({ titlePattern, desPattern }) {
                       label="Role"
                       labelId="role-select-label"
                       name="role">
-                      <MenuItem value={'onsite'}>{textForlan.role.list.Onsite[lang]}</MenuItem>
-                      <MenuItem value={'hybrid'}>{textForlan.role.list.Hybrid[lang]}</MenuItem>
-                      <MenuItem value={'remote'}>{textForlan.role.list.Remote[lang]}</MenuItem>
+                      <MenuItem value={'onsite'}>
+                        {textForlan.role.list.Onsite[lang]}
+                      </MenuItem>
+                      <MenuItem value={'hybrid'}>
+                        {textForlan.role.list.Hybrid[lang]}
+                      </MenuItem>
+                      <MenuItem value={'remote'}>
+                        {textForlan.role.list.Remote[lang]}
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
