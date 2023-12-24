@@ -544,7 +544,9 @@ export default function Home() {
             marginLeft={'13px'}
             border={`2px solid ${currentColor}`}
             borderRadius={'5px'}
-            overflow={'hidden'}
+            // overflow={'hidden'}
+            sx={{
+            }}
           >
             <Box
             position={'absolute'}
@@ -554,6 +556,16 @@ export default function Home() {
               height: '70%',
               bgcolor: 'white',
               borderTop: '1px solid lime',
+              
+              '&::before': {
+                content: '"70%"',
+                position: 'absolute',
+                // width: 'fit-content',
+                // height: '50px',
+                top: '-5px',
+                right: '-250%',
+                fontSize: '1rem'
+              },
               '&::after': {
                 content: '""',
                 position: 'absolute',
