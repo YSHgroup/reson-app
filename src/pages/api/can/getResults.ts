@@ -4,18 +4,17 @@ import { connectToDatabase } from '@lib/db'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
 import { MongoClient } from 'mongodb'
+import { getDistance } from 'geolib'
+import { haversineFun } from 'functions/calcDIstance'
 
-const saveResutls = async (
-  email: string,
-  results: any
-) => {
+const saveResutls = async (email: string, results: any) => {
   let date = new Date()
   let year = date.getFullYear()
-  let month = date.getMonth()+1
+  let month = date.getMonth() + 1
   let day = date.getDate()
-  const data = {results, searchedDate: `${year} / ${month} / ${day}`}
+  const data = { results, searchedDate: `${year} / ${month} / ${day}` }
   const client = await connectToDatabase()
-  console.log('request saving function: ', email)
+  // console.log('request saving function: ', email)
   const searchHistoryCollection = client.db().collection('search_history')
   try {
     const response = await searchHistoryCollection.updateOne(
@@ -23,10 +22,25 @@ const saveResutls = async (
       { $push: { data } },
       { upsert: true }
     )
-    console.log('save the search history: ', response)
+    // console.log('save the search history: ', response)
   } catch (error) {
     console.log('save the search history error: ', error)
   }
+}
+
+const filterByRadius = (origin: any, dataArray: any[], radius: number) => {
+  
+  // let dataMap = dataArray.map(data => data.location != undefined? haversineFun(origin, data.location): null)
+  // console.log('data map: ', dataMap)
+  let filterdData = dataArray.filter((data) =>
+    data.location != undefined
+      ? getDistance(origin, data.location) <= radius * 1000
+      : false
+  )
+  // let filterdData = dataArray.filter(
+  //   (data) => haversineFun(origin, data.location) <= radius * 1000
+  // )
+  return filterdData
 }
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -46,6 +60,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     })
   }
   const data = JSON.parse(req.body)
+  const { origin, radius } = data
+  console.log('search contents: ', origin, radius)
   const client = await connectToDatabase()
   const needsCollection = client.db().collection('needs')
   const titleKeywords = data.title.split(' ')
@@ -75,13 +91,22 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       .sort({ createdAt: -1 })
       .toArray()
 
+    // console.log('projects--->', results)
+    console.log('calculations--->', filterByRadius(origin, results, radius))
+    if (!radius) {
+      return res.status(200).json({
+        message: 'Success',
+        results: results,
+      })
+    }
     //Save the results searched by user
     saveResutls(session.user.email, results)
-
+    let filterdData = filterByRadius(origin, results, radius)
+    console.log('filterd--->', filterdData)
     client.close()
     return res.status(200).json({
       message: 'Success',
-      results: results,
+      results: filterdData,
     })
   } catch (error) {
     client.close()

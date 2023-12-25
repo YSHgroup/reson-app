@@ -49,8 +49,10 @@ interface NeedFormType {
   description: string | null
   payUnit: string
   role: string
-  longitude: string | null
-  latitude: string | null
+  location: {
+    longitude: number | string
+    latitude: number | string
+  }
 }
 interface MainTextMatchedSubstrings {
   offset: number
@@ -127,8 +129,10 @@ export default function Need({ titlePattern, desPattern }) {
     payType: 'piece',
     payUnit: 'usd',
     role: 'onsite',
-    longitude: null,
-    latitude: null,
+    location: {
+      longitude: null,
+      latitude: null,
+    },
   })
   const [where, setWhere] = useState<PlaceType | null>(null)
   const [predictionWords, setPredictionWords] = useState<any[]>([])
@@ -148,18 +152,18 @@ export default function Need({ titlePattern, desPattern }) {
   const getCountry = async () => {
     const response = await fetch(`https://ipapi.co/json`)
     const countryCode = await response.json()
-    setNeed((pre) => ({
-      ...pre,
-      longitude: countryCode.longitude,
-      latitude: countryCode.latitude,
-    }))
+    // setNeed((pre) => ({
+    //   ...pre,
+    //   location: {
+    //     longitude: countryCode.longitude,
+    //     latitude: countryCode.latitude,
+    //   },
+    // }))
     showMapBox(`${countryCode.city}, ${countryCode.country_name}`)
     setIp(`${countryCode.city}, ${countryCode.country_name}`)
   }
   const showMapBox = async (country?: string) => {
     const select = where ? where.description : ip
-    // can get current location
-    console.log(select, ' >>my location')
     fetch(
       `https://api.mapbox.com/geocoding/v5/mapbox.places/${
         country || select
@@ -167,11 +171,13 @@ export default function Need({ titlePattern, desPattern }) {
     )
       .then((response) => response.json())
       .then((data) => {
-
-        //Here we can get the longitude and latitude of the selected location
-        // console.log('fetched location: ', data )
         if (data.features.length > 0) {
           const { center } = data.features[0]
+          //Here we can get the longitude and latitude of the selected location
+          setNeed((pre) => ({
+            ...pre,
+            location: { longitude: center[0], latitude: center[1] },
+          }))
           const map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/streets-v11',
@@ -183,6 +189,7 @@ export default function Need({ titlePattern, desPattern }) {
         }
       })
   }
+  console.log('coordinates: ', need.location)
   useEffect(() => {
     const elements = document.getElementsByClassName(
       'mapboxgl-control-container'

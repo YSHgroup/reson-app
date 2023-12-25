@@ -44,6 +44,8 @@ interface CanFormType {
   title: string | null
   payUnit: string
   role: string
+  radius: number
+  origin: { latitude: number; longitude: number }
 }
 interface MainTextMatchedSubstrings {
   offset: number
@@ -62,8 +64,8 @@ interface PlaceType {
 const minDistance = 5000
 const textForlan = {
   payUnit: {
-      tag: ['Pay Unit', 'Lohneinheit', 'Единица оплаты', 'Платна одиниця'],
-      allUnit: ['All Unit', 'Alle Einheiten', 'Все единицы', 'Усі одиниці']
+    tag: ['Pay Unit', 'Lohneinheit', 'Единица оплаты', 'Платна одиниця'],
+    allUnit: ['All Unit', 'Alle Einheiten', 'Все единицы', 'Усі одиниці'],
   },
   role: {
     tag: ['Role', 'Rolle', 'Роль', 'Роль'],
@@ -75,7 +77,7 @@ const textForlan = {
     },
   },
   where: ['Where?', 'Wo?', 'Где?', 'Де?'],
-  search: ['Search', 'Suchen', 'Поиск', 'Пошук']
+  search: ['Search', 'Suchen', 'Поиск', 'Пошук'],
 }
 
 export default function Can({ textPattern }) {
@@ -90,6 +92,8 @@ export default function Can({ textPattern }) {
     title: '',
     payUnit: 'all',
     role: 'all',
+    radius: null,
+    origin: { latitude: 0, longitude: 0 },
   })
   const [where, setWhere] = useState<PlaceType | null>(null)
   const [predictionWords, setPredictionWords] = useState<any[]>([])
@@ -141,9 +145,19 @@ export default function Can({ textPattern }) {
   useEffect(() => {
     getCountry()
   }, [])
+  // console.log('radius--> ', can.radius, can.origin)
   const getCountry = async () => {
     const response = await fetch(`https://ipapi.co/json`)
     const countryCode = await response.json()
+    // longitude and latitude
+    // console.log('country code--> ', countryCode)
+    // setCan((pre) => ({
+    //   ...pre,
+    //   origin: {
+    //     latitude: countryCode.latitude,
+    //     longitude: countryCode.longitude,
+    //   },
+    // }))
     setIp(`${countryCode.city}, ${countryCode.country_name}`)
     showMapBox(`${countryCode.city}, ${countryCode.country_name}`)
   }
@@ -158,6 +172,12 @@ export default function Can({ textPattern }) {
       .then((data) => {
         if (data.features.length > 0) {
           const { center } = data.features[0]
+          setCan((pre) => ({
+            ...pre,
+            origin: {
+              longitude: center[0], latitude: center[1]
+            },
+          }))
           const map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/streets-v11',
@@ -195,6 +215,8 @@ export default function Can({ textPattern }) {
           title: can.title.trim(),
           min: sliderValue[0],
           max: sliderValue[1],
+          radius: can.radius,
+          origin: can.origin,
           where: where ? where.structured_formatting.main_text : null,
         }),
       })
@@ -381,7 +403,7 @@ export default function Can({ textPattern }) {
                   }}>
                   <FormControl sx={{ width: '45%' }}>
                     <InputLabel id="per-price-select-label">
-                    {textForlan.payUnit.tag[lang]}
+                      {textForlan.payUnit.tag[lang]}
                     </InputLabel>
                     <Select
                       value={can.payUnit}
@@ -392,7 +414,9 @@ export default function Can({ textPattern }) {
                       label={textForlan.payUnit.tag[lang]}
                       labelId="pay-unit-select-label"
                       name="payUnit">
-                      <MenuItem value={'all'}>{textForlan.payUnit.allUnit[lang]}</MenuItem>
+                      <MenuItem value={'all'}>
+                        {textForlan.payUnit.allUnit[lang]}
+                      </MenuItem>
                       <MenuItem value={'usd'}>USD</MenuItem>
                       <MenuItem value={'uah'}>UAH</MenuItem>
                       <MenuItem value={'eur'}>EUR</MenuItem>
@@ -404,7 +428,9 @@ export default function Can({ textPattern }) {
                     </Select>
                   </FormControl>
                   <FormControl sx={{ width: '45%' }}>
-                    <InputLabel id="role-select-label">{textForlan.role.tag[lang]}</InputLabel>
+                    <InputLabel id="role-select-label">
+                      {textForlan.role.tag[lang]}
+                    </InputLabel>
                     <Select
                       value={can.role}
                       onChange={handleChangeCan}
@@ -414,19 +440,55 @@ export default function Can({ textPattern }) {
                       label="Role"
                       labelId="role-select-label"
                       name="role">
-                      <MenuItem value={'all'}>{textForlan.role.list.AllRole[lang]}</MenuItem>
-                      <MenuItem value={'onsite'}>{textForlan.role.list.Onsite[lang]}</MenuItem>
-                      <MenuItem value={'hybrid'}>{textForlan.role.list.Hybrid[lang]}</MenuItem>
-                      <MenuItem value={'remote'}>{textForlan.role.list.Remote[lang]}</MenuItem>
+                      <MenuItem value={'all'}>
+                        {textForlan.role.list.AllRole[lang]}
+                      </MenuItem>
+                      <MenuItem value={'onsite'}>
+                        {textForlan.role.list.Onsite[lang]}
+                      </MenuItem>
+                      <MenuItem value={'hybrid'}>
+                        {textForlan.role.list.Hybrid[lang]}
+                      </MenuItem>
+                      <MenuItem value={'remote'}>
+                        {textForlan.role.list.Remote[lang]}
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
               </div>
-              <GoogleMaps
-              label={textForlan.where[lang]}
-                where={where}
-                setWhere={(value: PlaceType) => setWhere(value)}
-              />
+              <Box
+                width={'100%'}
+                display={'flex'}
+                justifyContent={'space-between'}>
+                <Box width={'45%'}>
+                  <GoogleMaps
+                    label={textForlan.where[lang]}
+                    where={where}
+                    setWhere={(value: PlaceType) => setWhere(value)}
+                  />
+                </Box>
+                <FormControl sx={{ width: '45%', marginTop: '20px' }}>
+                  <InputLabel id="raduis-select-label">
+                    {['Distance', 'Distanz', 'Расстояние', 'Відстань'][lang]}
+                  </InputLabel>
+                  <Select
+                    value={can.radius}
+                    onChange={handleChangeCan}
+                    id="outlined"
+                    displayEmpty
+                    inputProps={{ 'aria-label': 'Without label' }}
+                    label="Distance"
+                    labelId="raduis-select-label"
+                    name="radius">
+                    {[0, 5, 10, 20, 50, 100, 500].map((value: number) => (
+                      <MenuItem key={value} value={value}>
+                        {value === 0 ? 'All' : value + ' Km'}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+
               <div className="maps">
                 <div id="map" style={{ height: '300px', overflow: 'hidden' }} />
               </div>
