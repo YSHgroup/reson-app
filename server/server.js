@@ -159,7 +159,7 @@ chatCall.on('connection', (socket) => {
     })
   })
   socket.on('callUser', (data) => {
-    console.log('callUser', data)
+    // console.log('callUser', data)
     socket.broadcast.emit('callingMe', {
       from: data.from,
       to: data.to,
@@ -181,7 +181,7 @@ chatCall.on('connection', (socket) => {
   })
 
   socket.on('cancelCall', (data) => {
-    console.log(data, "cancelcall")
+    // console.log(data, "cancelcall")
     socket.broadcast.emit('cancelCall', {
       from: data.from,
       to: data.to,

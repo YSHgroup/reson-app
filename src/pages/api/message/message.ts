@@ -16,10 +16,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const messageCollection = client.db().collection('messagestagger')
 
-  console.log('message: ', req.body)
+  // console.log('message: ', req.body)
   let message = req.body.message
   let messageAnalysis = textAnalysisPattern(message, session?.user?.email)
-  console.table(messageAnalysis)
+  // console.table(messageAnalysis)
 
   await messageCollection.updateOne(
     { email: session.user.email },

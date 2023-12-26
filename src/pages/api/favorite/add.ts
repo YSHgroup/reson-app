@@ -28,7 +28,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         { $push: { favor_id: id } },
         {upsert:true} // This makes it unnececcessary to calls to it block in this function
       )
-      console.log('save-favorites find:', addNewFavorite)
+      // console.log('save-favorites find:', addNewFavorite)
       const success = {message: ''}
       success.message = 'Added to favorites'
       res.status(RS.SUCCESS_OK).json(success)
@@ -37,7 +37,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         user_email: session.user.email,
         favor_id: [id],
       })
-      console.log('save-favorites insert:', addNewFavorite)
+      // console.log('save-favorites insert:', addNewFavorite)
       const success = {message: ''}
       success.message = 'Added to favorites'
       res.status(RS.SUCCESS_OK).json(success)

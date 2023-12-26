@@ -81,7 +81,7 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
 
         pc.onicecandidate = (e) => {
           if (!(socketRef.current && e.candidate)) return
-          console.log('onicecandidate')
+          // console.log('onicecandidate')
           socketRef.current.emit('candidate', {
             candidate: e.candidate,
             candidateSendID: socketRef.current.id,
@@ -107,7 +107,7 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
         }
 
         if (localStreamRef.current) {
-          console.log('localstream add')
+          // console.log('localstream add')
           localStreamRef.current.getTracks().forEach((track) => {
             if (!localStreamRef.current) return
             pc.addTrack(track, localStreamRef.current)
@@ -161,7 +161,7 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
     socketRef.current.on(
       'all_users',
       (allUsers: Array<{ id: string; email: string; nickname: string }>) => {
-        console.log(allUsers, 'allUsers')
+        // console.log(allUsers, 'allUsers')
         allUsers.forEach(async (user) => {
           if (!localStreamRef.current) return
           const pc = createPeerConnection(user.id, user.email, user.nickname)
@@ -172,7 +172,7 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
               offerToReceiveAudio: true,
               offerToReceiveVideo: true,
             })
-            console.log('create offer success')
+            // console.log('create offer success')
             await pc.setLocalDescription(new RTCSessionDescription(localSdp))
             socketRef.current.emit('offer', {
               sdp: localSdp,
@@ -197,7 +197,7 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
         offerSendNickName: string
       }) => {
         const { sdp, offerSendID, offerSendEmail, offerSendNickName } = data
-        console.log('get offer')
+        // console.log('get offer')
         if (!localStreamRef.current) return
         const pc = createPeerConnection(
           offerSendID,
@@ -228,7 +228,7 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
       'getAnswer',
       (data: { sdp: RTCSessionDescription; answerSendID: string }) => {
         const { sdp, answerSendID } = data
-        console.log('get answer')
+        // console.log('get answer')
         const pc: RTCPeerConnection = pcsRef.current[answerSendID]
         if (!pc) return
         pc.setRemoteDescription(new RTCSessionDescription(sdp))
@@ -241,11 +241,11 @@ const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
         candidate: RTCIceCandidateInit
         candidateSendID: string
       }) => {
-        console.log('get candidate')
+        // console.log('get candidate')
         const pc: RTCPeerConnection = pcsRef.current[data.candidateSendID]
         if (!pc) return
         await pc.addIceCandidate(new RTCIceCandidate(data.candidate))
-        console.log('candidate add success')
+        // console.log('candidate add success')
       }
     )
 

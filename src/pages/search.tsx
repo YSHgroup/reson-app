@@ -92,7 +92,7 @@ export default function Can({ textPattern }) {
     title: '',
     payUnit: 'all',
     role: 'all',
-    radius: null,
+    radius: 0,
     origin: { latitude: 0, longitude: 0 },
   })
   const [where, setWhere] = useState<PlaceType | null>(null)

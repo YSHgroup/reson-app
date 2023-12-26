@@ -17,7 +17,7 @@ export default async function handler(
   const client = await connectToDatabase()
   const needCollection = client.db().collection('needs')
   const fields = JSON.parse(req.body)
-  console.log('create data --> ', fields.location)
+  // console.log('create data --> ', fields.location)
   try {
     const result = await needCollection.insertOne({
       author: session?.user?.email,

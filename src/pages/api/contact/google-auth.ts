@@ -19,7 +19,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             scope: SCOPES,
             prompt: 'consent'
         });
-        console.log(authUrl, 'authUrl')
+        // console.log(authUrl, 'authUrl')
         res.redirect(authUrl);
     } catch(e) {
         console.log(e, 'eee')

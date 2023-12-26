@@ -61,7 +61,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
   const data = JSON.parse(req.body)
   const { origin, radius } = data
-  console.log('search contents: ', origin, radius)
+  // console.log('search contents: ', origin, radius)
   const client = await connectToDatabase()
   const needsCollection = client.db().collection('needs')
   const titleKeywords = data.title.split(' ')
@@ -92,7 +92,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       .toArray()
 
     // console.log('projects--->', results)
-    console.log('calculations--->', filterByRadius(origin, results, radius))
+    // console.log('calculations--->', filterByRadius(origin, results, radius))
     if (!radius) {
       return res.status(200).json({
         message: 'Success',
@@ -102,7 +102,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     //Save the results searched by user
     saveResutls(session.user.email, results)
     let filterdData = filterByRadius(origin, results, radius)
-    console.log('filterd--->', filterdData)
+    // console.log('filterd--->', filterdData)
     client.close()
     return res.status(200).json({
       message: 'Success',

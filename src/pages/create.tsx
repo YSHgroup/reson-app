@@ -189,7 +189,7 @@ export default function Need({ titlePattern, desPattern }) {
         }
       })
   }
-  console.log('coordinates: ', need.location)
+  
   useEffect(() => {
     const elements = document.getElementsByClassName(
       'mapboxgl-control-container'

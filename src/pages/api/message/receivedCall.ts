@@ -23,7 +23,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const messagesCollection = client.db().collection('messages');
 
   let data = req.body;
-  console.log(data.callId)
+  // console.log(data.callId)
   try {
     const newCallInfo = await messagesCollection.updateOne({
       _id: new ObjectId(data.callId)
