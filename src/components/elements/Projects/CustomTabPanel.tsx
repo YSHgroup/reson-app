@@ -95,7 +95,7 @@ export default function CustomTabPanel(props: TabPanelProps) {
   // Use useMemo to store the previous data.
   const historyData = useMemo(() => {
     let data: any
-    ;(async () => {
+    (async () => {
       data = await getHistory()
       setLists(data)
     })()
@@ -105,7 +105,7 @@ export default function CustomTabPanel(props: TabPanelProps) {
   useEffect(() => {
     // Only call loadData if the data hasn't been loaded yet.
     if (!historyData) {
-      ;(async () => {
+      (async () => {
         const data = await getHistory()
         setLists(data)
       })()
@@ -132,8 +132,9 @@ export default function CustomTabPanel(props: TabPanelProps) {
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}>
-      {value === 0 && <ProjectsItems lists={projectLists} />}
-      {value === 1 && <ApplyItems lists={applyLists} />}
+      {value === 0 && <ProjectsItems lists={[]} />}
+      {value === 1 && <ProjectsItems lists={projectLists} />}
+      {/* {value === 1 && <ApplyItems lists={applyLists} />} */}
       {value === 2 && <Search lists={lists} onItemChange={getFavorites} />}
       {value === 3 && (
         <Favorites lists={favorIds} onItemChange={getFavorites} />

@@ -295,7 +295,7 @@ export default function Need() {
                 }}
               />
               <div className="example">
-                <Typography>{languagejson[lang].Showexample}:</Typography>
+                <Typography component={'span'}>{languagejson[lang].Showexample}:</Typography>
                 <Typography>{file !== null && file.name}</Typography>
                 <Button
                   component="label"

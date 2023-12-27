@@ -145,13 +145,14 @@ p {
   #file-image {
     display: block;
     // margin: 0 auto .5rem auto;
-    width: 200px;
+    width: auto;
+    max-width: 70vw;
     height: 200px;
     &.hidden {
       display: none;
     }
     @media screen and (max-width: map-get($breakpoints, phone)){
-      width: 180px;
+      // width: auto;
       height: 180px;
     } 
   }

@@ -59,7 +59,6 @@ export default function GutterlessList(props: any) {
   const [favorIds, setFavorId] = useAtom(favorIdAtom)
   const [favoridList, setFavorIdList] = React.useState([])
   const [isProcessing, setIsProcessing] = React.useState([])
-
   const startChatting = (item: ListObject) => {
     router.push(`/chat?email=${item.author}`)
   }
@@ -148,6 +147,14 @@ export default function GutterlessList(props: any) {
     })
     setSelectList(list)
     setOpen(true)
+    if (!!props.searched) {
+      // console.log('Selected: ', list)
+      fetch('/api/search-history/put', {
+        method: 'PUT',
+        body: JSON.stringify({list}),
+        headers: {'Content-Type': 'application/json'},
+      })
+    }
   }
 
   const handleClose = () => {
@@ -171,7 +178,7 @@ export default function GutterlessList(props: any) {
   }
   const favorOperation = async (item: any) => {
     if (!isProcessing.includes(item._id)) {
-      setIsProcessing(pre => [...pre, item._id])
+      setIsProcessing((pre) => [...pre, item._id])
       let isFavor =
         !!favorIds &&
         !!!favorIds
@@ -210,10 +217,10 @@ export default function GutterlessList(props: any) {
         console.log('favorite item operation error: ', result)
       }
 
-      setIsProcessing(pre => pre.filter(el => el !== item._id))
+      setIsProcessing((pre) => pre.filter((el) => el !== item._id))
     }
   }
-  
+
   const getStarColor = (id: string) => {
     //Evaluate if the entered id is the favorite id, return a color
     if (favoridList !== undefined) {

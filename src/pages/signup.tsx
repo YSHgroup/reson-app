@@ -347,6 +347,17 @@ export default function SignUp() {
                   label={languagejson[lang].birthDate}
                   inputFormat="DD/MM/YYYY"
                   value={birthday}
+                  componentsProps={{
+                    actionBar: {
+                      sx: {
+                        backgroundColor: 'background.paper',
+                        button: {
+                          color: 'text.primary',
+                          '&:hover': { bgcolor: 'primary.light' },
+                        },
+                      },
+                    },
+                  }}
                   onChange={handleChange}
                   renderInput={(params) => (
                     <TextField required fullWidth {...params} />

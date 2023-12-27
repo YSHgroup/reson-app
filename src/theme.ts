@@ -34,7 +34,8 @@ export const darkTheme  = createTheme({
             200: '#5284e8aa',
         },
         secondary: {
-            main: '#5670A2'
+            main: '#5670A2',
+            light: '#c6d4f1'
         },
         background: {
             default: '#5670A2',
@@ -55,6 +56,7 @@ export const lightTheme = createTheme({
         mode: 'light',
         primary: {
             main: '#88e2ec',
+            light: '#c1ebef',
             100: '#88e2ec77',
             200: '#88e2ecaa',
         },

@@ -23,12 +23,15 @@ import NotificationCalendar from '../components/elements/NotificationCalendar'
 import io from 'socket.io-client'
 import { GenNumForDate } from 'utils/GenNumForDate'
 import { dateColor } from '@constants/Status'
+import { connectToDatabase } from '@lib/db'
+import { usePersonalAnalysis } from 'hooks/usePersonalAnalysis'
 
 const { data: MenuDatas } = MenuData
 let socket: any
 
-export default function Home() {
+export default function Home({ userInfo }) {
   const { data: session } = useSession()
+  const [analysisResult, setAnalysis] = usePersonalAnalysis(userInfo)
   const [lang, setLanguage] = useAtom(language)
   const energy = 54
   const opportunity = 21
@@ -40,6 +43,7 @@ export default function Home() {
 
   useEffect(() => {
     setDateColor(dateColor[Number(numForDate.getNum().substring(0, 2))])
+    setAnalysis()
   }, [])
   const [isNotificationCalendar, setIsNotificationCalendar] =
     React.useState<boolean>(false)
@@ -222,7 +226,7 @@ export default function Home() {
                     height={20}
                   />
                 </ListItemIcon>
-                Profile
+                {['Profile', 'Profil', 'профиль', 'профіль'][lang]}
               </Box>
             </MenuItem>
             <MenuItem dense onClick={() => handleSignOut()}>
@@ -347,7 +351,7 @@ export default function Home() {
                 textAlign: 'center',
                 borderRadius: '6px 0 0 6px',
                 position: 'absolute',
-                bottom: `calc(${energy}% - 14px)`,
+                bottom: `calc(${analysisResult[0][0] / 6 * 100}% - 14px)`,
                 right: 38,
                 '&::after': {
                   content: '" "',
@@ -360,7 +364,7 @@ export default function Home() {
                   borderColor: `transparent transparent transparent ${green[200]}`,
                 },
               }}>
-              {energy}%
+              {Math.round(analysisResult[0][0] / 6 * 100)}%
             </Typography>
           </Box>
         </Box>
@@ -637,9 +641,29 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
       },
     }
   }
-  return {
-    props: {
-      session,
-    },
+  try {
+    const email = session.user.email
+    const client = await connectToDatabase()
+    const userCollection = client.db().collection('users')
+    const userInfo = await userCollection.findOne(
+      { email: email },
+      { projection: { _id: 0, day_birth: 1, month_birth: 1, year_birth: 1 } }
+    )
+
+    if (!userInfo) throw new Error('--User info not found--')
+    return {
+      props: {
+        session,
+        userInfo,
+      },
+    }
+  } catch (err) {
+    console.error('Failed to fetch user info: ', err)
+    return {
+      props: {
+        session,
+        userInfo: [],
+      },
+    }
   }
 }

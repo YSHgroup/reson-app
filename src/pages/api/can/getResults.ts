@@ -7,26 +7,26 @@ import { MongoClient } from 'mongodb'
 import { getDistance } from 'geolib'
 import { haversineFun } from 'functions/calcDIstance'
 
-const saveResutls = async (email: string, results: any) => {
-  let date = new Date()
-  let year = date.getFullYear()
-  let month = date.getMonth() + 1
-  let day = date.getDate()
-  const data = { results, searchedDate: `${year} / ${month} / ${day}` }
-  const client = await connectToDatabase()
-  // console.log('request saving function: ', email)
-  const searchHistoryCollection = client.db().collection('search_history')
-  try {
-    const response = await searchHistoryCollection.updateOne(
-      { email: email },
-      { $push: { data } },
-      { upsert: true }
-    )
-    // console.log('save the search history: ', response)
-  } catch (error) {
-    console.log('save the search history error: ', error)
-  }
-}
+// const saveResutls = async (email: string, results: any) => {
+//   let date = new Date()
+//   let year = date.getFullYear()
+//   let month = date.getMonth() + 1
+//   let day = date.getDate()
+//   const data = { results, searchedDate: `${year} / ${month} / ${day}` }
+//   const client = await connectToDatabase()
+//   // console.log('request saving function: ', email)
+//   const searchHistoryCollection = client.db().collection('search_history')
+//   try {
+//     const response = await searchHistoryCollection.updateOne(
+//       { email: email },
+//       { $push: { data } },
+//       { upsert: true }
+//     )
+//     // console.log('save the search history: ', response)
+//   } catch (error) {
+//     console.log('save the search history error: ', error)
+//   }
+// }
 
 const filterByRadius = (origin: any, dataArray: any[], radius: number) => {
   
@@ -100,7 +100,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       })
     }
     //Save the results searched by user
-    saveResutls(session.user.email, results)
+    // saveResutls(session.user.email, results)
     let filterdData = filterByRadius(origin, results, radius)
     // console.log('filterd--->', filterdData)
     client.close()

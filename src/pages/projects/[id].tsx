@@ -22,6 +22,9 @@ import {
   PersonalVideo,
   Visibility,
 } from '@mui/icons-material'
+import { Edit, DeleteForever } from '@mui/icons-material'
+import SnackbarContext, {Snack} from 'context/SnackbarContext'
+
 interface ListObject {
   _id: string | null
   author: string | null
@@ -53,6 +56,7 @@ const ProjectPage = () => {
   dayjs.extend(advancedFormat)
   const router = useRouter()
   const projectId = router.query.id
+  const { setSnack } = React.useContext(SnackbarContext)
   const [lang, setLanguage] = useAtom(language)
   const [open, setOpen] = React.useState(false)
   const [openDetail, setOpenDetail] = React.useState(false)
@@ -126,6 +130,25 @@ const ProjectPage = () => {
     }
   }
 
+  const handleDelete = async (list: ListObject) => {
+    const response = await fetch('/api/need/delete', {
+      method: 'DELETE',
+      body: JSON.stringify({
+        _id: list._id
+      })
+    })
+    // const data = await response.json()
+    // console.log('delete result: ', response)
+    if (response.status === 200) {
+      setSnack(new Snack({
+        message: 'Delete successfully',
+        color: 'success',
+        open: true
+      }))
+      router.back()
+    }
+  }
+
   const handleShowDetailProject = () => {
     setOpenDetail(true)
   }
@@ -177,21 +200,30 @@ const ProjectPage = () => {
         sx={{
           bgcolor: (theme) => theme.palette.primary['200'],
         }}>
-        <Box component={'div'} height={'100px'} minWidth={'60%'}>
+        <Box component={'div'} height={'fit-content'} minWidth={'60%'}>
           <Typography
             component={'span'}
             whiteSpace={'nowrap'}
             textOverflow={'ellipsis'}
             overflow={'hidden'}>
-            {projectLists.price} {projectLists.payUnit? projectLists.payUnit.toLocaleUpperCase(): ''} per{' '}
-            {projectLists.payType? projectLists.payType.toLocaleUpperCase(): ''}
+            <span style={{ fontSize: '120%' }}>Budget: </span>
+            {projectLists.price}{' '}
+            {projectLists.payUnit
+              ? projectLists.payUnit.toLocaleUpperCase()
+              : ''}{' '}
+            per{' '}
+            {projectLists.payType
+              ? projectLists.payType.toLocaleUpperCase()
+              : ''}
           </Typography>
           <Typography
             component={'span'}
-            whiteSpace={'nowrap'}
-            textOverflow={'ellipsis'}
-            overflow={'hidden'}>
-              <br />
+            // whiteSpace={'nowrap'}
+            // textOverflow={'ellipsis'}
+            // overflow={'hidden'}
+          >
+            <br />
+            <span style={{ fontSize: '120%' }}>Duration: </span>
             {projectLists.startLine
               ? dayjs(projectLists.startLine).format('DD/MM/YYYY')
               : 'Undefined'}{' '}
@@ -201,16 +233,60 @@ const ProjectPage = () => {
               : 'Undefined'}
           </Typography>
           <Typography
-            component={'span'}
-            display={'block'}
-            whiteSpace={'nowrap'}
+            component={'p'}
+            sx={{ color: 'text.primary' }}
+            // whiteSpace={'nowrap'}
             width={'100%'}
-            textOverflow={'ellipsis'}
+            // textOverflow={'ellipsis'}
             overflow={'hidden'}>
-            {projectLists.description}
+            <span style={{ fontSize: '120%' }}>Description:</span>
+            <Typography
+              component={'span'}
+              display={'block'}
+              sx={{ textIndent: '10px' }}>
+              {projectLists.description}
+            </Typography>
           </Typography>
+          {projectLists.file && (
+            <a
+              href={`api/view?name=needFiles/${projectLists.file}`}
+              download
+              style={{
+                textDecorationLine: 'underline',
+                textAlign: 'center',
+              }}>
+              Download files
+            </a>
+          )}
+
+          <Stack spacing={2} p={1} direction={'row'}>
+            <Button
+              onClick={(e) => {
+                e.preventDefault()
+                updateProject()
+              }}
+              variant="contained"
+              sx={{
+                color: 'secondary.light',
+              }}>
+              <Edit sx={{ color: 'inherit' }} />
+            </Button>
+            <Button
+              onClick={(e) => {
+                e.preventDefault()
+                handleDelete(projectLists)
+                // handleChangeExist(projectLists)
+              }}
+              variant="contained"
+              color="error"
+              // color={projectLists.exist ? 'error' : 'success'}
+            >
+              <DeleteForever />
+              {/* {projectLists.exist ? 'Disable' : 'Enable'} */}
+            </Button>
+          </Stack>
         </Box>
-        <Button
+        {/* <Button
           onClick={(e) => {
             handleShowDetailProject()
           }}
@@ -221,7 +297,7 @@ const ProjectPage = () => {
           }}>
           <Visibility />
           &nbsp; Detail
-        </Button>
+        </Button> */}
       </Box>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         {results.map((list: Result) => (
@@ -358,7 +434,8 @@ const ProjectPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog
+
+      {/* <Dialog
         open={openDetail}
         onClose={handleDetailClose}
         style={{
@@ -422,7 +499,7 @@ const ProjectPage = () => {
             Close
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
     </FullLayout>
   )
 }

@@ -500,7 +500,7 @@ export default function Can({ textPattern }) {
               </div>
             </div>
             <div className="showlists">
-              <ShowLists lists={lists} requestServer={getFavorites} />
+              <ShowLists lists={lists} requestServer={getFavorites} searched />
             </div>
           </div>
         </div>

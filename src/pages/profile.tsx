@@ -3,6 +3,7 @@ import FullLayout from '@layouts/FullLayout/FullLayout'
 import MenuIcon from '@mui/icons-material/Menu'
 import Image from 'next/image'
 import Box from '@mui/material/Box'
+import dayjs, { Dayjs } from 'dayjs'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
@@ -13,12 +14,12 @@ import InputAdornment from '@mui/material/InputAdornment'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
 import Link from 'next/link'
-import { Collapse } from '@mui/material'
+import { Collapse, Grid } from '@mui/material'
 import React from 'react'
 import { ArrowDropDown, ArrowLeft } from '@mui/icons-material'
 import IconButton from '@mui/material/IconButton'
-import { dateColorJot, genderJot, language } from "../jotai"
-import languagejson from "../language.json"
+import { dateColorJot, genderJot, language } from '../jotai'
+import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { type AlertColor } from '@mui/material/Alert'
@@ -29,9 +30,12 @@ import { GenNumForDate } from 'utils/GenNumForDate'
 import { dateColor } from '@constants/Status'
 
 import ImageUploader from '../components/elements/ImageUploader'
+import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { connectToDatabase } from '@lib/db'
 
-const { data: MenuDatas } = MenuData;
-export default function Profile() {
+const { data: MenuDatas } = MenuData
+export default function Profile({ userInfo }) {
   const energy = 54
   const opportunity = 21
   const [lang, setLanguage] = useAtom(language)
@@ -50,14 +54,29 @@ export default function Profile() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [status, setStatus] = React.useState(0)
   const [nickname, setNickName] = React.useState('')
+  const [birthday, setBirthday] = React.useState<Dayjs | null>(
+    dayjs(
+      dayjs(
+        !!userInfo
+          ? `${userInfo.year_birth}-${userInfo.month_birth}-${userInfo.day_birth}T21:11:54`
+          : '2004-01-01T21:11:54'
+      )
+    )
+  )
   const [gender, setGender] = useAtom(genderJot)
   const [currentColor, setDateColor] = useAtom(dateColorJot)
   const numForDate = new GenNumForDate()
-  useEffect(()=>{
+  useEffect(() => {
     setDateColor(dateColor[Number(numForDate.getNum().substring(0, 2))])
-
-  },[])
-  
+    // setBirthday(
+    //   dayjs(
+    //     !!userInfo
+    //       ? `${userInfo.year_birth}-${userInfo.month_birth}-${userInfo.day_birth}T21:11:54`
+    //       : '2004-01-01T21:11:54'
+    //   )
+    // )
+  }, [])
+  // console.log('user information: ', birthday)
   const topen = Boolean(anchorEl)
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -67,15 +86,17 @@ export default function Profile() {
   }
 
   useEffect(() => {
-    getpic();
+    getpic()
   }, [])
 
   const handleChange = () => {
     setOpen(!open)
   }
-
+  // console.log('analytics date: ', birthday)
   const saveProfile = () => {
-
+    let day_birth = birthday.date()
+    let month_birth = birthday.month() + 1
+    let year_birth = birthday.year()
     let userData = {
       email,
       firstName,
@@ -86,7 +107,10 @@ export default function Profile() {
       profession,
       education,
       hobby,
-      carExist
+      carExist,
+      day_birth,
+      month_birth,
+      year_birth,
     }
 
     updateUser(userData)
@@ -101,40 +125,39 @@ export default function Profile() {
     })
   }
 
-
   const handleSignOut = async () => {
     try {
-      await signOut({ callbackUrl: process.env.NEXT_PUBLIC_BASE_URL + '/signin' });
+      await signOut({
+        callbackUrl: process.env.NEXT_PUBLIC_BASE_URL + '/signin',
+      })
     } catch (error) {
-      console.error('There was an error signing out:', error);
+      console.error('There was an error signing out:', error)
     }
-  };
+  }
   function getpic() {
     loadpic()
   }
 
   async function loadpic() {
-    await fetch('/api/user/currentUser').then(res => res.json()).then(
-      res => {
-        setEmail(res.data.email || "");
-        setFirstName(res.data.firstName || "");
-        setLastName(res.data.lastName || "");
-        setCompany(res.data.company || "");
-        setTelephone(res.data.telephone || "");
-        setAddress(res.data.address || "");
-        setProfession(res.data.profession || "");
-        setEducation(res.data.education || "");
-        setHobby(res.data.hobby || "");
-        setStatus(parseInt(res.data.status) || 0);
-        setStatus(res.data.carExist || "");
-        setNickName(res.data.nickname || "")
+    await fetch('/api/user/currentUser')
+      .then((res) => res.json())
+      .then((res) => {
+        setEmail(res.data.email || '')
+        setFirstName(res.data.firstName || '')
+        setLastName(res.data.lastName || '')
+        setCompany(res.data.company || '')
+        setTelephone(res.data.telephone || '')
+        setAddress(res.data.address || '')
+        setProfession(res.data.profession || '')
+        setEducation(res.data.education || '')
+        setHobby(res.data.hobby || '')
+        setStatus(parseInt(res.data.status) || 0)
+        setStatus(res.data.carExist || '')
+        setNickName(res.data.nickname || '')
         setGender(res.data.sex)
-      }
-    ).catch(
-      err => {
-
-      }
-    )
+        // setBirthday(res.data.birthday || '')
+      })
+      .catch((err) => {})
   }
   async function updateUser(userData: object) {
     const response = await fetch('/api/profile/profile', {
@@ -154,20 +177,18 @@ export default function Profile() {
       }
     }
 
-
-
     setSnack(
       new Snack({
-        message: "Profile saved successfully",
-        color: "success" as AlertColor,
+        message: 'Profile saved successfully',
+        color: 'success' as AlertColor,
         open: true,
-      }));
+      })
+    )
 
     // return {
     //   status: 'success',
     //   data: 'Profile saved successfully.',
     // }
-
   }
 
   return (
@@ -229,12 +250,12 @@ export default function Profile() {
             <MenuItem key={'profile'} dense>
               <Box
                 component={Link}
-                href={"/profile"}
+                href={'/profile'}
                 sx={{ display: 'inherit' }}>
                 <ListItemIcon>
                   <Image
                     src={`/images/profile.png`}
-                    alt={"profile"}
+                    alt={'profile'}
                     width={20}
                     height={20}
                   />
@@ -360,20 +381,20 @@ export default function Profile() {
               {energy}%
             </Typography>
           </Box>
-          <Typography sx={{color: 'text.primary'}}>{nickname}</Typography>
+          <Typography sx={{ color: 'text.primary' }}>{nickname}</Typography>
           <Button
             variant="text"
             // color="inherit"
             // sx={(theme) => theme.palette.mode ==='dark'? '#90caf9': '#1976d2'}
             size="large"
             sx={{
-              color: (theme) => theme.palette.mode ==='dark'? '#82bfef': '#1976d2',
+              color: (theme) =>
+                theme.palette.mode === 'dark' ? '#82bfef' : '#1976d2',
               mt: 2,
             }}
             LinkComponent={Link}
             href="/property"
-            onClick={analyze}
-          >
+            onClick={analyze}>
             {languagejson[lang].Seeyourindividualanalysis}
           </Button>
           <div>
@@ -382,13 +403,20 @@ export default function Profile() {
               color="inherit"
               size="large"
               sx={{
-                color: (theme) => theme.palette.mode ==='dark'? '#82bfef': '#1976d2',
+                color: (theme) =>
+                  theme.palette.mode === 'dark' ? '#82bfef' : '#1976d2',
                 // mt: 2,
               }}
               LinkComponent={Link}
-              href="/projects"
-            >
-              {['Show My Projects', 'Meine Projekte anzeigen', 'Показать мои проекты', 'Показати мої проекти'][lang]}
+              href="/projects">
+              {
+                [
+                  'Show My Projects',
+                  'Meine Projekte anzeigen',
+                  'Показать мои проекты',
+                  'Показати мої проекти',
+                ][lang]
+              }
             </Button>
           </div>
           <div>
@@ -397,7 +425,8 @@ export default function Profile() {
               size="large"
               // color='inherit'
               sx={{
-                color: (theme) => theme.palette.mode ==='dark'? '#82bfef': '#1976d2',
+                color: (theme) =>
+                  theme.palette.mode === 'dark' ? '#82bfef' : '#1976d2',
               }}
               onClick={handleChange}
               endIcon={open ? <ArrowLeft /> : <ArrowDropDown />}>
@@ -405,9 +434,67 @@ export default function Profile() {
             </Button>
           </div>
           <Collapse in={open}>
-            <TextField fullWidth value={email} margin="normal" label="Email" onChange={e => { setEmail(e.target.value) }} />
-            <TextField fullWidth value={firstName} margin="normal" label="Firstname" onChange={e => { setFirstName(e.target.value) }} />
-            <TextField fullWidth value={lastName} margin="normal" label="Surname" onChange={e => { setLastName(e.target.value) }} />
+            <TextField
+              required
+              fullWidth
+              value={email}
+              margin="normal"
+              label="Email"
+              onChange={(e) => {
+                setEmail(e.target.value)
+              }}
+            />
+            <TextField
+              required
+              fullWidth
+              value={firstName}
+              margin="normal"
+              label="Firstname"
+              onChange={(e) => {
+                setFirstName(e.target.value)
+              }}
+            />
+            <TextField
+              fullWidth
+              value={lastName}
+              margin="normal"
+              label="Surname"
+              onChange={(e) => {
+                setLastName(e.target.value)
+              }}
+            />
+            <Grid
+              item
+              xs={12}
+              marginTop="1rem"
+              marginBottom=".5rem"
+              // sx={{
+              //   color: 'text.secondary',
+              // }}
+            >
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <MobileDatePicker
+                  label={languagejson[lang].birthDate}
+                  inputFormat="DD/MM/YYYY"
+                  componentsProps={{
+                    actionBar: {
+                      sx: {
+                        backgroundColor: 'background.paper',
+                        button: {
+                          color: 'text.primary',
+                          '&:hover': { bgcolor: 'primary.light' },
+                        },
+                      },
+                    },
+                  }}
+                  value={birthday}
+                  onChange={setBirthday}
+                  renderInput={(params) => (
+                    <TextField required fullWidth {...params} />
+                  )}
+                />
+              </LocalizationProvider>
+            </Grid>
             <TextField
               fullWidth
               margin="normal"
@@ -420,7 +507,9 @@ export default function Profile() {
                   </InputAdornment>
                 ),
               }}
-              onChange={e => { setCompany(e.target.value) }}
+              onChange={(e) => {
+                setCompany(e.target.value)
+              }}
             />
             <TextField
               fullWidth
@@ -434,21 +523,64 @@ export default function Profile() {
                   </InputAdornment>
                 ),
               }}
-              onChange={e => { setTelephone(e.target.value) }}
+              onChange={(e) => {
+                setTelephone(e.target.value)
+              }}
             />
-            <TextField fullWidth value={address} margin="normal" label="Address" onChange={e => { setAddress(e.target.value) }} />
-            <TextField fullWidth value={profession} margin="normal" label="Profession" onChange={e => { setProfession(e.target.value) }} />
-            <TextField fullWidth value={education} margin="normal" label="Education" onChange={e => { setEducation(e.target.value) }} />
-            <TextField fullWidth value={carExist} margin="normal" label="Do you have Car" onChange={e => { setCarExist(e.target.value) }} />
-            <TextField fullWidth value={hobby} margin="normal" label="Hobby" onChange={e => { setHobby(e.target.value) }} />
+            <TextField
+              fullWidth
+              value={address}
+              margin="normal"
+              label="Address"
+              onChange={(e) => {
+                setAddress(e.target.value)
+              }}
+            />
+            <TextField
+              fullWidth
+              value={profession}
+              margin="normal"
+              label="Profession"
+              onChange={(e) => {
+                setProfession(e.target.value)
+              }}
+            />
+            <TextField
+              fullWidth
+              value={education}
+              margin="normal"
+              label="Education"
+              onChange={(e) => {
+                setEducation(e.target.value)
+              }}
+            />
+            <TextField
+              fullWidth
+              value={carExist}
+              margin="normal"
+              label="Do you have Car"
+              onChange={(e) => {
+                setCarExist(e.target.value)
+              }}
+            />
+            <TextField
+              fullWidth
+              value={hobby}
+              margin="normal"
+              label="Hobby"
+              onChange={(e) => {
+                setHobby(e.target.value)
+              }}
+            />
             <ButtonGroup variant="contained" sx={{ mt: 2 }} fullWidth>
-              <Button onClick={saveProfile}>{languagejson[lang].Savechanges}</Button>
+              <Button onClick={saveProfile}>
+                {languagejson[lang].Savechanges}
+              </Button>
               <Button>{languagejson[lang].Jointheclub}</Button>
               <Button>{languagejson[lang].BuyReson}</Button>
             </ButtonGroup>
           </Collapse>
         </Box>
-
       </Box>
     </FullLayout>
   )
@@ -467,10 +599,29 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
       },
     }
   }
+  try {
+    const email = session.user.email
+    const client = await connectToDatabase()
+    const userCollection = client.db().collection('users')
+    const userInfo = await userCollection.findOne(
+      { email: email },
+      { projection: { _id: 0, day_birth: 1, month_birth: 1, year_birth: 1 } }
+    )
 
-  return {
-    props: {
-      session,
-    },
+    if (!userInfo) throw new Error('--User info not found--')
+    return {
+      props: {
+        session,
+        userInfo,
+      },
+    }
+  } catch (err) {
+    console.error('Failed to fetch user info: ', err)
+    return {
+      props: {
+        session,
+        userInfo: [],
+      },
+    }
   }
 }

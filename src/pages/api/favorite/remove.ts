@@ -26,7 +26,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         { user_email: session.user.email },
         { $pull: { favor_id: id } },
       )
-      console.log('deleted-favorite item:', deletedResult)
+      // console.log('deleted-favorite item:', deletedResult)
       const success = {message: ''}
       success.message = 'Removed in favorites'
       res.status(RS.SUCCESS_OK).json(success)
