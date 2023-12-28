@@ -3,7 +3,7 @@
         {
             "criteria": {"male": "Energy", "female":"Character", "diverse": "Protection"},
             "description": [
-                null, 
+                "You lack love.", 
                 "You are a classic energy vampire.",
                 "You are a creative person who doesn't forget about sports. You have a good energy bar, which you often use for selfish purposes.",
                 "Normale Energiequote.  Selbstinterresiert. Musikalisch. Sportlich.",
@@ -15,7 +15,7 @@
         {
             "criteria": {"male": "Responsibility", "female":"Initiative", "diverse": "Leadership"},
             "description": [
-                null,
+                "You need help.",
                 "Your credo is to fulfill the sacrifice.",
                 "You are an irresponsible and winded egomaniac.",
                 "You are a very sensitive, conflict-free and proactive person.",
@@ -27,7 +27,7 @@
         {
             "criteria": {"male": "Creativity", "female":"Knowledge", "diverse": "Thinking"},
             "description": [
-                null,
+                "You need friendship.",
                 "Congratulations, you are boring.",
                 "You think systematically. You express thought - wisely. You are like a club of connoisseurs.",
                 "You have basic knowledge present. There is an aptitude for the exact sciences and a willingness to learn.",
@@ -39,7 +39,7 @@
         {
             "criteria": {"male": "Health", "female":"Power", "diverse": "Body"},
             "description": [
-                null,
+                "You need to take care of yourself.",
                 "You have enough strength and stamina, but you have to take care of yourself.",
                 "You have normal health. The only question is how to save it!",
                 "You have good health. The body is of little interest. More concerned about hereditary diseases.",
@@ -51,7 +51,7 @@
         {
             "criteria": {"male": "Logic", "female":"Loveliness", "diverse": "Intuition"},
             "description": [
-                null,
+                "Don't let your happiness wait.",
                 "Deceptive logic. Risk of error.",
                 "Without tools, high probability of error.",
                 "Good analyst or programmer, thanks to his analytical way of thinking.",
@@ -63,7 +63,7 @@
         {
             "criteria": {"male": "Hardworking", "female":"Ability", "diverse": "Aspiration"},
             "description": [
-                null,
+                "Don't stand still.",
                 "Bad craftsman. Need for self-development.",
                 "A classic apprentice in a skilled trade.",
                 "Learnable, precise, accurate worker. Experimenters.",
@@ -75,7 +75,7 @@
         {
             "criteria": {"male": "Success", "female":"Happiness", "diverse": "Luck"},
             "description": [
-                null,
+                "Don't feed yourself with imaginary dreams.",
                 "Randomness is the probability of success.",
                 "Everything is attainable through faith.",
                 "Control and change your destiny.",
@@ -87,7 +87,7 @@
         {
             "criteria": {"male": "Readiness", "female":"Honesty", "diverse": "Business"},
             "description": [
-                null,
+                "Selfishness is on the rise.",
                 "No self-sacrifice.",
                 "Lack of responsibility. Self-oriented.",
                 "High social orientation. Good communication skills.",
@@ -99,7 +99,7 @@
         {
             "criteria": {"male": "Temperament", "female":"Harmony", "diverse": "Realization"},
             "description": [
-                null,
+                "You risk stagnation.",
                 "Inability to work.",
                 "Basic intelligence. Need for repetition in learning.",
                 "Bright head. Good learning ability.",
@@ -113,7 +113,7 @@
         {
             "criteria": {"male": "Energie", "female":"Charakter", "diverse": "Schutz"},
             "description": [
-                null,
+                "Dir fehlt Liebe.",
                 "Energievampir.",
                 "Du bist eine kreative Person, die den Sport nicht vergisst. Du hast eine gute Energiebar, die du oft für eigennützige Zwecke benutzt.",
                 "Normale Energiequote. Selbstinteressiert. Musikalisch. Sportlich.",
@@ -125,7 +125,7 @@
         {
             "criteria": {"male": "Verantwortung", "female": "Initiative", "diverse": "Führerschaft"},
             "description": [
-                null,
+                "Sie brauchen Hilfe.",
                 "Opfers.",
                 "Du bist ein verantwortungsloser und aufgeblasener Egoman.",
                 "Du bist eine sehr sensible, konfliktfreie und proaktive Person.",
@@ -137,7 +137,7 @@
         {
             "criteria": {"male": "Kreativität", "female": "Wissen", "diverse": "Denkweise"},
             "description": [
-                null,
+                "Du brauchst Freundschaft.",
                 "Langweilig.",
                 "Du denkst systematisch und drückst Gedanken weise aus. Du bist wie ein Kennerclub.",
                 "Du besitzt Grundkenntnisse. Eine Neigung für exakte Wissenschaften und eine Bereitschaft zum Lernen ist vorhanden.",
@@ -149,7 +149,7 @@
         {
             "criteria": {"male": "Stärke", "female": "Gesundheit", "diverse": "Körper"},
             "description": [
-                null,
+                "Sie müssen sich um sich selbst kümmern.",
                 "Gesundheitsschwäche",
                 "Du hast eine normale Gesundheit. Die einzige Frage ist, wie man sie bewahrt!",
                 "Du genießt gute Gesundheit. Der Körper ist von geringem Interesse. Mehr besorgt über erbliche Krankheiten.",
@@ -161,7 +161,7 @@
         {
             "criteria": {"male": "Logik", "female": "Schönheit", "diverse": "Intuition"},
             "description": [
-                null,
+                "Lass dein Glück nicht warten.",
                 "Fehlergefahr",
                 "Ohne Werkzeuge besteht eine hohe Wahrscheinlichkeit des Irrtums.",
                 "Guter Analyst oder Programmierer dank deiner analytischen Denkweise.",
@@ -173,7 +173,7 @@
         {
             "criteria": {"male": "Arbeit", "female": "Fähigkeit", "diverse": "Bestrebungen"},
             "description": [
-                null,
+                "Bleib nicht stehen.",
                 "Schlechter Handwerker.",
                 "Ein klassischer Lehrling in einem Fachberuf.",
                 "Lernbereit, präzise, genauer Arbeiter. Experimentierfreudig.",
@@ -185,7 +185,7 @@
         {
             "criteria": {"male": "Erfolg", "female": "Glücklichkeit", "diverse": "Schicksal"},
             "description": [
-                null,
+                "Füttern Sie sich nicht mit imaginären Träumen.",
                 "Zufalllosigkeit.",
                 "Alles ist erreichbar durch Glauben.",
                 "Kontrolliere und ändere dein Schicksal.",
@@ -197,7 +197,7 @@
         {
             "criteria": {"male": "Bereitschaft", "female": "Ehrlichkeit", "diverse": "Business"},
             "description": [
-                null,
+                "Der Egoismus nimmt zu.",
                 "Ärgerlich und wütend.",
                 "Fehlende Verantwortung. Ichbezogen.",
                 "Hohe soziale Orientierung. Gute Kommunikationsfähigkeit.",
@@ -209,7 +209,7 @@
         {
             "criteria": {"male": "Temperament", "female": "Harmonie", "diverse": "Bewusstheit"},
             "description": [
-                null,
+                "Sie riskieren eine Stagnation.",
                 "Arbeitsunfähig.",
                 "Grundintelligenz. Lernwiederholung notwendig.",
                 "Heller Kopf. Gute Lernfähigkeit.",
@@ -223,7 +223,7 @@
         {
             "criteria": {"male": "Энергия", "female":"Характер", "diverse": "Защита"},
             "description": [
-                null,
+                "Вам нехватает любви.",
                 "Ты классический энергетический вампир.",
                 "Ты творческая личность, которая не забывает о спорте. У тебя хороший запас энергии, который ты часто используешь в своих целях.",
                 "Нормальный уровень энергии. Эгоистичны. Музыкальны. Спортивны.",
@@ -235,7 +235,7 @@
         {
             "criteria": {"male": "Ответственность", "female": "Инициатива", "diverse": "Лидерство"},
             "description": [
-                null,
+                "Вы нуждаетесь в помощи.",
                 "Ваше кредо - выполнение жертвы.",
                 "Вы безответственный и ветреный эгоцентрик.",
                 "Вы очень чувствительный, свободный от конфликтов и инициативный человек.",
@@ -247,7 +247,7 @@
         {
             "criteria": {"male": "Творчество", "female": "Знания", "diverse": "Мышление"},
             "description": [
-                null,
+                "Вы нуждаетесь в дружбе.",
                 "Поздравляем, вы скучны.",
                 "Вы мыслите систематически. Выражаете мысли мудро. Вы как клуб ценителей.",
                 "У вас есть базовые знания. Проявляется способность к точным наукам и желание учиться.",
@@ -259,7 +259,7 @@
         {
             "criteria": {"male": "Сила", "female": "Здоровье", "diverse": "Тело"},
             "description": [
-                null,
+                "Вам необходимо заняться собою.",
                 "У вас достаточно силы и выносливости, но вы должны заботиться о себе.",
                 "У вас нормальное здоровье. Единственный вопрос - как его сохранить!",
                 "У вас хорошее здоровье. Тело интересует мало. Больше беспокоят наследственные болезни.",
@@ -271,7 +271,7 @@
         {
             "criteria": {"male": "Логика", "female": "Красота", "diverse": "Интуиция"},
             "description": [
-                null,
+                "Не стоит испытывать судьбу.",
                 "Обманчивая логика. Риск ошибки.",
                 "Без инструментов высокая вероятность ошибки.",
                 "Хороший аналитик или программист благодаря аналитическому способу мышления.",
@@ -283,7 +283,7 @@
         {
             "criteria": {"male": "Трудолюбие", "female": "Способность", "diverse": "Стремление"},
             "description": [
-                null,
+                "Не стойте на месте.",
                 "Плохой ремесленник. Необходимость в саморазвитии.",
                 "Классический ученик в области ремесленного мастерства.",
                 "Обучаемый, точный, аккуратный рабочий. Экспериментаторы.",
@@ -295,7 +295,7 @@
         {
             "criteria": {"male": "Успех", "female": "Счастье", "diverse": "Удача"},
             "description": [
-                null,
+                "Не стоит питать себя мнимыми мечтами.",
                 "Случайность - это вероятность успеха.",
                 "Все достижимо через веру.",
                 "Контролируйте и меняйте свою судьбу.",
@@ -307,7 +307,7 @@
         {
             "criteria": {"male": "Готовность", "female": "Честность", "diverse": "Бизнес"},
             "description": [
-                null,
+                "Эгоизм берёт над вами верх.",
                 "Нет самопожертвования.",
                 "Отсутствие ответственности. Самоцентрированный.",
                 "Высокая социальная ориентированность. Хорошие коммуникативные навыки.",
@@ -319,7 +319,7 @@
         {
             "criteria": {"male": "Темперамент", "female": "Гармония", "diverse": "Осознанность"},
             "description": [
-                null,
+                "Вы рискуете застыть в развитии.",
                 "Не способен к работе.",
                 "Базовый интеллект. Необходимость повторения при обучении.",
                 "Яркий ум. Хорошая способность к обучению.",
@@ -333,7 +333,7 @@
         {
             "criteria": {"male": "Енергія", "female":"Характер", "diverse": "Захист"},
             "description": [
-                null,
+                "Вам бракує любові.",
                 "Ти класичний енергетичний вампір.",
                 "Ти креативна особистість, яка не забуває про спорт. У тебе добрий запас енергії, який ти часто використовуєш для егоїстичних цілей.",
                 "Нормальний рівень енергії. Самозацікавленість. Музичність. Спортивність.",
@@ -343,21 +343,9 @@
             ]
         },
         {
-            "criteria": {"male": "Енергія", "female": "Характер", "diverse": "Захист"},
-            "description": [
-                null,
-                "Ви класичний енергетичний вампір.",
-                "Ви творча людина, яка не забуває про спорт. У вас є хороший запас енергії, яку ви часто використовуєте з корисливими цілями.",
-                "Нормальний рівень енергії. Егоїстичний. Музичний. Спортивний.",
-                "Ви дуже харизматичні та імпульсивні. Завжди прагнете до прекрасного, оточуючи себе красою.",
-                "У вас дуже сильна енергія. Ваші психічні здібності добре розвинуті. Ви можете стати хорошим езотериком.",
-                "Ви магніт для енергії. Ваша присутність лікує людей."
-            ]
-        },
-        {
             "criteria": {"male": "Відповідальність", "female": "Ініціатива", "diverse": "Лідерство"},
             "description": [
-                null,
+                "Ви потребуєте допомоги.",
                 "Ваше кредо - виконання жертви.",
                 "Ви безвідповідальний та легковажний егоцентрик.",
                 "Ви дуже чутлива, вільна від конфліктів та ініціативна особа.",
@@ -369,7 +357,7 @@
         {
             "criteria": {"male": "Творчість", "female": "Знання", "diverse": "Мислення"},
             "description": [
-                null,
+                "Ви потребуєте дружби.",
                 "Вітаємо, ви нудні.",
                 "Ви мислите систематично. Виражаєте думки мудро. Ви як клуб поціновувачів.",
                 "У вас є базові знання. Проявляється здібність до точних наук та бажання вчитися.",
@@ -381,7 +369,7 @@
         {
             "criteria": {"male": "Здоров'я", "female": "Сила", "diverse": "Тіло"},
             "description": [
-                null,
+                "Вам необхідно зайнятися собою.",
                 "У вас достатньо сили та витривалості, але ви повинні дбати про себе.",
                 "У вас нормальне здоров'я. Єдине питання – як його зберегти!",
                 "У вас хороше здоров'я. Тіло мало цікавить. Більше турбують спадкові захворювання.",
@@ -393,7 +381,7 @@
         {
             "criteria": {"male": "Логіка", "female": "Привабливість", "diverse": "Інтуїція"},
             "description": [
-                null,
+                "Не варто випробовувати долю.",
                 "Обманна логіка. Ризик помилки.",
                 "Без інструментів висока ймовірність помилки.",
                 "Хороший аналітик або програміст завдяки аналітичному способу мислення.",
@@ -405,7 +393,7 @@
         {
             "criteria": {"male": "Працьовитість", "female": "Здібність", "diverse": "Прагнення"},
             "description": [
-                null,
+                "Не стійте на місці.",
                 "Поганий ремісник. Необхідність у саморозвитку.",
                 "Класичний учень у сфері ремесла.",
                 "Навчаємий, точний, акуратний робітник. Експериментатори.",
@@ -417,7 +405,7 @@
         {
             "criteria": {"male": "Успіх", "female": "Щастя", "diverse": "Удача"},
             "description": [
-                null,
+                "Не варто живити себе уявними мріями.",
                 "Випадковість – це ймовірність успіху.",
                 "Все досяжно через віру.",
                 "Контролюйте та змінюйте свою долю.",
@@ -429,7 +417,7 @@
         {
             "criteria": {"male": "Готовність", "female": "Чесність", "diverse": "Бізнес"},
             "description": [
-                null,
+                "Егоїзм бере над вами гору.",
                 "Жодної самопожертви.",
                 "Відсутність відповідальності. Орієнтований на себе.",
                 "Висока соціальна орієнтація. Хороші комунікативні навички.",
@@ -441,7 +429,7 @@
         {
             "criteria": {"male": "Темперамент", "female": "Гармонія", "diverse": "Свідомість"},
             "description": [
-                null,
+                "Ви ризикуєте застигнути в розвитку.",
                 "Неможливість працювати.",
                 "Базовий інтелект. Потреба в повторенні в навчанні.",
                 "Світла голова. Хороша здатність до навчання.",
