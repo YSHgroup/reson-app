@@ -161,8 +161,8 @@ export default function Property({ userInfo }) {
                         display={i !== personalStatus.statusIndex ? 'none' : 'inline'}
                         component={'span'}
                         position={'absolute'}
-                        left={phoneBreakpoint ? '3rem' : '5rem'}
-                        fontSize={phoneBreakpoint ? '1.2rem' : '1.5rem'}
+                        left={phoneBreakpoint ? '4rem' : '6rem'}
+                        fontSize={phoneBreakpoint ? '.8rem' : '1rem'}
                         sx={{
                             top: '50%',
                             transform: 'translateY(-50%)',
@@ -223,15 +223,16 @@ export default function Property({ userInfo }) {
                     <ListItemText
                       primary={
                         <Typography
+                          component={'span'}
                           sx={{
+                            fontSize: phoneBreakpoint ? '1rem' : '1.2rem',
                             float: 'right',
                             marginRight: phoneBreakpoint ? '10px' : '1rem',
                             textTransform: 'uppercase',
                             '&:first-letter': {
                               fontSize: '120%',
                             },
-                          }}
-                          variant={phoneBreakpoint ? 'h6' : 'h5'}>
+                          }}>
                           {item}
                         </Typography>
                       }
