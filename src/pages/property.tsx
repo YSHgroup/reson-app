@@ -167,6 +167,7 @@ export default function Property({ userInfo }) {
                             top: '50%',
                             transform: 'translateY(-50%)',
                             fontStyle: 'italic',
+                            color: "lightgrey",
                             '&: first-letter': {
                                 fontSize: '120%',
                             }
@@ -244,7 +245,7 @@ export default function Property({ userInfo }) {
                       padding: 0,
                       margin: `${phoneBreakpoint ? '0 1.5rem' : '0 2rem'}`,
                       marginTop: 0,
-                      border: '1px solid' + colors[i][0],
+                      border: '2px solid' + colors[i][0],
                       borderRadius: '0 0 .5rem .5rem',
                       // height: phoneBreakpoint ? '2.5rem' : '3.5rem',
                       '&.Mui-selected': {
