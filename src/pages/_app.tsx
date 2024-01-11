@@ -13,7 +13,7 @@ import '../styles/globals.css'
 import '../styles/search.css'
 import '../styles/create.css'
 import ColorModeContext from 'context/ColorModeContext'
-import { SessionProvider } from 'next-auth/react'
+import { SessionProvider, useSession } from 'next-auth/react'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import DateFnsUtils from '@date-io/date-fns'
@@ -24,6 +24,7 @@ import VideoCallWindow from '@elements/Chat/VideoCallWindowComponent'
 import ParticlesComponent from '@elements/Particles'
 import { darkTheme, lightTheme, defaultTheme } from 'theme'
 import CustomScrollbar from '@elements/CustomScrollbar'
+import { AuthProvider } from 'context/AuthProvider'
 
 // Customize the PaletteMode type to add the value of 'default'
 type CustomizePaletteMode = PaletteMode | 'default'
@@ -111,6 +112,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <ParticlesComponent mode={mode} />
         <ThemeProvider theme={theme}>
           <SessionProvider session={pageProps.session}>
+            <AuthProvider  session={pageProps.session}>
             <JotaiProvider>
               <VideoCallProvider>
                 <SnackbarContext.Provider
@@ -146,6 +148,8 @@ export default function App({ Component, pageProps }: AppProps) {
                 </SnackbarContext.Provider>
               </VideoCallProvider>
             </JotaiProvider>
+
+            </AuthProvider>
             <Worker />
           </SessionProvider>
         </ThemeProvider>
