@@ -14,7 +14,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const data = req.body
   
-    let { email, password, birthday, nickname, sex, lang } = data
+    let { email, password, birthday, nickname, sex, lang, role } = data
     if (!sex)
       sex = 'male';
     const status = 0
@@ -70,6 +70,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const enable = false
     const verify_code = randomMaker(20);
     const code_send_time = Date.now()
+
+    role = role? role: 'user'
   
     const user =  await db.collection('users').insertOne({
       email,
@@ -88,7 +90,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       enable,
       verify_code,
       code_send_time,
-      status
+      status,
+      role
     })
   
     await db.collection('settings').insertOne({
