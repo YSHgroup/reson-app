@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import React from 'react'
 import CenterLayout from '@layouts/CenterLayout'
-import { getSession, signIn } from 'next-auth/react'
+import { getSession, signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import Backdrop from '@mui/material/Backdrop'
@@ -92,7 +92,8 @@ export default function SignIn() {
           open: true,
         })
       )
-      router.replace('/dashboard')
+      const user  = (await getSession()).user as {name: string, email: string, role: string }
+      router.replace( user?.role === 'admin'? '/admin': '/dashboard'  )
     } else {
       setSnack(
         new Snack({
