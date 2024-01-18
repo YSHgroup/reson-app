@@ -115,23 +115,23 @@
             "description": [
                 "Dir fehlt Liebe.",
                 "Energievampir.",
-                "Du bist eine kreative Person, die den Sport nicht vergisst. Du hast eine gute Energiebar, die du oft für eigennützige Zwecke benutzt.",
-                "Normale Energiequote. Selbstinteressiert. Musikalisch. Sportlich.",
-                "Du bist eine sehr charismatische und impulsive Person. Immer bestrebt nach dem Wunderbaren, umgibst du dich mit Schönheit.",
-                "Du hast sehr starke Energie. Deine psychischen Fähigkeiten sind gut entwickelt. Du könntest ein guter Esoteriker sein.",
-                "Du bist wie ein Energiemagnet. Deine Anwesenheit heilt Menschen."
+                "Energiedefizit. Schmeichelnder. Hektisch. Faul. Sportlich.",
+                "Normale Energiequote.  Selbstinterresiert. Musikalisch. Sportlich.",
+                "Impulsive Energie. Charismatisch. Aktiv. Liebhaft. Magnetisch.",
+                "Du verfügst über eine sehr starke Energie. Deine hellseherischen Fähigkeiten sind gut entwickelt. Du kannst ein guter Hellseher sein.",
+                "Du bist wie ein Energiemagnet. Deine Gegenwart heilt die Menschen."
             ]
         },
         {
             "criteria": {"male": "Verantwortung", "female": "Initiative", "diverse": "Führerschaft"},
             "description": [
                 "Sie brauchen Hilfe.",
-                "Opfers.",
-                "Du bist ein verantwortungsloser und aufgeblasener Egoman.",
-                "Du bist eine sehr sensible, konfliktfreie und proaktive Person.",
-                "Du bist stark und widerstandsfähig gegen Konflikte. Bereit für Provokation und Führung.",
-                "Du bist immer zielorientiert. Bereit, Entscheidungen mit hoher Konflikttoleranz zu treffen. Du wirst eine starke Führungsfigur sein.",
-                "Du bist ein Diktator. Brutal und fanatisch."
+                "Typische Opfer.",
+                "Egoist. Unverantwortlich und windig. ",
+                "Empfidlich. Konfliktlos. Initiavvoll.",
+                "Stark genug. Konfliktbeständig. Provokativ. Führungbereit.",
+                "Du bist Zielgerichtet. Immer Lösungsbereit mit sehr hohe Konfliktbeständigkeit. Du kannst starke Führungskraft sein.",
+                "Diktator.Brutal und Fanatisch."
             ]
         },
         {
@@ -139,11 +139,11 @@
             "description": [
                 "Du brauchst Freundschaft.",
                 "Langweilig.",
-                "Du denkst systematisch und drückst Gedanken weise aus. Du bist wie ein Kennerclub.",
-                "Du besitzt Grundkenntnisse. Eine Neigung für exakte Wissenschaften und eine Bereitschaft zum Lernen ist vorhanden.",
-                "Du bist eine kompetente und fähige Person. Sehr kreativ und stellenweise stolz.",
-                "Du hast eine gute Denkfähigkeit und bist gelehrt. Du bist geschaffen für intellektuelle Herausforderungen.",
-                "Du bist ein selbstbewusstes und immer erfolgsorientiertes Individuum."
+                "Schlagfertige Kenner. Systematiker. Stimmungsabhängig.",
+                "Basiskenntnisse. Für exakte Wissenschaft geeignet.  Lernbereitschaft.",
+                "Kompetent und fähig. Kreativ und Stolzgenug.",
+                "Wissenschaftler. Denkvermögen und bereitschaft. Nur für Inteligente Aufgaben.",
+                "Selbstbewusst und Erfolgsorientirt."
             ]
         },
         {
@@ -151,11 +151,11 @@
             "description": [
                 "Sie müssen sich um sich selbst kümmern.",
                 "Gesundheitsschwäche",
-                "Du hast eine normale Gesundheit. Die einzige Frage ist, wie man sie bewahrt!",
-                "Du genießt gute Gesundheit. Der Körper ist von geringem Interesse. Mehr besorgt über erbliche Krankheiten.",
-                "Du bist in ausgezeichneter physischer Verfassung und gesund.",
-                "Du hast die Gesundheit und den Körper eines Profisportlers, Schauspielers oder Models.",
-                "Du hast eine großartige Gesundheit. Das ist deine Schönheit."
+                "Normale Gesundheit. Problemen erst ab 45. Starkgenug. Ausdauerfähig.",
+                "Gute Gesundheit. Körper ist wenig interressiert.  Erbkrankheiten mögl.",
+                "Perfekte körperliche und gesundheitliche Zustand. Hüpsch und Stark.",
+                "Gesundheit und Körper eines Profisportlers, Schauspielers oder Models.",
+                "Hervorragende Gesund- und Schönheit"
             ]
         },
         {
@@ -163,10 +163,10 @@
             "description": [
                 "Lass dein Glück nicht warten.",
                 "Fehlergefahr",
-                "Ohne Werkzeuge besteht eine hohe Wahrscheinlichkeit des Irrtums.",
-                "Guter Analyst oder Programmierer dank deiner analytischen Denkweise.",
-                "Irrationale Logik. In kritischen Situationen zeigen sich Intuitionsäußerungen.",
-                "Spezielle Fähigkeit, große Datenmengen zu verarbeiten, aufgrund starker Logik und Intuition.",
+                "Logik-Tricks-Notwendigkeit. Ohne Hilfsmittel hohe Fehlerpotential.",
+                "Normale Logik. Guter Analytiker oder Programmierer.",
+                "Irrationale Logik. In kritische situationen  d. Ausbrüche von Superlogik o. Intuition.",
+                "Starke Logik und Intuition. besonderen Fähigkeit große  Info-menge zu verarbeiten.",
                 "Super-Logik. Spürt das Probleme im vorfeld."
             ]
         },
@@ -175,11 +175,11 @@
             "description": [
                 "Bleib nicht stehen.",
                 "Schlechter Handwerker.",
-                "Ein klassischer Lehrling in einem Fachberuf.",
-                "Lernbereit, präzise, genauer Arbeiter. Experimentierfreudig.",
-                "Du bist ein geschickter Manipulator. Insbesondere effektiv beim Warenaustausch.",
-                "Sehr gute Kenntnisse von Prozessen und Produkten.",
-                "Arbeitshelden. Hohe Verbesserungspotential."
+                "Anfänger. Klassische Azubi in Handwerksberuf.",
+                "Erlernte, akkurate, ordentliche Arbeitskraft. Erfahrungsbedürftige.",
+                "geschickte Manipulatoren.  besonders wirksam bei Angstgefühlen. Selbstentwicklungsbedarf.",
+                "Qualifizierte Meister. Sehr gute Prozess- und Produktkentnisse. ",
+                "Arbeitshelden. Hohe Verbesserungspotential"
             ]
         },
         {
@@ -187,11 +187,11 @@
             "description": [
                 "Füttern Sie sich nicht mit imaginären Träumen.",
                 "Zufalllosigkeit.",
-                "Alles ist erreichbar durch Glauben.",
-                "Kontrolliere und ändere dein Schicksal.",
-                "Der Träger des Erfolgs.",
-                "Überirdisches Glück.",
-                "Zufalllosigkeit."
+                "Zufallwahrscheinlichkeit ist da.",
+                "Glücklich. Durch das Glauben alles erzielbar.",
+                "Erfolgsträger. Schicksal selber steuern und ändern.",
+                "Messias - ein Zeichen himlisches Glücks.",
+                "Himlischer Glück"
             ]
         },
         {
@@ -199,11 +199,11 @@
             "description": [
                 "Der Egoismus nimmt zu.",
                 "Ärgerlich und wütend.",
-                "Fehlende Verantwortung. Ichbezogen.",
-                "Hohe soziale Orientierung. Gute Kommunikationsfähigkeit.",
-                "Gutes Ego und Selbstwertgefühl. Familienorientiert.",
-                "Hohes Niveau an Ideen. Wahrheitsliebend.",
-                "Parapsychologe."
+                "Verantwortungsdefizit. Selbstorientiert. Keine Selbstopferung.",
+                "Familienorientiert. Hohe Sozialorientierung. Gute Kommunikationsfähigk.",
+                "Wahrheitslieber. Meinungsorientiert. Hohe Ideenrate. Überm. Selbsteinschätzung.",
+                "Parapsychologe. Fähigkeiten des Individuums zur Beeinflussung der Massen.",
+                "Parapsychologe"
             ]
         },
         {
@@ -211,10 +211,10 @@
             "description": [
                 "Sie riskieren eine Stagnation.",
                 "Arbeitsunfähig.",
-                "Grundintelligenz. Lernwiederholung notwendig.",
-                "Heller Kopf. Gute Lernfähigkeit.",
-                "Überdurchschnittliche Frequenz. Gedächtnis auf Intuitionsebene.",
-                "Wissenschaftler. Rechnerisches Gedächtnis. Hervorragendes Wissensniveau.",
+                "Grundintelligenz. Wiederholungsbedarf beim lernen.",
+                "Heller Kopf. Gute lernfähigkeit. Hohe Interessenquote.",
+                "Überdurchschnittl. Klarheit. Gedächtnis auf der Intuitionsebene.",
+                "Wissenschaftler. Komputergedächtnis. Ausgezeichnete Wissensrate.",
                 "Superbewusstsein."
             ]
         }
@@ -224,48 +224,48 @@
             "criteria": {"male": "Энергия", "female":"Характер", "diverse": "Защита"},
             "description": [
                 "Вам нехватает любви.",
-                "Ты классический энергетический вампир.",
-                "Ты творческая личность, которая не забывает о спорте. У тебя хороший запас энергии, который ты часто используешь в своих целях.",
-                "Нормальный уровень энергии. Эгоистичны. Музыкальны. Спортивны.",
-                "Ты очень харизматичный и импульсивный человек. Всегда стремишься к прекрасному, окружаешь себя красотой.",
-                "У тебя очень сильная энергия. Твои психические способности хорошо развиты. Ты можешь быть хорошим эзотериком.",
-                "Ты как магнит для энергии. Твое присутствие исцеляет людей."
+                "Вы классический энерговампир.",
+                "Вы - творческий человек, который не забывает о спорте. У вас хорошая энергия, которую вы часто используете в корыстных целях.",
+                "Вы творческая личность, не забывающая про спорт. У вас хорошая энергетическая планка, которую вы часто используете в корыстных целях.",
+                "Ты очень харизматичный и импульсивный человек. Всегда стремишься к прекрасному, окружая себя красотой.",
+                "У тебя очень сильная энергия. Хорошо развита экстрасенсорика. Ты можешь быть хорошим изотериком.",
+                "Ты словно энергетический магнит. Твоё присутствие исцеляет людей."
             ]
         },
         {
             "criteria": {"male": "Ответственность", "female": "Инициатива", "diverse": "Лидерство"},
             "description": [
                 "Вы нуждаетесь в помощи.",
-                "Ваше кредо - выполнение жертвы.",
-                "Вы безответственный и ветреный эгоцентрик.",
-                "Вы очень чувствительный, свободный от конфликтов и инициативный человек.",
-                "Вы достаточно сильны и устойчивы к конфликтам. Готовы к провокациям и лидерству.",
-                "Вы всегда ориентированы на цели. Готовы принимать решения с высокой толерантностью к конфликтам. Вы будете сильным лидером.",
-                "Вы диктатор. Жестокий и фанатичный."
+                "Ваше кредо - исполнять жертву.",
+                "Вы безответственный и ветреный эгоист.",
+                "Ты очень чувствительный, бесконфликтный и инициативный человек.",
+                "Ты достаточно силён и устойчив к конфликтам. Готов к провокациям и лидерству.",
+                "У тебя выражено сильное лидерство, целеустремлённость и готовность `идти по головам`.",
+                "Поздравляю, ты - диктатор. Жестокий и фанатичный."
             ]
         },
         {
             "criteria": {"male": "Творчество", "female": "Знания", "diverse": "Мышление"},
             "description": [
                 "Вы нуждаетесь в дружбе.",
-                "Поздравляем, вы скучны.",
-                "Вы мыслите систематически. Выражаете мысли мудро. Вы как клуб ценителей.",
-                "У вас есть базовые знания. Проявляется способность к точным наукам и желание учиться.",
-                "Вы компетентный и способный человек. Очень творческий и местами гордый.",
-                "У вас хорошая способность мыслить и быть ученым. Вы созданы для интеллектуальных испытаний.",
-                "Вы уверенная личность, всегда ориентированная на успех."
+                "Поздравляю, вы скучный.",
+                "Вы мыслите систематический. Выражаете мысль - мудро. Вы словно клуб знатоков.",
+                "У тебя присутствуют базовые знания. Имеется склонность к точным наукам и готовность к обучению.",
+                "Ты компетентный и способный человек. Очень творческий и местами гордый.",
+                "У вас хорошая способность мыслить и быть ученым. Вы созданы для интеллектуальных задач.",
+                "Вы уверенная в себе и всегда ориентированная на успех личность."
             ]
         },
         {
             "criteria": {"male": "Сила", "female": "Здоровье", "diverse": "Тело"},
             "description": [
                 "Вам необходимо заняться собою.",
-                "У вас достаточно силы и выносливости, но вы должны заботиться о себе.",
-                "У вас нормальное здоровье. Единственный вопрос - как его сохранить!",
-                "У вас хорошее здоровье. Тело интересует мало. Больше беспокоят наследственные болезни.",
-                "У вас отличное физическое состояние и здоровье.",
-                "У вас здоровье и тело профессионального спортсмена, актера или модели.",
-                "У вас великолепное здоровье. В этом ваша красота."
+                "У вас достаточно силы и выдержки, но себя беречь надо.",
+                "У вас нормальное здоровье. Вопрос только как его сберечь!",
+                "У тебя хорошее здоровье. Тело мало интересует. Больше беспокоят наследственные заболевания.",
+                "У тебя отличное физическое состояние и здоровье.",
+                "У тебя здоровье и тело профессионального спортсмена, актера или модели.",
+                "У тебя великолепное здоровье. В этом твоя красота."
             ]
         },
         {
@@ -273,32 +273,32 @@
             "description": [
                 "Не стоит испытывать судьбу.",
                 "Обманчивая логика. Риск ошибки.",
-                "Без инструментов высокая вероятность ошибки.",
-                "Хороший аналитик или программист благодаря аналитическому способу мышления.",
-                "Иррациональная логика. В критических ситуациях проявляется интуиция.",
-                "Особая способность обрабатывать большие объемы информации благодаря сильной логике и интуиции.",
-                "Вы можете предвидеть проблемы заранее."
+                "Без инструментов высока вероятность ошибки.",
+                "Хороший аналитик или программист, благодаря аналитическому складу ума.",
+                "Иррациональная логика. В критических ситуациях - проявления интуиции.",
+                "Особая способность обрабатывать большие объемы информации, за счёт сильной логики и интуиции.",
+                "Можешь заранее предчувствовать проблемы."
             ]
         },
         {
             "criteria": {"male": "Трудолюбие", "female": "Способность", "diverse": "Стремление"},
             "description": [
                 "Не стойте на месте.",
-                "Плохой ремесленник. Необходимость в саморазвитии.",
-                "Классический ученик в области ремесленного мастерства.",
-                "Обучаемый, точный, аккуратный рабочий. Экспериментаторы.",
-                "Вы умелый манипулятор. Особенно эффективен в товарообмене.",
-                "Отличное знание процессов и продукции.",
-                "Высокий потенциал для профессионального развития."
+                "Плохой мастер. Потребность в саморазвитии.",
+                "Классический ученик в квалифицированном ремесле.",
+                "Обучаемый, точный, аккуратный работник. Экспериментаторы.",
+                "Вы искусный манипулятор. Особенно эффективны при товарообмене.",
+                "Очень хорошее знание процессов и продукции.",
+                "Высокий потенциал для повышения квалификации."
             ]
         },
         {
             "criteria": {"male": "Успех", "female": "Счастье", "diverse": "Удача"},
             "description": [
                 "Не стоит питать себя мнимыми мечтами.",
-                "Случайность - это вероятность успеха.",
+                "Случайность - вероятность успеха.",
                 "Все достижимо через веру.",
-                "Контролируйте и меняйте свою судьбу.",
+                "Контролируйте и изменяйте свою судьбу.",
                 "Носитель успеха.",
                 "Земное везение.",
                 "Небесное счастье."
@@ -308,22 +308,22 @@
             "criteria": {"male": "Готовность", "female": "Честность", "diverse": "Бизнес"},
             "description": [
                 "Эгоизм берёт над вами верх.",
-                "Нет самопожертвования.",
-                "Отсутствие ответственности. Самоцентрированный.",
-                "Высокая социальная ориентированность. Хорошие коммуникативные навыки.",
-                "Хорошее эго и самооценка. Ориентирован на семью.",
-                "Высокий уровень идей. Любитель правды.",
-                "Парапсихолог. Способность индивидуума влиять на массы."
+                "Никакого самопожертвования.",
+                "Отсутствие ответственности. Ориентирован на себя.",
+                "Высокая социальная ориентация. Хорошие коммуникативные навыки.",
+                "Хорошее самомнение и самооценка. Ориентирован на семью.",
+                "Высокий уровень идей. Правдолюбец.",
+                "Парапсихолог. Способность индивида влиять на массы."
             ]
         },
         {
             "criteria": {"male": "Темперамент", "female": "Гармония", "diverse": "Осознанность"},
             "description": [
                 "Вы рискуете застыть в развитии.",
-                "Не способен к работе.",
-                "Базовый интеллект. Необходимость повторения при обучении.",
-                "Яркий ум. Хорошая способность к обучению.",
-                "Выше среднего частота. Память на уровне интуиции.",
+                "Невозможность работать.",
+                "Базовый интеллект. Потребность в повторении в обучении.",
+                "Светлая голова. Хорошая способность к обучению.",
+                "Частота выше среднего. Память на уровне интуиции.",
                 "Ученые. Вычислительная память. Отличный уровень знаний.",
                 "Сверхсознание."
             ]
@@ -334,24 +334,24 @@
             "criteria": {"male": "Енергія", "female":"Характер", "diverse": "Захист"},
             "description": [
                 "Вам бракує любові.",
-                "Ти класичний енергетичний вампір.",
-                "Ти креативна особистість, яка не забуває про спорт. У тебе добрий запас енергії, який ти часто використовуєш для егоїстичних цілей.",
-                "Нормальний рівень енергії. Самозацікавленість. Музичність. Спортивність.",
-                "Ти дуже харизматична та імпульсивна особа. Завжди прагнеш до чудового, оточуєш себе красою.",
-                "У тебе дуже сильна енергія. Твої психічні здібності добре розвинені. Ти можеш бути хорошим езотериком.",
-                "Ти як магніт для енергії. Твоя присутність лікує людей."
+                "Ви класичний енерговампір.",
+                "Ви - творча людина, яка не забуває про спорт. У вас хороша енергія, яку ви часто використовуєте в корисливих цілях.",
+                "Ви творча особистість, яка не забуває про спорт. У вас хороша енергетична планка, яку ви часто використовуєте в корисливих цілях.",
+                "Ти дуже харизматична та імпульсивна людина. Завжди прагнеш до прекрасного, оточуючи себе красою.",
+                "У тебе дуже сильна енергія. Добре розвинена екстрасенсорика. Ти можеш бути хорошим ізотериком.",
+                "Ти немов енергетичний магніт. Твоя присутність цілює людей."
             ]
         },
         {
             "criteria": {"male": "Відповідальність", "female": "Ініціатива", "diverse": "Лідерство"},
             "description": [
                 "Ви потребуєте допомоги.",
-                "Ваше кредо - виконання жертви.",
-                "Ви безвідповідальний та легковажний егоцентрик.",
-                "Ви дуже чутлива, вільна від конфліктів та ініціативна особа.",
-                "Ви досить сильні та стійкі до конфліктів. Готові до провокацій та лідерства.",
-                "Ви завжди орієнтовані на цілі. Готові приймати рішення з високою толерантністю до конфліктів. Ви будете сильним лідером.",
-                "Ви диктатор. Жорстокий та фанатичний."
+                "Ваше кредо - виконувати жертву.",
+                "Ви безвідповідальний і вітряний егоїст.",
+                "Ти дуже чутлива, безконфліктна та ініціативна людина.",
+                "Ти досить сильний і стійкий до конфліктів. Готовий до провокацій і лідерства.",
+                "У тебе виражене сильне лідерство, цілеспрямованість і готовність 'йти по головах'.",
+                "Вітаю, ти - диктатор. Жорстокий і фанатичний."
             ]
         },
         {
@@ -359,56 +359,56 @@
             "description": [
                 "Ви потребуєте дружби.",
                 "Вітаємо, ви нудні.",
-                "Ви мислите систематично. Виражаєте думки мудро. Ви як клуб поціновувачів.",
-                "У вас є базові знання. Проявляється здібність до точних наук та бажання вчитися.",
-                "Ви компетентна та здібна особа. Дуже творчі та подекуди горді.",
-                "У вас хороша здібність думати і бути вченим. Ви створені для інтелектуальних випробувань.",
-                "Ви впевнена особа, завжди орієнтована на успіх."
+                "Ви мислите систематично. Висловлюєте думку - мудро. Ви немов клуб знавців.",
+                "У тебе присутні базові знання. Є схильність до точних наук і готовність до навчання.",
+                "Ти компетентна і здібна людина. Дуже творча і місцями горда.",
+                "У вас хороша здатність мислити і бути вченим. Ви створені для інтелектуальних завдань.",
+                "Ви впевнена в собі і завжди орієнтована на успіх особа."
             ]
         },
         {
             "criteria": {"male": "Здоров'я", "female": "Сила", "diverse": "Тіло"},
             "description": [
                 "Вам необхідно зайнятися собою.",
-                "У вас достатньо сили та витривалості, але ви повинні дбати про себе.",
-                "У вас нормальне здоров'я. Єдине питання – як його зберегти!",
-                "У вас хороше здоров'я. Тіло мало цікавить. Більше турбують спадкові захворювання.",
-                "У вас відмінний фізичний стан та здоров'я.",
-                "У вас здоров'я та тіло професійного спортсмена, актора чи моделі.",
-                "У вас чудове здоров'я. У цьому ваша краса."
+                "У вас достатньо сили й витримки, але себе берегти треба.",
+                "У вас нормальне здоров'я. Питання тільки як його зберегти!",
+                "У тебе гарне здоров'я. Тіло мало цікавить. Більше турбують спадкові захворювання.",
+                "У тебе чудовий фізичний стан і здоров'я.",
+                "У тебе здоров'я і тіло професійного спортсмена, актора або моделі.",
+                "У тебе чудове здоров'я. У цьому твоя краса."
             ]
         },
         {
             "criteria": {"male": "Логіка", "female": "Привабливість", "diverse": "Інтуїція"},
             "description": [
                 "Не варто випробовувати долю.",
-                "Обманна логіка. Ризик помилки.",
+                "Оманлива логіка. Ризик помилки.",
                 "Без інструментів висока ймовірність помилки.",
-                "Хороший аналітик або програміст завдяки аналітичному способу мислення.",
-                "Ірраціональна логіка. В критичних ситуаціях проявляється інтуїція.",
-                "Особлива здатність обробляти великі обсяги інформації завдяки сильній логіці та інтуїції.",
-                "Ви можете передбачати проблеми завчасно."
+                "Хороший аналітик або програміст, завдяки аналітичному складу розуму.",
+                "Ірраціональна логіка. У критичних ситуаціях - прояви інтуїції.",
+                "Особлива здатність обробляти великі обсяги інформації, за рахунок сильної логіки та інтуїції.",
+                "Можеш заздалегідь передчувати проблеми."
             ]
         },
         {
             "criteria": {"male": "Працьовитість", "female": "Здібність", "diverse": "Прагнення"},
             "description": [
                 "Не стійте на місці.",
-                "Поганий ремісник. Необхідність у саморозвитку.",
-                "Класичний учень у сфері ремесла.",
-                "Навчаємий, точний, акуратний робітник. Експериментатори.",
-                "Ви вправний маніпулятор. Особливо ефективний у товарообміні.",
-                "Відмінне знання процесів та продукції.",
-                "Високий потенціал для професійного розвитку."
+                "Поганий майстер. Потреба в саморозвитку.",
+                "Класичний учень у кваліфікованому ремеслі.",
+                "Навчуваний, точний, акуратний працівник. Експериментатори.",
+                "Ви вправний маніпулятор. Особливо ефективні при товарообміні.",
+                "Дуже добре знання процесів і продукції.",
+                "Високий потенціал для підвищення кваліфікації."
             ]
         },
         {
-            "criteria": {"male": "Успіх", "female": "Щастя", "diverse": "Удача"},
+            "criteria": {"male": "Успіх", "female": "Щастя", "diverse": "Вдача"},
             "description": [
                 "Не варто живити себе уявними мріями.",
-                "Випадковість – це ймовірність успіху.",
-                "Все досяжно через віру.",
-                "Контролюйте та змінюйте свою долю.",
+                "Випадковість - імовірність успіху.",
+                "Усе досяжне через віру.",
+                "Контролюйте і змінюйте свою долю.",
                 "Носій успіху.",
                 "Земна удача.",
                 "Небесне щастя."

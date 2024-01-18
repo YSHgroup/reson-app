@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material";
+import { sidenav } from "./components";
 
 export const defaultTheme  = createTheme({
     palette: {
@@ -23,6 +24,9 @@ export const defaultTheme  = createTheme({
         divider: "rgba(255,255,255,0.2)"
 
     },
+    components: {
+        MuiDrawer: {...sidenav}
+    }
 })
 
 export const darkTheme  = createTheme({
@@ -49,6 +53,9 @@ export const darkTheme  = createTheme({
         divider: "rgba(255,255,255,0.2)"
 
     },
+    components: {
+        MuiDrawer: {...sidenav}
+    }
 })
 
 export const lightTheme = createTheme({
@@ -74,4 +81,7 @@ export const lightTheme = createTheme({
         },
         divider: "rgba(255,255,255,0.2)",
     },
+    components: {
+        MuiDrawer: {...sidenav}
+    }
 })

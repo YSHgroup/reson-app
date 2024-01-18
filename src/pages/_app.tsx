@@ -22,7 +22,7 @@ import Worker from '../components/worker'
 import { VideoCallProvider } from 'context/VideoCallContext'
 import VideoCallWindow from '@elements/Chat/VideoCallWindowComponent'
 import ParticlesComponent from '@elements/Particles'
-import { darkTheme, lightTheme, defaultTheme } from 'theme'
+import { darkTheme, lightTheme, defaultTheme } from 'theme/theme'
 import CustomScrollbar from '@elements/CustomScrollbar'
 import { AuthProvider } from 'context/AuthProvider'
 

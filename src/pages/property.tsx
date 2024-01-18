@@ -84,7 +84,6 @@ export default function Property({ userInfo }) {
       },
     },
   })
-
   useEffect(() => {
     setAnalysis()
   }, [])
@@ -158,21 +157,23 @@ export default function Property({ userInfo }) {
                         overflow: 'hidden',
                       }}>
                       <Typography
-                        display={i !== personalStatus.statusIndex ? 'none' : 'inline'}
+                        display={
+                          i !== personalStatus.statusIndex ? 'none' : 'inline'
+                        }
                         component={'span'}
                         position={'absolute'}
                         left={phoneBreakpoint ? '4rem' : '6rem'}
                         fontSize={phoneBreakpoint ? '.8rem' : '1rem'}
                         sx={{
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            fontStyle: 'italic',
-                            color: "lightgrey",
-                            '&: first-letter': {
-                                fontSize: '120%',
-                            }
-                        }}
-                        >
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          fontStyle: 'italic',
+                          color: 'darkgray',
+                          textShadow: '1px 1px white',
+                          '&: first-letter': {
+                            fontSize: '120%',
+                          },
+                        }}>
                         {
                           [
                             'ZERO',
@@ -182,7 +183,9 @@ export default function Property({ userInfo }) {
                             'PROFI',
                             'TALENTI',
                             'EXPERT',
-                          ][analysisResult[0][i]]
+                          ][
+                            analysisResult[0][i] >= 6 ? 6 : analysisResult[0][i]
+                          ]
                         }
                       </Typography>
 
@@ -269,7 +272,9 @@ export default function Property({ userInfo }) {
                       }}>
                       {
                         analysisDoc[currentLangMode[lang]][i].description[
-                          personalStatus.quantity
+                          personalStatus.quantity >= 7
+                            ? 6
+                            : personalStatus.quantity
                         ]
                       }
                     </Typography>

@@ -215,6 +215,7 @@ export default function Profile({ userInfo }) {
           <Typography
             sx={{
               fontSize: 30,
+              color: theme => theme.palette.primary.contrastText
             }}>
             {`${firstName} ${lastName}`}
           </Typography>
