@@ -351,7 +351,7 @@ export default function Home({ userInfo }) {
                 textAlign: 'center',
                 borderRadius: '6px 0 0 6px',
                 position: 'absolute',
-                bottom: `calc(${analysisResult[0][0] / 6 * 100}% - 14px)`,
+                bottom: `calc(${(analysisResult[0][0] > 6? 6: analysisResult[0][0]) / 6 * 100}% - 14px)`,
                 right: 38,
                 '&::after': {
                   content: '" "',
@@ -364,7 +364,7 @@ export default function Home({ userInfo }) {
                   borderColor: `transparent transparent transparent ${green[200]}`,
                 },
               }}>
-              {Math.round(analysisResult[0][0] / 6 * 100)}%
+              {Math.round((analysisResult[0][0] > 6? 6: analysisResult[0][0]) / 6 * 100)}%
             </Typography>
           </Box>
         </Box>

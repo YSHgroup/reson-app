@@ -33,6 +33,7 @@ import ImageUploader from '../components/elements/ImageUploader'
 import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { connectToDatabase } from '@lib/db'
+import { usePersonalAnalysis } from 'hooks/usePersonalAnalysis'
 
 const { data: MenuDatas } = MenuData
 export default function Profile({ userInfo }) {
@@ -54,6 +55,7 @@ export default function Profile({ userInfo }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [status, setStatus] = React.useState(0)
   const [nickname, setNickName] = React.useState('')
+  const [analysisResult, setAnalysis] = usePersonalAnalysis(userInfo)
   const [birthday, setBirthday] = React.useState<Dayjs | null>(
     dayjs(
       dayjs(
@@ -68,6 +70,7 @@ export default function Profile({ userInfo }) {
   const numForDate = new GenNumForDate()
   useEffect(() => {
     setDateColor(dateColor[Number(numForDate.getNum().substring(0, 2))])
+    setAnalysis()
     // setBirthday(
     //   dayjs(
     //     !!userInfo
@@ -366,7 +369,7 @@ export default function Profile({ userInfo }) {
                 textAlign: 'center',
                 borderRadius: '6px 0 0 6px',
                 position: 'absolute',
-                bottom: `calc(${energy}% - 14px)`,
+                bottom: `calc(${(analysisResult[0][0] > 6? 6: analysisResult[0][0]) / 6 * 100}% - 14px)`,
                 right: 38,
                 '&::after': {
                   content: '" "',
@@ -379,7 +382,7 @@ export default function Profile({ userInfo }) {
                   borderColor: `transparent transparent transparent ${green[200]}`,
                 },
               }}>
-              {energy}%
+              {Math.round((analysisResult[0][0] > 6? 6: analysisResult[0][0]) / 6 * 100)}%
             </Typography>
           </Box>
           <Typography sx={{ color: 'text.primary' }}>{nickname}</Typography>
