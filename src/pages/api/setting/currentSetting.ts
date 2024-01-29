@@ -34,6 +34,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.json({ status: 200, data: currentSetting })
   } catch (error) {
     console.error('current setting error: ', error)
+    if (!currentUser || currentUser._id === undefined ) {
+      console.log('Unregistried user')
+    }
     settingsCollection
       .updateOne(
         { user_id: currentUser._id },

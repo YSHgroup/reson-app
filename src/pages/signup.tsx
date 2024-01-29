@@ -11,10 +11,10 @@ import PlaceIcon from '@mui/icons-material/Place'
 import React from 'react'
 import CenterLayout from '@layouts/CenterLayout'
 import Image from 'next/image'
-import flag_1 from '../../public/images/US_flag.png'
-import flag_2 from '../../public/images/DE_flag.png'
-import flag_3 from '../../public/images/RU_flag.png'
-import flag_4 from '../../public/images/UA_flag.png'
+import flag_1 from '../../public/images/flags/US_flag.png'
+import flag_2 from '../../public/images/flags/DE_flag.png'
+import flag_3 from '../../public/images/flags/RU_flag.png'
+import flag_4 from '../../public/images/flags/UA_flag.png'
 import {
   Backdrop,
   ButtonBase,
