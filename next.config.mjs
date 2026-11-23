@@ -10,6 +10,11 @@ const nextConfig = {
     includePaths: [path.join(rootDir, 'src')],
   },
   images: {
+    localPatterns: [
+      {
+        pathname: '/api/view',
+      },
+    ],
     remotePatterns: [
       {
         protocol: 'https',
