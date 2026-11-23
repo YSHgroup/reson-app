@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled, useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 
 // Create a global style component that styles scrollbars
 const GlobalScrollbarStyle = styled('div')(({ theme }) => ({
@@ -16,10 +16,8 @@ const GlobalScrollbarStyle = styled('div')(({ theme }) => ({
 }));
 
 export default function CustomScrollbar({children}: {children: React.ReactNode}) {
-  const theme = useTheme(); // Use the theme in this function scope
-  
   return (
-    <GlobalScrollbarStyle theme={theme}>
+    <GlobalScrollbarStyle>
       {children}
     </GlobalScrollbarStyle>
   );
