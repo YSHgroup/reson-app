@@ -1,0 +1,4 @@
+ALTER TABLE "Favorite"
+ADD CONSTRAINT "Favorite_projectId_fkey"
+FOREIGN KEY ("projectId") REFERENCES "Project"("id")
+ON DELETE CASCADE ON UPDATE CASCADE;

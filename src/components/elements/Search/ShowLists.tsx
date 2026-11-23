@@ -99,7 +99,10 @@ export default function GutterlessList(props: any) {
         } else {
           setSnack(
             new Snack({
-              message: 'Already applied',
+              message:
+                results.message === 'Exsit'
+                  ? 'Already applied'
+                  : results.message,
               color: 'error',
               open: true,
             })

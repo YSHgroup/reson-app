@@ -148,6 +148,7 @@ model Project {
   updatedAt   DateTime      @updatedAt
 
   applications Application[]
+  favorites    Favorite[]
 
   @@index([status, createdAt])
   @@index([authorId, createdAt])
@@ -174,6 +175,7 @@ model Favorite {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   @@unique([userId, projectId])

@@ -9,6 +9,9 @@ import multer from 'multer'
 import fs from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 import path from 'path'
+import { ProjectStatus } from '../../../generated/prisma/client'
+import { prisma } from '@lib/prisma'
+import { getPrismaAccount, parseProjectInput, unmigratedAccountMessage } from '@lib/project-api'
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -55,6 +58,36 @@ export default async function handler(req: any, res: NextApiResponse) {
       }
       const fields = JSON.parse(req.body.fields)
       const uploadedFileName = req.file.filename
+      if (process.env.DATABASE_URL) {
+        try {
+          const account = await getPrismaAccount(req, res)
+          if (account.status === 'unauthenticated') {
+            return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
+          }
+          if (account.status === 'unmigrated') {
+            return res.status(409).json({ message: unmigratedAccountMessage() })
+          }
+
+          const parsed = parseProjectInput(fields)
+          if (!parsed.success) {
+            return res.status(RS.CERROR_UNPROCESSABLE).json({ message: parsed.message })
+          }
+
+          await prisma.project.create({
+            data: {
+              ...parsed.data,
+              authorId: account.user.id,
+              status: ProjectStatus.OPEN,
+              fileUrl: uploadedFileName,
+            },
+          })
+          return res.status(200).json({ message: 'success' })
+        } catch (error) {
+          console.error('Project file create failed:', error)
+          return res.status(500).json({ error: 'Failed to upload file' })
+        }
+      }
+
       const client = await connectToDatabase()
       const needCollection = client.db().collection('needs')
       try {

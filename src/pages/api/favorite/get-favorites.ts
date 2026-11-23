@@ -4,6 +4,9 @@ import { connectToDatabase } from '@lib/db'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
 import { MongoClient, ObjectId } from 'mongodb'
+import { prisma } from '@lib/prisma'
+import { getPrismaAccount, unmigratedAccountMessage } from '@lib/project-api'
+import { toLegacyProject } from '@lib/project-compat'
 
 const findUserFavoriteIds = async (
   client: any,
@@ -45,6 +48,44 @@ const findUserFavorite = async (
 }
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  if (process.env.DATABASE_URL) {
+    if (req.method !== 'GET') {
+      return res.status(RS.CERROR_FORBIDDEN).json({ message: 'Method not supported' })
+    }
+
+    try {
+      const account = await getPrismaAccount(req, res)
+      if (account.status === 'unauthenticated') {
+        return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
+      }
+      if (account.status === 'unmigrated') {
+        return res.status(409).json({ message: unmigratedAccountMessage() })
+      }
+
+      const favorites = await prisma.favorite.findMany({
+        where: { userId: account.user.id },
+        orderBy: { createdAt: 'desc' },
+        select: { projectId: true },
+      })
+      const projectIds = favorites.map((favorite) => favorite.projectId)
+      const projects = await prisma.project.findMany({
+        where: { id: { in: projectIds } },
+        include: { author: true },
+      })
+      const projectsById = new Map(
+        projects.map((project) => [project.id, toLegacyProject(project)])
+      )
+      return res.status(RS.SUCCESS_OK).json({
+        favorites: projectIds
+          .map((projectId) => projectsById.get(projectId))
+          .filter((project) => project !== undefined),
+      })
+    } catch (error) {
+      console.error('Favorite list request failed:', error)
+      return res.status(RS.SERROR_INTERNAL).json({ message: 'Could not load favorites.' })
+    }
+  }
+
   const session: any = await getServerSession(
     req as any,
     res as any,

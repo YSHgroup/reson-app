@@ -1,9 +1,11 @@
 import { createHash } from 'node:crypto'
-import { MongoClient, ObjectId, type Document } from 'mongodb'
+import { MongoClient, ObjectId, type Db, type Document } from 'mongodb'
 import { PrismaNeon } from '@prisma/adapter-neon'
 import {
   Prisma,
   PrismaClient,
+  ApplicationStatus,
+  ProjectStatus,
   UserRole,
 } from '../src/generated/prisma/client'
 
@@ -132,6 +134,10 @@ async function main() {
 
       console.info(`Imported ${imported} documents from ${name}.`)
     }
+
+    await importProjects(db, prisma)
+    await importApplications(db, prisma)
+    await importFavorites(db, prisma)
     console.info('Legacy MongoDB data is imported; the source database is unchanged.')
   } finally {
     await prisma.$disconnect()
@@ -226,6 +232,249 @@ async function main() {
       })
     })
   }
+}
+
+async function findUserId(prisma: PrismaClient, value: unknown) {
+  const email = stringValue(value).trim().toLowerCase()
+  if (!email) return null
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true },
+  })
+  return user?.id ?? null
+}
+
+async function importProjects(db: Db, prisma: PrismaClient) {
+  let imported = 0
+
+  for await (const document of db.collection<Document>('needs').find().stream()) {
+    const sourceId = objectIdValue(document._id)
+    const existingMapping = await prisma.legacyImport.findUnique({
+      where: {
+        sourceCollection_sourceId: { sourceCollection: 'needs', sourceId },
+      },
+    })
+    if (existingMapping) continue
+
+    const authorId = await findUserId(prisma, document.author)
+    if (!sourceId || !authorId) {
+      console.warn(`Skipped legacy project ${sourceId || '(missing id)'} without a mapped author.`)
+      continue
+    }
+
+    const projectStatus = stringValue(document.status)
+    const status =
+      projectStatus === ProjectStatus.IN_PROGRESS ||
+      projectStatus === ProjectStatus.CLOSED ||
+      projectStatus === ProjectStatus.OPEN
+        ? projectStatus
+        : Number(document.exist) === 0
+          ? ProjectStatus.CLOSED
+          : ProjectStatus.OPEN
+    const createdAt =
+      asDate(document.created_at) ??
+      (document._id instanceof ObjectId
+        ? document._id.getTimestamp()
+        : new Date())
+    await prisma.$transaction(async (transaction) => {
+      const importedProject = await transaction.project.upsert({
+        where: { id: sourceId },
+        create: {
+          id: sourceId,
+          authorId,
+          title: stringValue(document.title, 'Untitled project'),
+          description: stringValue(document.description),
+          startLine: asDate(document.startLine),
+          deadline: asDate(document.deadLine ?? document.deadline),
+          price: numberValue(document.price),
+          payType: stringValue(document.payType) || null,
+          payUnit: stringValue(document.payUnit) || null,
+          workMode: stringValue(document.role) || null,
+          location: stringValue(document.where) || null,
+          latitude: numberValue(
+            (document.location as Record<string, unknown> | undefined)?.latitude
+          ),
+          longitude: numberValue(
+            (document.location as Record<string, unknown> | undefined)?.longitude
+          ),
+          fileUrl: stringValue(document.file) || null,
+          status: status as ProjectStatus,
+          category: stringValue(document.role) || null,
+          createdAt,
+        },
+        update: {},
+        select: { id: true },
+      })
+
+      await transaction.legacyImport.upsert({
+        where: {
+          sourceCollection_sourceId: {
+            sourceCollection: 'needs',
+            sourceId,
+          },
+        },
+        create: {
+          sourceCollection: 'needs',
+          sourceId,
+          targetModel: 'Project',
+          targetId: importedProject.id,
+        },
+        update: {},
+      })
+    })
+    imported += 1
+  }
+
+  console.info(`Mapped ${imported} legacy projects to PostgreSQL.`)
+}
+
+async function importApplications(
+  db: Db,
+  prisma: PrismaClient
+) {
+  let imported = 0
+
+  for await (const document of db.collection<Document>('cans').find().stream()) {
+    const sourceId = objectIdValue(document._id)
+    const existingMapping = await prisma.legacyImport.findUnique({
+      where: {
+        sourceCollection_sourceId: { sourceCollection: 'cans', sourceId },
+      },
+    })
+    if (existingMapping) continue
+
+    const projectId = objectIdValue(document.need_id)
+    const applicantId = await findUserId(prisma, document.author)
+    if (!sourceId || !projectId || !applicantId) {
+      console.warn(`Skipped legacy application ${sourceId || '(missing id)'} with an unmapped reference.`)
+      continue
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true },
+    })
+    if (!project) {
+      console.warn(`Skipped legacy application ${sourceId} because project ${projectId} was not imported.`)
+      continue
+    }
+
+    const statusValue = stringValue(document.status)
+    const status =
+      statusValue === 'rejected'
+        ? ApplicationStatus.declined
+        : Object.values(ApplicationStatus).includes(
+              statusValue as ApplicationStatus
+            )
+          ? (statusValue as ApplicationStatus)
+          : ApplicationStatus.pending
+    const createdAt =
+      asDate(document.created_at) ??
+      (document._id instanceof ObjectId
+        ? document._id.getTimestamp()
+        : new Date())
+
+    await prisma.$transaction(async (transaction) => {
+      const application = await transaction.application.upsert({
+        where: {
+          projectId_applicantId: { projectId, applicantId },
+        },
+        create: {
+          id: sourceId,
+          projectId,
+          applicantId,
+          coverLetter: stringValue(document.description) || null,
+          price: numberValue(document.price),
+          status,
+          createdAt,
+        },
+        update: {},
+        select: { id: true },
+      })
+
+      await transaction.legacyImport.upsert({
+        where: {
+          sourceCollection_sourceId: {
+            sourceCollection: 'cans',
+            sourceId,
+          },
+        },
+        create: {
+          sourceCollection: 'cans',
+          sourceId,
+          targetModel: 'Application',
+          targetId: application.id,
+        },
+        update: {},
+      })
+    })
+    imported += 1
+  }
+
+  console.info(`Mapped ${imported} legacy applications to PostgreSQL.`)
+}
+
+async function importFavorites(
+  db: Db,
+  prisma: PrismaClient
+) {
+  let imported = 0
+
+  for await (const document of db.collection<Document>('favorites').find().stream()) {
+    const sourceId = objectIdValue(document._id)
+    const existingMapping = await prisma.legacyImport.findUnique({
+      where: {
+        sourceCollection_sourceId: {
+          sourceCollection: 'favorites',
+          sourceId,
+        },
+      },
+    })
+    if (existingMapping) continue
+
+    const userId = await findUserId(prisma, document.user_email)
+    const projectIds = Array.isArray(document.favor_id)
+      ? document.favor_id.map(objectIdValue).filter(Boolean)
+      : []
+    if (!sourceId || !userId) {
+      console.warn(`Skipped legacy favorites ${sourceId || '(missing id)'} without a mapped user.`)
+      continue
+    }
+
+    for (const projectId of projectIds) {
+      const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        select: { id: true },
+      })
+      if (!project) continue
+
+      await prisma.favorite.upsert({
+        where: { userId_projectId: { userId, projectId } },
+        create: { userId, projectId },
+        update: {},
+      })
+      imported += 1
+    }
+
+    await prisma.legacyImport.upsert({
+      where: {
+        sourceCollection_sourceId: {
+          sourceCollection: 'favorites',
+          sourceId,
+        },
+      },
+      create: {
+        sourceCollection: 'favorites',
+        sourceId,
+        targetModel: 'FavoriteCollection',
+        targetId: userId,
+      },
+      update: {},
+    })
+  }
+
+  console.info(`Mapped ${imported} legacy favorites to PostgreSQL.`)
 }
 
 main().catch((error: unknown) => {

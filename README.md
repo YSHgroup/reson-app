@@ -48,6 +48,7 @@ is not part of ResonApp's runtime or dependency installation.
    | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Google Places autocomplete |
    | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Optional Stripe payments |
    | `CONNECT_PACK_PRICE_CENTS`, `CONNECT_PACK_SIZE` | Optional Stripe connect-pack settings |
+   | `CONNECTS_PER_APPLICATION` | Connects deducted for each new application (default 1) |
    | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` | Optional SMS phone verification |
 
 3. Start the web app and chat service:
@@ -93,14 +94,14 @@ The Wova marketplace archive under `reference/` is a distinct application with
 its own App Router, Prisma schema, and SQLite data model. ResonApp retains its
 routes and MongoDB integrations while adopting compatible patterns and adding
 a Neon-backed relational foundation. New features use Prisma; legacy MongoDB
-data remains intact. Set `DATABASE_URL`, run `npm run db:generate`, review and
-apply migrations, then run `npm run db:import:mongodb` when ready to import
-legacy data. Apply the committed schema with `npm run db:deploy` before running
-the importer. It is resumable and never deletes or changes the source MongoDB
+data remains intact. Set `DATABASE_URL`, run `npm run db:generate` and
+`npm run db:deploy`, seed assessments with `npm run db:seed`, then run
+`npm run db:import:mongodb` when ready to import legacy data. The importer is
+resumable and never deletes or changes the source MongoDB
 records; every source collection is also retained as JSON in `LegacyDocument`,
-and users are mapped to relational `User` records. Back up both databases and
-review the imported records before switching production features to
-PostgreSQL.
+and users, projects (`needs`), applications (`cans`), and favorites are mapped
+to relational records. Back up both databases and review the imported records
+before switching production features to PostgreSQL.
 
 The App Router `/onboarding` page supports professional and project-owner
 profiles. Phone verification sends one-time codes through Twilio when its
@@ -120,3 +121,6 @@ price. Register `/api/connects/stripe-webhook` with Stripe for the
 `checkout.session.completed`, `checkout.session.async_payment_succeeded`, and
 `checkout.session.expired` events. Credits are granted only by a verified,
 paid webhook and duplicate delivery cannot credit a purchase twice.
+Each new project application costs `CONNECTS_PER_APPLICATION` Connects
+(default one). Credits are non-refundable if an application is declined or
+cancelled.
