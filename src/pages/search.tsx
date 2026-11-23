@@ -143,47 +143,70 @@ export default function Can({ textPattern }) {
   }, [])
   // console.log('radius--> ', can.radius, can.origin)
   const getCountry = async () => {
-    const response = await fetch(`https://ipapi.co/json`)
-    const countryCode = await response.json()
-    // longitude and latitude
-    // console.log('country code--> ', countryCode)
-    // setCan((pre) => ({
-    //   ...pre,
-    //   origin: {
-    //     latitude: countryCode.latitude,
-    //     longitude: countryCode.longitude,
-    //   },
-    // }))
-    setIp(`${countryCode.city}, ${countryCode.country_name}`)
-    showMapBox(`${countryCode.city}, ${countryCode.country_name}`)
+    try {
+      const response = await fetch('https://ipapi.co/json')
+      if (!response.ok) {
+        throw new Error(`Location lookup failed with status ${response.status}.`)
+      }
+
+      const countryCode = await response.json()
+      const location = [countryCode.city, countryCode.country_name]
+        .filter((value): value is string => typeof value === 'string' && !!value)
+        .join(', ')
+      if (!location) return
+
+      setIp(location)
+      await showMapBox(location)
+    } catch (error) {
+      console.error('Could not determine the default search location:', error)
+    }
   }
   const showMapBox = async (country?: string) => {
     const select = where ? where.description : ip
-    fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${
-        country || select
-      }.json?access_token=${mapboxgl.accessToken}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.features.length > 0) {
-          const { center } = data.features[0]
-          setCan((pre) => ({
-            ...pre,
-            origin: {
-              longitude: center[0], latitude: center[1]
-            },
-          }))
-          const map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/streets-v11',
-            center: center,
-            zoom: 6,
-          })
-          map.addControl(new mapboxgl.NavigationControl())
-          new mapboxgl.Marker().setLngLat(center).addTo(map)
-        }
+    const location = country || select
+    if (!location || !mapboxgl.accessToken) return
+
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          location
+        )}.json?access_token=${mapboxgl.accessToken}`
+      )
+      if (!response.ok) {
+        throw new Error(`Map location lookup failed with status ${response.status}.`)
+      }
+
+      const data = await response.json()
+      const coordinates = data.features?.[0]?.center
+      if (
+        !Array.isArray(coordinates) ||
+        coordinates.length < 2 ||
+        !coordinates.every(
+          (coordinate: unknown) =>
+            typeof coordinate === 'number' && Number.isFinite(coordinate)
+        )
+      ) {
+        return
+      }
+      const center: [number, number] = [coordinates[0], coordinates[1]]
+
+      setCan((pre) => ({
+        ...pre,
+        origin: {
+          longitude: center[0], latitude: center[1]
+        },
+      }))
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center,
+        zoom: 6,
       })
+      map.addControl(new mapboxgl.NavigationControl())
+      new mapboxgl.Marker().setLngLat(center).addTo(map)
+    } catch (error) {
+      console.error('Could not load the search map location:', error)
+    }
   }
   useEffect(() => {
     const elements = document.getElementsByClassName(
