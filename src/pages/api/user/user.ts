@@ -5,11 +5,44 @@ import { connectToDatabase } from '@lib/db'
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
-    return
+    res.setHeader('Allow', 'GET')
+    return res.status(405).json({ message: 'Method not allowed.' })
   }
   
   const session: any = await getServerSession(req as any, res as any, authOptions as any)
-  
+  if (!session?.user?.email) {
+    return res.status(401).json({ message: 'Unauthorized.' })
+  }
+
+  if (process.env.DATABASE_URL) {
+    try {
+      const { prisma } = await import('@lib/prisma')
+      const users = await prisma.user.findMany({
+        where: { email: { not: session.user.email } },
+        select: {
+          id: true,
+          email: true,
+          nickname: true,
+          picturePath: true,
+        },
+        orderBy: { email: 'asc' },
+      })
+      return res.json({
+        status: 200,
+        data: users.map((user) => ({
+          ...user,
+          _id: user.id,
+          picpath: user.picturePath,
+          msgs: [],
+          unreadCount: 0,
+        })),
+      })
+    } catch (error) {
+      console.error('Could not load PostgreSQL users:', error)
+      return res.status(500).json({ message: 'Could not load users.' })
+    }
+  }
+
   const client = await connectToDatabase()
   
   const usersCollection = client.db().collection('users')

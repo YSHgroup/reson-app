@@ -3,6 +3,16 @@ import RS from '@constants/ResponseStatus'
 import { connectToDatabase } from '@lib/db'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]"
+import { z } from 'zod'
+
+const calendarSchema = z.object({
+    title: z.string().trim().min(1).max(200),
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date(),
+    bgColor: z.string().max(50).optional().nullable(),
+    description: z.string().max(2000).optional().nullable(),
+    user: z.string().email(),
+})
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
     const session: any = await getServerSession(req as any, res as any, authOptions as any)
@@ -21,11 +31,59 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         })
 
     if (req.method !== 'POST') {
+        res.setHeader('Allow', 'POST')
         return res.status(RS.CERROR_FORBIDDEN).json({
             message: 'Wrong HTTP Method',
         })
     }
-    const data = req.body;
+    const parsed = calendarSchema.safeParse(req.body)
+    if (!parsed.success || (parsed.success && parsed.data.endDate <= parsed.data.startDate)) {
+        return res.status(422).json({ message: 'Invalid calendar event.' })
+    }
+    const data = parsed.data
+
+    if (process.env.DATABASE_URL) {
+        try {
+            const { prisma } = await import('@lib/prisma')
+            const [author, invitee] = await Promise.all([
+                prisma.user.findUnique({
+                    where: { email: session.user.email },
+                    select: { id: true },
+                }),
+                prisma.user.findUnique({
+                    where: { email: data.user.toLowerCase() },
+                    select: { id: true },
+                }),
+            ])
+            if (!author) {
+                return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'User not found.' })
+            }
+            if (!invitee) {
+                return res.status(RS.CERROR_NOTFOUND).json({ message: 'Invitee not found.' })
+            }
+            const newSchedule = await prisma.calendarEvent.create({
+                data: {
+                    authorId: author.id,
+                    inviteeId: invitee.id,
+                    title: data.title,
+                    startDate: data.startDate,
+                    endDate: data.endDate,
+                    background: data.bgColor,
+                    description: data.description,
+                },
+            })
+            return res.status(200).json({
+                message: 'Success',
+                newSchedule,
+            })
+        } catch (error) {
+            console.error('Could not save PostgreSQL calendar event:', error)
+            return res.status(RS.SERROR_INTERNAL).json({
+                message: 'Could not save calendar event.',
+            })
+        }
+    }
+
     const client = await connectToDatabase()
     const calendarCollection = client.db().collection('calendar');
     const messagesCollection = client.db().collection('messages');
@@ -48,15 +106,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         messageObj['read'] = false;
         messageObj['type'] = 'text';
         await messagesCollection.insertOne(messageObj);
-        client.close();
+        await client.close();
         return res.status(200).json({
             message: "Success",
             newSchedule: newSchedule
         })
     } catch (error) {
-        client.close()
+        await client.close()
+        console.error('Could not save MongoDB calendar event:', error)
         return res.status(RS.SERROR_INTERNAL).json({
-            message: error,
+            message: 'Could not save calendar event.',
         })
     }
 }
