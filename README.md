@@ -1,34 +1,77 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ResonApp
 
-## Getting Started 
+ResonApp is a collaborative project platform built with Next.js. It supports
+project discovery and applications, user profiles, favorites, calendars, and
+real-time messaging, including group chat and calls.
 
-First, run the development server:
+## Technology
 
-```bash
-npm i && npm run dev
-# or
-yarn && yarn dev
-```
+- Next.js 13 Pages Router with React and TypeScript
+- MongoDB for application data
+- NextAuth.js for authentication
+- A separate Express and Socket.IO service for real-time chat
+- Material UI for interface components
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The `reference/` directory contains a separate Wova job-marketplace project. It
+is not part of ResonApp's runtime or dependency installation.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Requirements
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+- Node.js 18 or newer
+- Access to a MongoDB database
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+## Local development
 
-## Learn More
+1. Install dependencies:
 
-To learn more about Next.js, take a look at the following resources:
+   ```sh
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Set the environment variables required by the integrations you use. Keep
+   local values in an ignored environment file and never commit credentials.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+   | Variable | Purpose |
+   | --- | --- |
+   | `MONGO_URI` | MongoDB connection string |
+   | `NEXT_PUBLIC_BASE_URL` | Public base URL used when constructing app links |
+   | `NEXT_PUBLIC_CHAT_URI` | URL of the Socket.IO chat service |
+   | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `REDIRECT_URI` | Google sign-in |
+   | `CONTACT_REDIRECT_URI`, `SCOPES` | Google Contacts integration |
 
-## Deploy on Vercel
+3. Start the web app and chat service:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```sh
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+   The Next.js app uses port 3000 and the chat service uses port 4000.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Run the Next.js app and chat service together |
+| `npm run next:dev` | Run only the Next.js development server |
+| `npm run chat:dev` | Run only the chat service with Nodemon |
+| `npm run build` | Build the Next.js app |
+| `npm run next:start` | Start the production Next.js server |
+| `npm run chat:start` | Start the production chat service |
+| `npm run lint` | Run the Next.js ESLint checks |
+
+The production web and chat services are started separately with
+`npm run next:start` and `npm run chat:start`.
+
+## Project layout
+
+- `src/pages/` — Pages Router screens and API routes
+- `src/components/` — Shared UI components and layouts
+- `src/lib/` — Database and application helpers
+- `server/` — Express and Socket.IO chat service
+- `public/` — Static assets
+
+## Reference project
+
+The Wova marketplace archive under `reference/` is a distinct application with
+its own App Router, Prisma schema, and SQLite data model. Its code and database
+are not wired into ResonApp.
