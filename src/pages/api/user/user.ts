@@ -27,15 +27,50 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         },
         orderBy: { email: 'asc' },
       })
+      const messagesByAuthor = new Map<
+        string,
+        { msgs: Record<string, unknown>[]; unreadCount: number }
+      >()
+
+      if (process.env.MONGO_URI && users.length > 0) {
+        const client = await connectToDatabase()
+        try {
+          const messages = await client
+            .db()
+            .collection('messages')
+            .find({
+              author: { $in: users.map((user) => user.email) },
+              to: session.user.email,
+            })
+            .toArray()
+          for (const message of messages) {
+            const authorMessages = messagesByAuthor.get(message.author) ?? {
+              msgs: [],
+              unreadCount: 0,
+            }
+            authorMessages.msgs.push(message)
+            if (message.read === false) {
+              authorMessages.unreadCount += 1
+            }
+            messagesByAuthor.set(message.author, authorMessages)
+          }
+        } finally {
+          await client.close()
+        }
+      }
+
       return res.json({
         status: 200,
-        data: users.map((user) => ({
-          ...user,
-          _id: user.id,
-          picpath: user.picturePath,
-          msgs: [],
-          unreadCount: 0,
-        })),
+        data: users.map((user) => {
+          const chat = messagesByAuthor.get(user.email)
+          return {
+            ...user,
+            _id: user.id,
+            picpath: user.picturePath,
+            msgs: chat?.msgs ?? [],
+            unreadCount: chat?.unreadCount ?? 0,
+          }
+        }),
       })
     } catch (error) {
       console.error('Could not load PostgreSQL users:', error)
