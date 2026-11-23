@@ -5,19 +5,23 @@ import React, {
   useContext,
   useCallback,
 } from 'react'
-import { Minimize, CallEnd, PhoneEnabled } from '@mui/icons-material'
+import {
+  Minimize,
+  CallEnd,
+  PhoneEnabled,
+  Videocam,
+  VideocamOff,
+} from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 import { Close } from '@mui/icons-material'
 import LinearProgress from '@mui/material/LinearProgress'
-import { Stack } from '@mui/material'
+import { Button, Stack } from '@mui/material'
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
-import { getSession, useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
-import { useRouter } from 'next/router'
 import io, { type Socket } from 'socket.io-client'
 import { VideoCallContext } from 'context/VideoCallContext'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
-import AudioComponent from './AudioComponent'
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -26,12 +30,27 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
 })
 
-const pc_config = {
-  iceServers: [
-    {
-      urls: 'stun:stun.l.google.com:19302',
-    },
-  ],
+function getIceServers(): RTCIceServer[] {
+  const turnUrls = process.env.NEXT_PUBLIC_TURN_URLS?.split(',')
+    .map((url) => url.trim())
+    .filter(Boolean)
+  const iceServers: RTCIceServer[] = [
+    { urls: 'stun:stun.l.google.com:19302' },
+  ]
+
+  if (turnUrls?.length) {
+    const username = process.env.NEXT_PUBLIC_TURN_USERNAME
+    const credential = process.env.NEXT_PUBLIC_TURN_CREDENTIAL
+    if (!username || !credential) {
+      console.error(
+        'TURN URLs are configured but TURN username or credential is missing.'
+      )
+    } else {
+      iceServers.push({ urls: turnUrls, username, credential })
+    }
+  }
+
+  return iceServers
 }
 const beaks = [
   '/audios/ring1.mp3',
@@ -46,8 +65,31 @@ type WebRTCUser = {
   stream: MediaStream
   nickname: string
 }
+
+function RemoteVideo({ stream, label }: { stream: MediaStream; label: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    if (videoRef.current) videoRef.current.srcObject = stream
+  }, [stream])
+
+  return (
+    <video
+      ref={videoRef}
+      autoPlay
+      playsInline
+      aria-label={`${label} video`}
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain',
+        backgroundColor: '#080808',
+      }}
+    />
+  )
+}
+
 const VideoCallWindow = () => {
-  const router = useRouter()
   const { setSnack } = useContext(SnackbarContext)
   const { data: session } = useSession()
   const [pic, setPic] = useState('')
@@ -58,12 +100,7 @@ const VideoCallWindow = () => {
     setBeingCalled,
     minimizeCall,
     setMinimizeCall,
-    snackText,
     setSnackText,
-    audio1,
-    audio2,
-    audio3,
-    audio4,
     toChat,
     setToChat,
     fromChat,
@@ -77,11 +114,49 @@ const VideoCallWindow = () => {
 
   const socketRef = useRef<Socket | null>(null)
   const pcsRef = useRef<{ [socketId: string]: RTCPeerConnection }>({})
-  const localVideoRef = useRef<HTMLAudioElement>(null)
   const localStreamRef = useRef<MediaStream | null>(null)
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null)
+  const [cameraEnabled, setCameraEnabled] = useState(true)
   const [users, setUsers] = useState<WebRTCUser[]>([])
+  const [callAudio, setCallAudio] = useState<{
+    outgoing: HTMLAudioElement | null
+    incoming: HTMLAudioElement | null
+    connected: HTMLAudioElement | null
+    ended: HTMLAudioElement | null
+  }>({ outgoing: null, incoming: null, connected: null, ended: null })
 
-  const fetchData = async () => {
+  const callendInit = useCallback(() => {
+    localStreamRef.current?.getTracks().forEach((track) => track.stop())
+    Object.values(pcsRef.current).forEach((connection) => connection.close())
+    pcsRef.current = {}
+    localStreamRef.current = null
+    setLocalStream(null)
+    setCameraEnabled(true)
+    callAudio.outgoing?.pause()
+    callAudio.incoming?.pause()
+    callAudio.ended?.play()
+    setIsCalling(false)
+    setMinimizeCall(false)
+    isCallingRef.current = false
+    setCallAccepted(false)
+    setBeingCalled(false)
+    setSnackText('')
+    callIdRef.current = undefined
+    callStatusRef.current = undefined
+    setFromChat('')
+    setToChat('')
+    setUsers([])
+  }, [
+    callAudio,
+    setBeingCalled,
+    setFromChat,
+    setIsCalling,
+    setMinimizeCall,
+    setSnackText,
+    setToChat,
+  ])
+
+  const fetchData = useCallback(async () => {
     if (toChat === '' || fromChat === '') return
     const responseData = { email: toChat }
     try {
@@ -97,116 +172,140 @@ const VideoCallWindow = () => {
     } catch (error) {
       console.log(error)
     }
-  }
+  }, [fromChat, toChat])
 
-  useEffect(() => {
-    if (isCalling && fromChat !== '' && toChat !== '') {
-      fetchData()
-      getLocalStream(toChat)
-    }
-  }, [isCalling, fromChat, toChat])
-
-  const getLocalStream = useCallback(async (toChat: string) => {
-    socketRef.current.emit('callUser', {
-      from: session?.user?.email,
-      to: toChat,
-    })
-    navigator.mediaDevices
-      .getUserMedia({
+  const acquireLocalStream = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true,
+      })
+      setCameraEnabled(true)
+      return stream
+    } catch (cameraError) {
+      console.warn('Camera access unavailable; trying an audio-only call.', cameraError)
+      const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: false,
       })
-      .then((localStream) => {
-        localStreamRef.current = localStream
-        audio1.current.play()
-        audio1.current.loop = true
+      setCameraEnabled(false)
+      setSnack(
+        new Snack({
+          message: 'Camera unavailable. Continuing with audio only.',
+          color: 'warning',
+          open: true,
+        })
+      )
+      return stream
+    }
+  }, [setSnack])
+
+  const getLocalStream = useCallback(
+    async (recipient: string) => {
+      try {
+        const stream = await acquireLocalStream()
+        localStreamRef.current = stream
+        setLocalStream(stream)
+        callAudio.outgoing?.play()
+        if (callAudio.outgoing) callAudio.outgoing.loop = true
         setIsCalling(true)
         isCallingRef.current = true
-        if (localVideoRef.current) localVideoRef.current.srcObject = localStream
-        if (!socketRef.current) return
-        const payload = {
-          to: toChat,
-        }
-        fetch('/api/message/newCall', {
+
+        const response = await fetch('/api/message/newCall', {
           method: 'POST',
-          body: JSON.stringify(payload),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }).then(async (res: any) => {
-          const resData = await res.json()
-          callIdRef.current = resData.newCallInfo.insertedId
+          body: JSON.stringify({ to: recipient }),
+          headers: { 'Content-Type': 'application/json' },
         })
-        socketRef.current.emit('join_room', {
+        const responseData = await response.json()
+        if (!response.ok) {
+          throw new Error(responseData.message ?? 'Could not start the call.')
+        }
+        callIdRef.current = responseData.newCallInfo.insertedId
+        socketRef.current?.emit('callUser', {
+          from: session?.user?.email,
+          to: recipient,
+        })
+        socketRef.current?.emit('join_room', {
           room: session?.user?.email,
           email: session?.user?.email,
           nickname: session?.user?.name,
         })
-      })
-      .catch((error) => {
+      } catch (error) {
+        console.error('Could not access call media or start the call:', error)
         setSnack(
           new Snack({
-            message: 'Not found media device',
+            message:
+              error instanceof Error && error.name === 'NotAllowedError'
+                ? 'Allow microphone and camera access to start a call.'
+                : 'Could not access a microphone. Check your device and permissions.',
             color: 'error',
             open: true,
           })
         )
-        audio1.current.pause()
-        audio2.current.pause()
-        audio4.current.play()
-        setIsCalling(false)
-        setMinimizeCall(false)
-        setBeingCalled(false)
-        setSnackText('')
-        setFromChat('')
-        setToChat('')
-      })
-  }, [])
+        callendInit()
+      }
+    },
+    [
+      acquireLocalStream,
+      callendInit,
+      callAudio,
+      session,
+      setIsCalling,
+      setSnack,
+    ]
+  )
 
-  const acceptCall = useCallback(async (toChat: string) => {
-    socketRef.current.emit('acceptCall', {
-      to: toChat,
-      from: session?.user?.email,
-    })
-    try {
-      const localStream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: false,
-      })
-      localStreamRef.current = localStream
-      setCallAccepted(true)
-      audio2.current.pause()
-      audio3.current.play()
-      if (localVideoRef.current) localVideoRef.current.srcObject = localStream
-      if (!socketRef.current) return
-      socketRef.current.emit('join_room', {
-        room: toChat,
-        email: session?.user?.email,
-        nickname: session?.user?.name,
-      })
-    } catch (e) {
-      setSnack(
-        new Snack({
-          message: 'Not found media device',
-          color: 'error',
-          open: true,
+  const acceptCall = useCallback(
+    async (caller: string) => {
+      try {
+        const stream = await acquireLocalStream()
+        localStreamRef.current = stream
+        setLocalStream(stream)
+        setCallAccepted(true)
+        callAudio.incoming?.pause()
+        callAudio.connected?.play()
+        socketRef.current?.emit('acceptCall', {
+          to: caller,
+          from: session?.user?.email,
         })
-      )
-      audio1.current.pause()
-      audio2.current.pause()
-      audio4.current.play()
-      setIsCalling(false)
-      setMinimizeCall(false)
-      setBeingCalled(false)
-      setSnackText('')
-      setFromChat('')
-      setToChat('')
+        socketRef.current?.emit('join_room', {
+          room: caller,
+          email: session?.user?.email,
+          nickname: session?.user?.name,
+        })
+      } catch (error) {
+        console.error('Could not access call media:', error)
+        setSnack(
+          new Snack({
+            message:
+              error instanceof Error && error.name === 'NotAllowedError'
+                ? 'Allow microphone and camera access to answer the call.'
+                : 'Could not access a microphone. Check your device and permissions.',
+            color: 'error',
+            open: true,
+          })
+        )
+        callendInit()
+      }
+    },
+    [
+      acquireLocalStream,
+      callAudio,
+      callendInit,
+      session,
+      setSnack,
+    ]
+  )
+  useEffect(() => {
+    if (isCalling && fromChat !== '' && toChat !== '') {
+      void fetchData()
+      void getLocalStream(toChat)
     }
-  }, [])
+  }, [fetchData, fromChat, getLocalStream, isCalling, toChat])
   const createPeerConnection = useCallback(
     (socketID: string, email: string, nickname: string) => {
       try {
-        const pc = new RTCPeerConnection(pc_config)
+        const pc = new RTCPeerConnection({ iceServers: getIceServers() })
         pc.onicecandidate = (e) => {
           if (!(socketRef.current && e.candidate)) return
           socketRef.current.emit('candidate', {
@@ -247,19 +346,27 @@ const VideoCallWindow = () => {
     []
   )
   useEffect(() => {
-    audio1.current = new Audio(beaks[0])
-    audio2.current = new Audio(beaks[1])
-    audio3.current = new Audio(beaks[2])
-    audio4.current = new Audio(beaks[3])
+    setCallAudio({
+      outgoing: new Audio(beaks[0]),
+      incoming: new Audio(beaks[1]),
+      connected: new Audio(beaks[2]),
+      ended: new Audio(beaks[3]),
+    })
     socketRef.current = io(
       `${String(process.env.NEXT_PUBLIC_CHAT_URI)}/chatCall`,
       {
         secure: true,
       }
     )
+    return () => {
+      socketRef.current?.disconnect()
+    }
   }, [])
   useEffect(() => {
-    socketRef.current.on(
+    const socket = socketRef.current
+    if (!socket) return
+
+    socket.on(
       'all_users',
       (allUsers: Array<{ id: string; email: string; nickname: string }>) => {
         allUsers.forEach(async (user) => {
@@ -268,10 +375,7 @@ const VideoCallWindow = () => {
           if (!(pc && socketRef.current)) return
           pcsRef.current = { ...pcsRef.current, [user.id]: pc }
           try {
-            const localSdp = await pc.createOffer({
-              offerToReceiveAudio: true,
-              offerToReceiveVideo: false,
-            })
+            const localSdp = await pc.createOffer()
             await pc.setLocalDescription(new RTCSessionDescription(localSdp))
             socketRef.current.emit('offer', {
               sdp: localSdp,
@@ -286,7 +390,7 @@ const VideoCallWindow = () => {
         })
       }
     )
-    socketRef.current.on(
+    socket.on(
       'getOffer',
       async (data: {
         sdp: RTCSessionDescription
@@ -305,10 +409,7 @@ const VideoCallWindow = () => {
         pcsRef.current = { ...pcsRef.current, [offerSendID]: pc }
         try {
           await pc.setRemoteDescription(new RTCSessionDescription(sdp))
-          const localSdp = await pc.createAnswer({
-            offerToReceiveVideo: false,
-            offerToReceiveAudio: true,
-          })
+          const localSdp = await pc.createAnswer()
           await pc.setLocalDescription(new RTCSessionDescription(localSdp))
           socketRef.current.emit('answer', {
             sdp: localSdp,
@@ -320,7 +421,7 @@ const VideoCallWindow = () => {
         }
       }
     )
-    socketRef.current.on(
+    socket.on(
       'getAnswer',
       (data: { sdp: RTCSessionDescription; answerSendID: string }) => {
         const { sdp, answerSendID } = data
@@ -330,7 +431,7 @@ const VideoCallWindow = () => {
         pc.setRemoteDescription(new RTCSessionDescription(sdp))
       }
     )
-    socketRef.current.on('callingMe', (data: any) => {
+    socket.on('callingMe', (data: any) => {
       if (data.to === session?.user?.email) {
         setToChat(data.from)
         setFromChat(data.to)
@@ -343,11 +444,11 @@ const VideoCallWindow = () => {
             open: true,
           })
         )
-        audio2.current.play()
-        audio2.current.loop = true
+        callAudio.incoming?.play()
+        if (callAudio.incoming) callAudio.incoming.loop = true
       }
     })
-    socketRef.current.on('acceptCall', (data: any) => {
+    socket.on('acceptCall', (data: any) => {
       if (data.to === session?.user?.email) {
         setCallAccepted(true)
         callStatusRef.current = 'receivedCall'
@@ -369,11 +470,11 @@ const VideoCallWindow = () => {
             open: true,
           })
         )
-        audio1.current.pause()
-        audio3.current.play()
+        callAudio.outgoing?.pause()
+        callAudio.connected?.play()
       }
     })
-    socketRef.current.on(
+    socket.on(
       'getCandidate',
       async (data: {
         candidate: RTCIceCandidateInit
@@ -384,20 +485,42 @@ const VideoCallWindow = () => {
         await pc.addIceCandidate(new RTCIceCandidate(data.candidate))
       }
     )
-    socketRef.current.on('user_exit', (data: { id: string }) => {
+    socket.on('user_exit', (data: { id: string }) => {
+      if (pcsRef.current[data.id]) {
+        pcsRef.current[data.id].close()
+        delete pcsRef.current[data.id]
+      }
+      setUsers((currentUsers) =>
+        currentUsers.filter((user) => user.id !== data.id)
+      )
       callendInit()
     })
 
-    socketRef.current.on('cancelCall', (data: any) => {
+    socket.on('cancelCall', (data: any) => {
       if (data.to === session?.user?.email) {
         callendInit()
       }
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createPeerConnection, getLocalStream, acceptCall])
+    return () => {
+      socket.removeAllListeners()
+    }
+  }, [
+    acceptCall,
+    callAudio,
+    callendInit,
+    createPeerConnection,
+    fetchData,
+    getLocalStream,
+    session?.user?.email,
+    session?.user?.name,
+    setBeingCalled,
+    setFromChat,
+    setSnack,
+    setToChat,
+  ])
 
-  const handleCloseVideoCall = (flag: Boolean = true) => {
-    if (callStatusRef.current == 'callee') {
+  const handleCloseVideoCall = () => {
+    if (callStatusRef.current == 'callee' && !callAccepted) {
       fetch('/api/message/declinedCall', {
         method: 'POST',
         body: JSON.stringify({ callId: callIdRef.current }),
@@ -411,36 +534,14 @@ const VideoCallWindow = () => {
         })
     }
     if (callAccepted) {
-      socketRef.current.emit('endCall', {})
+      socketRef.current?.emit('endCall', {})
     } else {
-      socketRef.current.emit('cancelCall', {
+      socketRef.current?.emit('cancelCall', {
         from: session?.user?.email,
         to: toChat,
       })
-      callendInit()
     }
-  }
-
-  const callendInit = () => {
-    localVideoRef.current = null
-    localStreamRef.current
-      ?.getTracks()
-      .forEach((track: { stop: () => any }) => track.stop())
-    pcsRef.current = {}
-    audio1.current.pause()
-    audio2.current.pause()
-    audio4.current.play()
-    setIsCalling(false)
-    setMinimizeCall(false)
-    isCallingRef.current = false
-    setCallAccepted(false)
-    setBeingCalled(false)
-    setSnackText('')
-    callIdRef.current = undefined
-    setFromChat('')
-    setToChat('')
-    delete pcsRef.current
-    setUsers([])
+    callendInit()
   }
 
   const onCallEnd = () => {
@@ -448,6 +549,25 @@ const VideoCallWindow = () => {
   }
   const answerCall = () => {
     acceptCall(toChat)
+  }
+  const toggleCamera = () => {
+    const videoTracks = localStreamRef.current?.getVideoTracks() ?? []
+    if (!videoTracks.length) {
+      setSnack(
+        new Snack({
+          message: 'No camera is available for this call.',
+          color: 'warning',
+          open: true,
+        })
+      )
+      return
+    }
+
+    const nextEnabled = !cameraEnabled
+    videoTracks.forEach((track) => {
+      track.enabled = nextEnabled
+    })
+    setCameraEnabled(nextEnabled)
   }
   return (
     <>
@@ -467,9 +587,8 @@ const VideoCallWindow = () => {
           }}>
           <div
             style={{
-              width: '640px',
-              height: '480px',
-              objectFit: 'cover',
+              width: 'min(900px, calc(100vw - 32px))',
+              height: 'min(680px, calc(100vh - 32px))',
               borderRadius: '4px',
               border: '2px solid #312f41',
               display: 'flex',
@@ -486,34 +605,92 @@ const VideoCallWindow = () => {
             </div>
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'Center',
+                position: 'relative',
                 flexGrow: 1,
+                minHeight: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
               }}>
-              <Image
-                style={{
-                  alignSelf: 'center',
-                  border: '1px solid #6e6a91',
-                  borderRadius: '50%',
-                  width: '240px',
-                  height: '240px',
-                  padding: '4px',
-                }}
-                src={
-                  pic == '' || pic == undefined
-                    ? `/images/male.png`
-                    : `/api/view?name=chats/${pic}`
-                }
-                alt="male"
-                width={70}
-                height={70}
-              />
+              {callAccepted && users.length ? (
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'grid',
+                    gridTemplateColumns:
+                      users.length > 1 ? 'repeat(2, minmax(0, 1fr))' : '1fr',
+                    gap: '8px',
+                  }}>
+                  {users.map((user) => (
+                    <RemoteVideo
+                      key={user.id}
+                      stream={user.stream}
+                      label={user.nickname || user.email}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <Image
+                  style={{
+                    alignSelf: 'center',
+                    border: '1px solid #6e6a91',
+                    borderRadius: '50%',
+                    width: 'min(240px, 45vw)',
+                    height: 'auto',
+                    padding: '4px',
+                  }}
+                  src={
+                    pic == '' || pic == undefined
+                      ? `/images/male.png`
+                      : `/api/view?name=chats/${pic}`
+                  }
+                  alt="male"
+                  width={240}
+                  height={240}
+                />
+              )}
+              {callAccepted && localStream && (
+                <video
+                  ref={(element) => {
+                    if (element) element.srcObject = localStream
+                  }}
+                  autoPlay
+                  muted
+                  playsInline
+                  aria-label="Your video preview"
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    bottom: '12px',
+                    width: 'min(28%, 220px)',
+                    aspectRatio: '16 / 9',
+                    objectFit: 'cover',
+                    transform: 'scaleX(-1)',
+                    backgroundColor: '#080808',
+                    border: '1px solid #6e6a91',
+                    borderRadius: '6px',
+                  }}
+                />
+              )}
             </div>
             <div
               style={{
                 display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
                 justifyContent: 'Center',
               }}>
+              {callAccepted && localStream?.getVideoTracks().length ? (
+                <Button
+                  color="inherit"
+                  startIcon={cameraEnabled ? <VideocamOff /> : <Videocam />}
+                  onClick={toggleCamera}
+                  aria-label={cameraEnabled ? 'Turn camera off' : 'Turn camera on'}>
+                  {cameraEnabled ? 'Turn camera off' : 'Turn camera on'}
+                </Button>
+              ) : null}
               {!callAccepted && !isCalling && (
                 <Fab
                   style={{ backgroundColor: 'green', marginRight: '25px' }}
@@ -552,11 +729,6 @@ const VideoCallWindow = () => {
           </Stack>
         </div>
       )}
-      {callAccepted
-        ? users.map((user, index) => (
-            <AudioComponent key={user.email} stream={user.stream} />
-          ))
-        : null}
     </>
   )
 }

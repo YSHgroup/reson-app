@@ -1,4 +1,4 @@
-import React, { createContext, useState, useRef } from 'react'
+import React, { createContext, useState } from 'react'
 
 interface VideoContextProps {
   isCalling: boolean
@@ -9,10 +9,6 @@ interface VideoContextProps {
   setMinimizeCall: (value: boolean) => void
   snackText: string | ''
   setSnackText: (value: string | '') => void
-  audio1: any | null
-  audio2: any | null
-  audio3: any | null
-  audio4: any | null
   toChat: string
   fromChat: string
   setToChat: (value: string | undefined) => void
@@ -36,10 +32,6 @@ export const VideoCallContext = createContext<VideoContextProps>({
   setSnackText: function (value: string): void {
     throw new Error('Function not implemented.')
   },
-  audio1: undefined,
-  audio2: undefined,
-  audio3: undefined,
-  audio4: undefined,
   toChat: '',
   fromChat: '',
   setToChat: function (value: string | undefined): void {
@@ -63,11 +55,6 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
   const [snackText, setSnackText] = useState<string | ''>('')
   const [toChat, setToChat] = useState<string>()
   const [fromChat, setFromChat] = useState<string>('')
-  const audio1 = useRef<any>(null)
-  const audio2 = useRef<any>(null)
-  const audio3 = useRef<any>(null)
-  const audio4 = useRef<any>(null)
-
   return (
     <VideoCallContext.Provider
       value={{
@@ -83,10 +70,6 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
         setMinimizeCall,
         snackText,
         setSnackText,
-        audio1,
-        audio2,
-        audio3,
-        audio4,
       }}>
       {children}
     </VideoCallContext.Provider>

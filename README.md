@@ -66,6 +66,8 @@ is not part of ResonApp's runtime or dependency installation.
    | `NEXTAUTH_URL` | Public base URL used by NextAuth |
    | `NEXT_PUBLIC_BASE_URL` | Base URL used to construct email verification links |
    | `NEXT_PUBLIC_CHAT_URI` | URL of the Socket.IO chat service |
+   | `NEXT_PUBLIC_TURN_URLS` | Optional comma-separated TURN server URLs for WebRTC calls |
+   | `NEXT_PUBLIC_TURN_USERNAME`, `NEXT_PUBLIC_TURN_CREDENTIAL` | Optional TURN credentials; exposed to browsers, so use short-lived credentials for production |
    | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | Optional email verification |
    | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `REDIRECT_URI` | Google Contacts integration |
    | `CONTACT_REDIRECT_URI`, `SCOPES` | Google Contacts callback settings |
@@ -84,6 +86,22 @@ is not part of ResonApp's runtime or dependency installation.
 
    The Next.js app uses port 3000 and the chat service uses port 4000. Both
    services require the same `DATABASE_URL`.
+
+## Audio and video calls
+
+One-to-one calls use WebRTC with the Socket.IO service for signaling. Calls
+request microphone and camera access; if camera access is unavailable, the app
+falls back to audio-only. Use two signed-in accounts in separate browser
+profiles and allow microphone/camera access to test calls locally.
+
+The app uses Google's public STUN server by default. STUN is sufficient for
+many local and home-network calls, but some networks require TURN relaying.
+To enable TURN, configure `NEXT_PUBLIC_TURN_URLS` as a comma-separated list
+(for example, `turn:turn.example.com:3478,turns:turn.example.com:5349`) along
+with the matching username and credential, then restart/rebuild the web app.
+These values are delivered to the browser. Do not use permanent TURN
+credentials in a public deployment; issue short-lived credentials from a
+trusted server instead.
 
 ## Commands
 
