@@ -1,4 +1,5 @@
 import 'server-only'
+import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaNeon } from '@prisma/adapter-neon'
 import { PrismaClient } from '../generated/prisma/client'
 
@@ -12,7 +13,11 @@ function createPrismaClient() {
     throw new Error('DATABASE_URL is required to connect to Neon PostgreSQL.')
   }
 
-  const adapter = new PrismaNeon({ connectionString })
+  const hostname = new URL(connectionString).hostname
+  const adapter =
+    hostname.endsWith('.neon.tech') || hostname.endsWith('.neon.build')
+      ? new PrismaNeon({ connectionString })
+      : new PrismaPg(connectionString)
   return new PrismaClient({ adapter })
 }
 

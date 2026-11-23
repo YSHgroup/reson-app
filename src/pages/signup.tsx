@@ -96,7 +96,7 @@ async function createUser(userData: object) {
 
   return {
     status: 'success',
-    data: 'New User created!',
+    data: data.message || 'Account created successfully.',
   }
 }
 

@@ -13,12 +13,56 @@ export const authOptions = {
   providers: [
     CredentialsProvider({
       async authorize(credentials) {
+        if (
+          !credentials?.email ||
+          typeof credentials.password !== 'string' ||
+          !credentials.password
+        ) {
+          return null
+        }
+
+        const email = credentials.email.trim().toLowerCase()
+        if (process.env.DATABASE_URL) {
+          const { prisma } = await import('@lib/prisma')
+          const user = await prisma.user.findUnique({
+            where: { email },
+            select: {
+              id: true,
+              email: true,
+              password: true,
+              passwordResetRequired: true,
+              enabled: true,
+              nickname: true,
+              picturePath: true,
+              role: true,
+            },
+          })
+
+          if (!user || user.passwordResetRequired || !user.enabled) {
+            return null
+          }
+
+          const isValid = await verifyPassword(
+            credentials.password,
+            user.password
+          )
+          if (!isValid) return null
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.nickname,
+            image: user.picturePath,
+            role: user.role,
+          }
+        }
+
         const client = await connectToDatabase()
 
         const usersCollection = client.db().collection('users')
 
         const user = await usersCollection.findOne({
-          email: credentials.email,
+          email,
         })
 
         if (!user) {
@@ -43,6 +87,7 @@ export const authOptions = {
 
         client.close()
         return {
+          id: user._id.toString(),
           email: user.email,
           name: user.nickname,
           image: user.picpath,

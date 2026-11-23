@@ -8,7 +8,8 @@ real-time messaging, including group chat and calls.
 
 - Next.js 16 with React 19 and TypeScript
 - Node.js 20.19 or newer (required by Prisma's Neon driver)
-- MongoDB for application data
+- PostgreSQL (local or Neon) for migrated account and marketplace features
+- MongoDB remains supported for legacy data import and unmigrated features
 - NextAuth.js for authentication
 - Prisma with PostgreSQL (Neon) for new relational features
 - A separate Express and Socket.IO service for real-time chat
@@ -20,7 +21,8 @@ is not part of ResonApp's runtime or dependency installation.
 ## Requirements
 
 - Node.js 20.19 or newer
-- Access to a MongoDB database
+- PostgreSQL 15 or newer for local testing
+- MongoDB is optional unless using legacy MongoDB-backed features
 
 ## Local development
 
@@ -30,20 +32,43 @@ is not part of ResonApp's runtime or dependency installation.
    npm install
    ```
 
-2. Set the environment variables required by the integrations you use. Keep
+2. Create a local PostgreSQL database (for example `reson_test`), copy
+   `.env.example` to `.env.local`, and set `DATABASE_URL` to that database.
+   Prisma chooses the standard PostgreSQL driver for local databases and the
+   Neon driver for Neon URLs. For example:
+
+   ```text
+   DATABASE_URL=postgresql://postgres:YOUR_LOCAL_PASSWORD@localhost:5432/reson_test?schema=public
+   ```
+
+   Set a private `NEXTAUTH_SECRET` as well. On PowerShell, generate one with
+   `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.
+   Apply the schema and seed the assessment bank:
+
+   ```powershell
+   npm run db:deploy
+   npm run db:seed
+   ```
+
+   With SMTP settings left blank, local signups are immediately enabled; no
+   email provider is required. If SMTP is configured, new users must verify
+   their email before signing in.
+
+3. Set any other environment variables required by integrations you use. Keep
    local values in `.env.local` and never commit credentials. `.env.example`
    lists the supported variables without containing private values.
 
    | Variable | Purpose |
    | --- | --- |
    | `MONGO_URI` | MongoDB connection string |
-   | `DATABASE_URL` | Neon PostgreSQL connection string for Prisma |
+   | `DATABASE_URL` | Local PostgreSQL or Neon connection string for Prisma |
    | `LEGACY_MONGO_URI`, `LEGACY_MONGO_DATABASE` | Optional legacy MongoDB source for data migration |
    | `NEXT_PUBLIC_BASE_URL` | Public base URL used when constructing app links |
    | `NEXT_PUBLIC_CHAT_URI` | URL of the Socket.IO chat service |
    | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `REDIRECT_URI` | Google sign-in |
    | `CONTACT_REDIRECT_URI`, `SCOPES` | Google Contacts integration |
    | `NEXTAUTH_SECRET` | Secret used to sign NextAuth sessions |
+   | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | Optional email verification |
    | `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` | Mapbox maps and geocoding |
    | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Google Places autocomplete |
    | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Optional Stripe payments |
@@ -51,7 +76,7 @@ is not part of ResonApp's runtime or dependency installation.
    | `CONNECTS_PER_APPLICATION` | Connects deducted for each new application (default 1) |
    | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` | Optional SMS phone verification |
 
-3. Start the web app and chat service:
+4. Start the web app and chat service:
 
    ```sh
    npm run dev
@@ -103,12 +128,15 @@ and users, projects (`needs`), applications (`cans`), and favorites are mapped
 to relational records. Back up both databases and review the imported records
 before switching production features to PostgreSQL.
 
+When `DATABASE_URL` is configured, signup and credentials sign-in use
+PostgreSQL directly; MongoDB is not required for local account testing. Without
+`DATABASE_URL`, the legacy signup/authentication path uses MongoDB.
+
 The App Router `/onboarding` page supports professional and project-owner
 profiles. Phone verification sends one-time codes through Twilio when its
 credentials are configured; codes are hashed, expire after five minutes, and
-are limited to five attempts. Existing signup continues to write to MongoDB
-and, when `DATABASE_URL` is configured, synchronizes a new profile to
-PostgreSQL. Imported accounts are not overwritten.
+are limited to five attempts. Signup uses the configured primary database and
+does not copy local test accounts to MongoDB.
 
 Professional accounts can take timed skill assessments at `/skills`. Questions
 are selected randomly from the seeded question bank, answers are graded only
