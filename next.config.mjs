@@ -12,6 +12,9 @@ const nextConfig = {
   images: {
     localPatterns: [
       {
+        pathname: '/images/**',
+      },
+      {
         pathname: '/api/view',
       },
     ],
