@@ -240,6 +240,9 @@ export default function Home({ userInfo }) {
             <MenuItem component={Link} href="/skills" dense>
               {['Skill assessments', 'Fähigkeitstests', 'Оценка навыков', 'Оцінка навичок'][lang]}
             </MenuItem>
+            <MenuItem component={Link} href="/connects" dense>
+              {['Connects', 'Verbindungen', 'Коннекты', 'Конекти'][lang]}
+            </MenuItem>
             <MenuItem dense onClick={() => handleSignOut()}>
               {languagejson[lang].signOut}
             </MenuItem>

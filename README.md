@@ -113,3 +113,10 @@ Professional accounts can take timed skill assessments at `/skills`. Questions
 are selected randomly from the seeded question bank, answers are graded only
 on the server, and a passing score awards the talent badge. Each category is
 limited to three attempts per user per day.
+
+Connect purchases use Stripe Checkout. Configure `STRIPE_SECRET_KEY`,
+`STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_SITE_URL`, and the Connect pack size and
+price. Register `/api/connects/stripe-webhook` with Stripe for the
+`checkout.session.completed`, `checkout.session.async_payment_succeeded`, and
+`checkout.session.expired` events. Credits are granted only by a verified,
+paid webhook and duplicate delivery cannot credit a purchase twice.
