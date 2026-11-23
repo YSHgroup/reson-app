@@ -1,9 +1,7 @@
 import { Drawer } from "@mui/material";
-import styled from "@emotion/styled";
-import { Theme } from '@mui/material/styles'
+import { styled } from "@mui/material/styles";
 
 interface StyledDrawerProps {
-    theme: any;
     ownerState: any;
 }
 

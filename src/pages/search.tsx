@@ -32,7 +32,6 @@ import ShowLists from 'components/elements/Search/ShowLists'
 import FullLayout from '@layouts/FullLayout'
 import { favorIdAtom } from 'atoms'
 import { analyseText } from 'functions/anaylseText'
-import { styled, useTheme } from '@mui/material/styles'
 import { WordsDropdown, TextItem } from '@elements/PredictionWordBox'
 import 'react-swipeable-list/dist/styles.css'
 import 'mapbox-gl/dist/mapbox-gl.css'
@@ -97,8 +96,6 @@ export default function Can({ textPattern }) {
   const [where, setWhere] = useState<PlaceType | null>(null)
   const [predictionWords, setPredictionWords] = useState<any[]>([])
   const [isPut, setIsPut] = useState(false)
-
-  const theme = useTheme()
 
   const handleSliderChange = (
     event: Event,
@@ -332,7 +329,6 @@ export default function Can({ textPattern }) {
                   }}
                 />
                 <WordsDropdown
-                  theme={theme}
                   sx={{ display: !predictionWords.length ? 'none' : 'block' }}>
                   <List style={{ listStyle: 'none' }}>
                     {predictionWords.map((text, i) => (

@@ -48,7 +48,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import styles from '../styles/chat.module.scss'
 import { CacheProvider } from '@emotion/react'
 import createCache from '@emotion/cache'
-import { StyledEngineProvider, useTheme } from '@mui/material/styles'
+import { StyledEngineProvider } from '@mui/material/styles'
 import CallButton from '@elements/Chat/CallButtonComponent'
 import IsCallingContext from 'context/IsCallingContext'
 import MediaViewer from '@elements/Chat/MediaViewerComponent'
@@ -117,7 +117,6 @@ export default function Chat({ textPattern }) {
   const [predictionWords, setPredictionWords] = useState<any[]>([])
   const [isPut, setIsPut] = useState(false)
 
-  const theme = useTheme()
 
   const handleClick = (content: any, type: any) => {
     setSelectedContent({ content: content, type: type })
@@ -1129,7 +1128,6 @@ export default function Chat({ textPattern }) {
                 {messageType ? (
                   <Box position="relative" width="100%">
                     <WordsDropdown
-                      theme={theme}
                       sx={{
                         display: !predictionWords.length ? 'none' : 'block',
                       }}>

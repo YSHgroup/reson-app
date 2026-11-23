@@ -53,14 +53,23 @@ export default function App({ Component, pageProps }: AppProps) {
   React.useEffect(() => {
     const modeState = ['dark', 'light', 'default']
     const getCurrentSetting = async () => {
+      const sessionResponse = await fetch('/api/auth/session')
+      if (!sessionResponse.ok) return
+      const sessionData = await sessionResponse.json()
+      if (!sessionData?.user?.email) return
+
       const response = await fetch('/api/setting/currentSetting', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       })
+      if (!response.ok) return
       let settingData = await response.json()
-      const indexOfMode = Number(settingData.data.modus)
+      const indexOfMode = Number(settingData?.data?.modus)
+      if (!Number.isInteger(indexOfMode) || indexOfMode < 0 || indexOfMode > 2) {
+        return
+      }
       setMode(modeState[indexOfMode] as CustomizePaletteMode)
     }
     getCurrentSetting()

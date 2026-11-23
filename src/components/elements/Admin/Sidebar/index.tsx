@@ -11,13 +11,11 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import SideRoot from './SideRoot';
-import { Theme, useTheme } from '@mui/material';
-import { useMediaQuery } from '@mui/material';
+import { useMediaQuery, Theme } from '@mui/material';
 
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
 export default function SideBar() {
-    const theme = useTheme()
   const [state, setState] = React.useState({
     top: false,
     left: false,
@@ -83,7 +81,6 @@ export default function SideBar() {
         <React.Fragment>
           <Button onClick={toggleDrawer('left', true)}>{'left'}</Button>
           <SideRoot
-            theme = {theme}
             variant={breakpoint? 'temporary': 'permanent'}
             ownerState={'x'}
             anchor={'left'}
