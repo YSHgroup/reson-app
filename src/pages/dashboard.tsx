@@ -229,6 +229,14 @@ export default function Home({ userInfo }) {
                 {['Profile', 'Profil', 'профиль', 'профіль'][lang]}
               </Box>
             </MenuItem>
+            <MenuItem component={Link} href="/onboarding" dense>
+              {[
+                'Career profile',
+                'Karriereprofil',
+                'Профиль специалиста',
+                'Профіль фахівця',
+              ][lang]}
+            </MenuItem>
             <MenuItem dense onClick={() => handleSignOut()}>
               {languagejson[lang].signOut}
             </MenuItem>

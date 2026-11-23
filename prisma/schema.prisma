@@ -52,27 +52,31 @@ model User {
   verificationCode      String?
   verificationSentAt    DateTime?
 
-  firstName   String?
-  lastName    String?
-  birthday    DateTime?
-  sex         String?
-  telephone   String?
-  address     String?
-  country     String?
-  company     String?
-  profession  String?
-  education   String?
-  hobby       String?
-  carExist    String?
-  geoLocation String?
-  picturePath String?
-  bio         String?
+  firstName    String?
+  lastName     String?
+  birthday     DateTime?
+  sex          String?
+  telephone    String?
+  address      String?
+  country      String?
+  company      String?
+  profession   String?
+  skills       String[]  @default([])
+  portfolioUrl String?
+  education    String?
+  hobby        String?
+  carExist     String?
+  geoLocation  String?
+  picturePath  String?
+  bio          String?
 
   linkedinUrl       String?
   resumeUrl         String?
   phoneVerified     Boolean   @default(false)
   phoneOtpHash      String?
   phoneOtpExpiresAt DateTime?
+  phoneOtpSentAt    DateTime?
+  phoneOtpAttempts  Int       @default(0)
   onboardingDone    Boolean   @default(false)
   skillTestPassed   Boolean   @default(false)
   talentBadge       Boolean   @default(false)

@@ -48,6 +48,7 @@ is not part of ResonApp's runtime or dependency installation.
    | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Google Places autocomplete |
    | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Optional Stripe payments |
    | `CONNECT_PACK_PRICE_CENTS`, `CONNECT_PACK_SIZE` | Optional Stripe connect-pack settings |
+   | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` | Optional SMS phone verification |
 
 3. Start the web app and chat service:
 
@@ -99,3 +100,10 @@ records; every source collection is also retained as JSON in `LegacyDocument`,
 and users are mapped to relational `User` records. Back up both databases and
 review the imported records before switching production features to
 PostgreSQL.
+
+The App Router `/onboarding` page supports professional and project-owner
+profiles. Phone verification sends one-time codes through Twilio when its
+credentials are configured; codes are hashed, expire after five minutes, and
+are limited to five attempts. Existing signup continues to write to MongoDB
+and, when `DATABASE_URL` is configured, synchronizes a new profile to
+PostgreSQL. Imported accounts are not overwritten.

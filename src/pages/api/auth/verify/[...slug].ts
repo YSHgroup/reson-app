@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { connectToDatabase } from '@lib/db'
+import { prisma } from '@lib/prisma'
 import { ObjectId } from 'mongodb';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -18,6 +19,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (user?.verify_code == slug[1]) {
     await usersCollection.updateOne({'_id': new ObjectId(slug[0])}, {$set: {enable: true}})
+    if (process.env.DATABASE_URL && user.email) {
+      await prisma.user.updateMany({
+        where: { email: String(user.email).trim().toLowerCase() },
+        data: { enabled: true, verificationCode: null },
+      })
+    }
     client.close()
     try {
       res.redirect(307, '/signin')

@@ -2,25 +2,74 @@ import { MINIMAL_PASSWORD_LENGTH } from '@constants/UserSignup'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { hashPassword } from '@lib/auth'
 import { connectToDatabase, } from '@lib/db'
+import { prisma } from '@lib/prisma'
 import sendEmail from '@lib/sendEmail'
 import randomMaker from '@lib/randomMaker'
 import RS from '@constants/ResponseStatus'
-import nodemailer, { Transporter } from 'nodemailer';
-const crypto = import("crypto");
+import { UserRole } from '../../../generated/prisma/client'
+import type { Document } from 'mongodb'
+
+async function syncProfileUser(user: Document) {
+  const email = typeof user.email === 'string' ? user.email.trim().toLowerCase() : ''
+  if (!email) return
+
+  const role =
+    user.role === 'talent'
+      ? UserRole.talent
+      : user.role === 'client'
+        ? UserRole.client
+        : UserRole.user
+  const birthday =
+    user.year_birth && user.month_birth && user.day_birth
+      ? new Date(
+          Number(user.year_birth),
+          Number(user.month_birth) - 1,
+          Number(user.day_birth)
+        )
+      : null
+
+  await prisma.user.upsert({
+    where: { email },
+    create: {
+      email,
+      password: typeof user.password === 'string' ? user.password : '',
+      passwordResetRequired:
+        typeof user.password !== 'string' || !user.password,
+      nickname: typeof user.nickname === 'string' ? user.nickname : email,
+      role,
+      enabled: Boolean(user.enable),
+      verificationCode:
+        typeof user.verify_code === 'string' ? user.verify_code : null,
+      verificationSentAt:
+        user.code_send_time != null
+          ? new Date(Number(user.code_send_time))
+          : null,
+      birthday: birthday && !Number.isNaN(birthday.getTime()) ? birthday : null,
+      sex: typeof user.sex === 'string' ? user.sex : null,
+    },
+    update: {},
+  })
+}
+
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
-    return
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Method not allowed.' })
   }
   try {
     const data = req.body
   
     let { email, password, birthday, nickname, sex, lang, role } = data
+    email = typeof email === 'string' ? email.trim().toLowerCase() : ''
+    nickname = typeof nickname === 'string' ? nickname.trim() : ''
+    role = role === 'talent' || role === 'client' ? role : 'user'
     if (!sex)
       sex = 'male';
     const status = 0
     if (
       !email ||
-      !email.includes('@') ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+      !nickname ||
       !password ||
       password.trim().length < MINIMAL_PASSWORD_LENGTH
     ) {
@@ -58,6 +107,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
      })
   
      if (existingUser) {
+       if (process.env.DATABASE_URL) {
+         await syncProfileUser(existingUser)
+       }
        res.status(RS.CERROR_UNPROCESSABLE).json({
          message: 'User exists already!',
        })
@@ -93,6 +145,23 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       status,
       role
     })
+
+    if (process.env.DATABASE_URL) {
+      await syncProfileUser({
+        ...data,
+        email,
+        nickname,
+        password: hashedPassword,
+        sex,
+        role,
+        enable,
+        verify_code,
+        code_send_time,
+        day_birth,
+        month_birth,
+        year_birth,
+      })
+    }
   
     await db.collection('settings').insertOne({
       user_id: user.insertedId,
