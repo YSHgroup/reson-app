@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, type ReactElement } from "react";
 import { Stack, Avatar } from '@mui/material'
 import cn from 'classnames';
 import styles from '../../../styles/chat.module.scss';
@@ -35,7 +35,7 @@ export const EmojiChildComponent: React.FC<EmojiChildProps> = ({msgId, emojiId, 
 };
 
 export const ContentReactedEmojis: React.FC<Props> = ({ message }) => {
-    const [childEmojiComponents, setChildEmojiComponents] = useState<JSX.Element[]>([]);
+    const [childEmojiComponents, setChildEmojiComponents] = useState<ReactElement[]>([]);
     // const [reactedUserNames, setReactedUserNames] = useState<any[]>([]);
 
     useEffect(() => {

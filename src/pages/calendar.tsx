@@ -5,7 +5,7 @@ import { NextApiRequest } from 'next'
 import { useRouter } from 'next/router'
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
-import { dateColorJot, language } from "../jotai"
+import { dateColorJot, language } from "../state"
 import { getSession, useSession } from 'next-auth/react'
 
 import FullCalendar from "@fullcalendar/react";
@@ -465,7 +465,7 @@ const brekpointMatch = useMediaQuery(theme.breakpoints.down('sm'))
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
               <MobileDateTimePicker
                 label="Start Time"
-                renderInput={(params) => <TextField fullWidth {...params} />}
+                slotProps={{ textField: { fullWidth: true } }}
                 value={initValues.startDate}
                 onChange={(newValue) => {
                   setInitValues(prevValues => ({
@@ -476,7 +476,7 @@ const brekpointMatch = useMediaQuery(theme.breakpoints.down('sm'))
               />
               <MobileDateTimePicker
                 label="End Time"
-                renderInput={(params) => <TextField fullWidth {...params} />}
+                slotProps={{ textField: { fullWidth: true } }}
                 value={initValues.endDate}
                 onChange={(newValue) => {
                   setInitValues(prevValues => ({

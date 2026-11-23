@@ -6,7 +6,7 @@ import React, {
   useContext,
   KeyboardEventHandler,
 } from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot, type Root } from 'react-dom/client'
 import FullLayout from '@layouts/FullLayout/FullLayout'
 import {
   AttachFile as AttachFileIcon,
@@ -27,9 +27,9 @@ import {
   TextField,
   Typography,
   Avatar,
-  Grid,
   List,
 } from '@mui/material'
+import Grid from '@mui/material/GridLegacy'
 import CloseIcon from '@mui/icons-material/Close'
 import Box from '@mui/material/Box'
 import { NextApiRequest } from 'next'
@@ -70,6 +70,13 @@ let callLabel_ = ['Missed call', 'Declined call', 'Incoming call']
 
 export default function Chat({ textPattern }) {
   const parentRef = useRef(null)
+  const emojiRootsRef = useRef(new Map<string, Root>())
+  useEffect(
+    () => () => {
+      emojiRootsRef.current.forEach((root) => root.unmount())
+    },
+    []
+  )
   const router = useRouter()
   const { email } = router.query
   const { data: session } = useSession()
@@ -378,26 +385,37 @@ export default function Chat({ textPattern }) {
   }, [])
 
   const showReactedEmoji = (msgId: string, emojiId: string | number) => {
-    const reactedMsg = document.getElementById(
-      `reactedEmojis_${msgId}`
-    ) as HTMLElement
+    const rootId = `reactedRoot_${msgId}_${emojiId}`
+    const rootKey = `${msgId}_${emojiId}`
+    const root = emojiRootsRef.current.get(rootKey)
     const reactedEmoji = document.getElementById(`reacted_${msgId}_${emojiId}`)
+
     if (reactedEmoji) {
-      reactedMsg.removeChild(reactedEmoji)
-    } else {
-      const containerElement = document.createElement('div')
-      ReactDOM.render(
-        <EmojiChildComponent
-          msgId={msgId}
-          emojiId={`${emojiId}`}
-          users={[`${session?.user?.email}`]}
-        />,
-        containerElement
-      )
-      if (containerElement?.firstChild) {
-        reactedMsg?.appendChild(containerElement?.firstChild)
+      root?.unmount()
+      emojiRootsRef.current.delete(rootKey)
+      if (root) {
+        document.getElementById(rootId)?.remove()
+      } else {
+        reactedEmoji.remove()
       }
+      return
     }
+
+    const reactedMsg = document.getElementById(`reactedEmojis_${msgId}`)
+    if (!reactedMsg) return
+
+    const container = document.createElement('span')
+    container.id = rootId
+    reactedMsg.appendChild(container)
+    const emojiRoot = createRoot(container)
+    emojiRootsRef.current.set(rootKey, emojiRoot)
+    emojiRoot.render(
+      <EmojiChildComponent
+        msgId={msgId}
+        emojiId={`${emojiId}`}
+        users={[`${session?.user?.email}`]}
+      />
+    )
   }
   useEffect(() => {
     if (isUploadBlob) {
@@ -561,7 +579,7 @@ export default function Chat({ textPattern }) {
       | number
       | boolean
       | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-      | React.ReactFragment
+      | React.ReactNode
       | React.ReactPortal
       | null
       | undefined,
@@ -570,7 +588,7 @@ export default function Chat({ textPattern }) {
       | number
       | boolean
       | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-      | React.ReactFragment
+      | React.ReactNode
       | React.ReactPortal
       | null
       | undefined,

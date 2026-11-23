@@ -10,7 +10,7 @@ type LocationData = {
   regionName: string;
 };
 
-const MAPBOX_TOKEN = 'pk.eyJ1IjoicmVkMzAxMSIsImEiOiJjbGdjOXp0enAwOXZ5M2hzeGl6ank5Y29yIn0.NaiYYAmHiHFDJ6SRcqrmkg'
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? ''
 
 // Get user's IP address
 async function getUserIP() {
@@ -22,7 +22,7 @@ async function getUserIP() {
 async function getLocationData(ip: string) {
     console.log(ip)
   const response = await axios.get<LocationData>(
-    `http://ip-api.com/json/${ip}`
+    `https://ip-api.com/json/${ip}`
   );
   console.log(response.data)
   return response.data;
@@ -65,15 +65,14 @@ const MapBoxGl: React.FC = () => {
   return (
     <ReactMapGL
       {...viewport}
-      mapboxApiAccessToken={MAPBOX_TOKEN}
-      onViewportChange={setViewport}
+      mapboxAccessToken={MAPBOX_TOKEN}
+      onMove={({ viewState }) => setViewport((current) => ({ ...current, ...viewState }))}
     >
       {location && (
         <Marker
           latitude={location.lat}
           longitude={location.lon}
-          offsetLeft={-20}
-          offsetTop={-10}
+          offset={[-20, -10]}
         >
           <div>Marker Content</div>
         </Marker>

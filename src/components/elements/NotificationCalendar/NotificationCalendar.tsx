@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography'
 import dayjs from 'dayjs'
 import { Divider } from '@mui/material'
 
-import { dateColorJot, language } from "../../../jotai"
+import { dateColorJot, language } from "../../../state"
 import { useAtom } from 'jotai'
 
 export default function AlignItemsList({}) {

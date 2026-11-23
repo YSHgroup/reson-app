@@ -2,7 +2,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/GridLegacy'
 import Link from '@mui/material/Link'
 import NextLink from 'next/link'
 import TextField from '@mui/material/TextField'
@@ -17,7 +17,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import { NextApiRequest } from 'next'
 import { useAtom } from 'jotai'
 import languagejson from "../language.json"
-import {language} from "../jotai"
+import {language} from "../state"
 import cookies from "browser-cookies";
 
 

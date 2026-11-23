@@ -17,11 +17,12 @@ import {
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { DatePicker, TimePicker } from '@mui/x-date-pickers'
-import { language } from '../jotai'
+import { language } from '../state'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
+import type { Dayjs } from 'dayjs'
 import {
   CalendarMonth as CalendarMonthIcon,
   CloudUpload as CloudUploadIcon,
@@ -38,12 +39,12 @@ import { analyseText } from 'functions/anaylseText'
 import { useTheme } from '@emotion/react'
 
 mapboxgl.accessToken =
-  'pk.eyJ1IjoiYW50b25pb2dzdW55ZSIsImEiOiJjbGxub3g5em4wMnoxM2ZvYWNiZXA5dWUyIn0.cw7jmzNVcCy5vQq3iOGEZw'
+  process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? ''
 
 interface NeedFormType {
   title: string | null
-  startLine: Date | null
-  deadLine: Date | null
+  startLine: Dayjs | null
+  deadLine: Dayjs | null
   price: number | string | null
   payType: string
   description: string | null
@@ -524,9 +525,7 @@ export default function Need({ titlePattern, desPattern }) {
                         startLine: value,
                       }))
                     }}
-                    renderInput={(props) => (
-                      <TextField sx={{ width: '45%' }} {...props} />
-                    )}
+                    slotProps={{ textField: { sx: { width: '45%' } } }}
                   />
                   <DatePicker
                     label={textForlan.deadline[lang]}
@@ -537,9 +536,7 @@ export default function Need({ titlePattern, desPattern }) {
                         deadLine: value,
                       }))
                     }}
-                    renderInput={(props) => (
-                      <TextField sx={{ width: '45%' }} {...props} />
-                    )}
+                    slotProps={{ textField: { sx: { width: '45%' } } }}
                   />
                 </Box>
               </div>

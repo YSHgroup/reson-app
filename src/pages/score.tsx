@@ -9,7 +9,7 @@ import { NextApiRequest } from 'next'
 import { getSession } from 'next-auth/react'
 import FullLayout from '@layouts/FullLayout/FullLayout'
 import Image from 'next/image'
-import { dateColorJot, language } from "../jotai"
+import { dateColorJot, language } from "../state"
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
 import { GenNumForDate } from 'utils/GenNumForDate'

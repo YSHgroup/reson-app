@@ -15,7 +15,7 @@ import { Collapse } from '@mui/material'
 import React from 'react'
 import { ArrowDropDown, ArrowLeft } from '@mui/icons-material'
 import IconButton from '@mui/material/IconButton'
-import { language } from '../../jotai'
+import { language } from '../../state'
 import languagejson from '../../language.json'
 import { useAtom } from 'jotai'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
@@ -87,7 +87,6 @@ export default function ProfileItem() {
       console.error('There was an error signing out:', error)
     }
 
-    const router = useRouter()
     router.replace(`${process.env.NEXT_PUBLIC_BASE_URL}/signin`)
   }
   function getpic() {

@@ -14,7 +14,7 @@ import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import { getSession, useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import io from 'socket.io-client'
+import io, { type Socket } from 'socket.io-client'
 import { VideoCallContext } from 'context/VideoCallContext'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import AudioComponent from './AudioComponent'
@@ -75,10 +75,10 @@ const VideoCallWindow = () => {
   const callStatusRef = useRef<any | undefined>(undefined)
   const callIdRef = useRef<any | undefined>(undefined)
 
-  const socketRef = useRef<SocketIOClient.Socket>()
+  const socketRef = useRef<Socket | null>(null)
   const pcsRef = useRef<{ [socketId: string]: RTCPeerConnection }>({})
   const localVideoRef = useRef<HTMLAudioElement>(null)
-  const localStreamRef = useRef<MediaStream>()
+  const localStreamRef = useRef<MediaStream | null>(null)
   const [users, setUsers] = useState<WebRTCUser[]>([])
 
   const fetchData = async () => {

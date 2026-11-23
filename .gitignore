@@ -79,10 +79,6 @@ web_modules/
 # .env.local
 # .env.production
 
-# lockfiles
-yarn.lock
-package-lock.json
-
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
@@ -129,7 +125,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-/yarn.lock
-/package-lock.json
-/.env
+
+/.env*
+!/.env.example
 /uploads

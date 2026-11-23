@@ -17,7 +17,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import { NextApiRequest } from 'next'
 import { useAtom } from 'jotai'
 import languagejson from "../language.json"
-import {language, tempEmailJot} from "../jotai"
+import {language, tempEmailJot} from "../state"
 import cookies from "browser-cookies";
 
 
@@ -62,4 +62,3 @@ export default function SignIn() {
     </CenterLayout>
   )
 }
-

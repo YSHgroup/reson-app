@@ -19,7 +19,7 @@ import { getSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import React from 'react'
-import {language} from "../jotai"
+import {language} from "../state"
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
 

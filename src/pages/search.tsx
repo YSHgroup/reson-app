@@ -21,7 +21,7 @@ import {
   List,
   ListItem,
 } from '@mui/material'
-import { language } from '../jotai'
+import { language } from '../state'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import mapboxgl from 'mapbox-gl'
@@ -39,7 +39,7 @@ import 'react-swipeable-list/dist/styles.css'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 mapboxgl.accessToken =
-  'pk.eyJ1IjoiYW50b25pb2dzdW55ZSIsImEiOiJjbGxub3g5em4wMnoxM2ZvYWNiZXA5dWUyIn0.cw7jmzNVcCy5vQq3iOGEZw'
+  process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? ''
 interface CanFormType {
   title: string | null
   payUnit: string
@@ -472,8 +472,13 @@ export default function Can({ textPattern }) {
                     {['Distance', 'Distanz', 'Расстояние', 'Відстань'][lang]}
                   </InputLabel>
                   <Select
-                    value={can.radius}
-                    onChange={handleChangeCan}
+                    value={String(can.radius)}
+                    onChange={(event) =>
+                      setCan((prevState) => ({
+                        ...prevState,
+                        radius: Number(event.target.value),
+                      }))
+                    }
                     id="outlined"
                     displayEmpty
                     inputProps={{ 'aria-label': 'Without label' }}
@@ -481,7 +486,7 @@ export default function Can({ textPattern }) {
                     labelId="raduis-select-label"
                     name="radius">
                     {[0, 5, 10, 20, 50, 100, 500].map((value: number) => (
-                      <MenuItem key={value} value={value}>
+                      <MenuItem key={value} value={String(value)}>
                         {value === 0 ? 'All' : value + ' Km'}
                       </MenuItem>
                     ))}

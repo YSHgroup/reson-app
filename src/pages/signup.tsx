@@ -4,7 +4,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import { type AlertColor } from '@mui/material/Alert'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/GridLegacy'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import PlaceIcon from '@mui/icons-material/Place'
@@ -35,7 +35,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import { useAtom } from 'jotai'
 import languagejson from "../language.json"
-import {language, tempEmailJot} from "../jotai"
+import {language, tempEmailJot} from "../state"
 import cookies from "browser-cookies";
 
 
@@ -345,9 +345,9 @@ export default function SignUp() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <MobileDatePicker
                   label={languagejson[lang].birthDate}
-                  inputFormat="DD/MM/YYYY"
+                  format="DD/MM/YYYY"
                   value={birthday}
-                  componentsProps={{
+                  slotProps={{
                     actionBar: {
                       sx: {
                         backgroundColor: 'background.paper',
@@ -357,11 +357,9 @@ export default function SignUp() {
                         },
                       },
                     },
+                    textField: { required: true, fullWidth: true },
                   }}
                   onChange={handleChange}
-                  renderInput={(params) => (
-                    <TextField required fullWidth {...params} />
-                  )}
                 />
               </LocalizationProvider>
             </Grid>

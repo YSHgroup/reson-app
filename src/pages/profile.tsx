@@ -14,11 +14,12 @@ import InputAdornment from '@mui/material/InputAdornment'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
 import Link from 'next/link'
-import { Collapse, Grid } from '@mui/material'
+import { Collapse } from '@mui/material'
+import Grid from '@mui/material/GridLegacy'
 import React from 'react'
 import { ArrowDropDown, ArrowLeft } from '@mui/icons-material'
 import IconButton from '@mui/material/IconButton'
-import { dateColorJot, genderJot, language } from '../jotai'
+import { dateColorJot, genderJot, language } from '../state'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
@@ -479,8 +480,8 @@ export default function Profile({ userInfo }) {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <MobileDatePicker
                   label={languagejson[lang].birthDate}
-                  inputFormat="DD/MM/YYYY"
-                  componentsProps={{
+                  format="DD/MM/YYYY"
+                  slotProps={{
                     actionBar: {
                       sx: {
                         backgroundColor: 'background.paper',
@@ -490,12 +491,10 @@ export default function Profile({ userInfo }) {
                         },
                       },
                     },
+                    textField: { required: true, fullWidth: true },
                   }}
                   value={birthday}
                   onChange={setBirthday}
-                  renderInput={(params) => (
-                    <TextField required fullWidth {...params} />
-                  )}
                 />
               </LocalizationProvider>
             </Grid>

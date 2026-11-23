@@ -18,7 +18,7 @@ import {
   telephoneJot,
   personalAnalysisJot,
   currentPositionJot,
-} from '../jotai'
+} from '../state'
 import languagejson from '../language.json'
 import { useAtom } from 'jotai'
 import cookies from 'browser-cookies'

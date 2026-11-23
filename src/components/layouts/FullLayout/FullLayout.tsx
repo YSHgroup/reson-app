@@ -18,7 +18,7 @@ import {
   emailJot,
   telephoneJot,
   personalAnalysisJot,
-} from '../../../jotai'
+} from '../../../state'
 import { useAtom } from 'jotai'
 
 type FullLayoutProps = {

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ProjectsItems from './ProjectItems'
 import ApplyItems from './ApplyItems'
 import Search from './Search'
@@ -92,25 +92,16 @@ export default function CustomTabPanel(props: TabPanelProps) {
     }
   }
 
-  // Use useMemo to store the previous data.
-  const historyData = useMemo(() => {
-    let data: any
-    (async () => {
-      data = await getHistory()
-      setLists(data)
-    })()
-    return data
-  }, [])
-
   useEffect(() => {
-    // Only call loadData if the data hasn't been loaded yet.
-    if (!historyData) {
-      (async () => {
-        const data = await getHistory()
-        setLists(data)
-      })()
+    let active = true
+    getHistory().then((history) => {
+      if (active) setLists(history)
+    })
+
+    return () => {
+      active = false
     }
-  }, [historyData])
+  }, [])
 
   useEffect(() => {
     getFavorites()

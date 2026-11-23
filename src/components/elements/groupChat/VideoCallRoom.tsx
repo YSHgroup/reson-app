@@ -36,10 +36,10 @@ const SOCKET_SERVER_URL = `${String(
   process.env.NEXT_PUBLIC_CHAT_URI
 )}/groupCall`
 const VideoCallRoom = ({ handleClose, group }: VideoCallRoomProps) => {
-  const socketRef = useRef<any>()
+  const socketRef = useRef<ReturnType<typeof io> | null>(null)
   const pcsRef = useRef<{ [socketId: string]: RTCPeerConnection }>({})
   const localVideoRef = useRef<HTMLVideoElement>(null)
-  const localStreamRef = useRef<MediaStream>()
+  const localStreamRef = useRef<MediaStream | null>(null)
   const [users, setUsers] = useState<WebRTCUser[]>([])
   const { data: session } = useSession()
   const [isAudio, setIsAudio] = useState<boolean>(true)

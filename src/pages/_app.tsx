@@ -16,7 +16,7 @@ import ColorModeContext from 'context/ColorModeContext'
 import { SessionProvider, useSession } from 'next-auth/react'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import DateFnsUtils from '@date-io/date-fns'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { Provider as JotaiProvider } from 'jotai'
 import Worker from '../components/worker'
 import { VideoCallProvider } from 'context/VideoCallContext'
@@ -107,7 +107,7 @@ export default function App({ Component, pageProps }: AppProps) {
   }, [])
 
   return (
-    <LocalizationProvider dateAdapter={DateFnsUtils}>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <ColorModeContext.Provider value={colorMode}>
         <ParticlesComponent mode={mode} />
         <ThemeProvider theme={theme}>

@@ -16,7 +16,7 @@ import { getSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import {language} from "../jotai"
+import {language} from "../state"
 import languagejson from "../language.json"
 import { useAtom } from 'jotai'
 

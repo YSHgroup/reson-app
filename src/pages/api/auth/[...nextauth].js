@@ -4,11 +4,12 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { verifyPassword } from '@lib/auth'
 import { connectToDatabase } from '@lib/db'
 
+/** @type {import('next-auth').NextAuthOptions} */
 export const authOptions = {
   session: {
-    jwt: true,
+    strategy: 'jwt',
   },
-  secret: "rLD717hwuAsBTONZrqiGV4bpP1JSFpMNW5vhl+1QaFY=",
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       async authorize(credentials) {

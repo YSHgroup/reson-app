@@ -1,5 +1,5 @@
 import React, { Fragment, useState, useEffect, useRef } from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot, type Root } from 'react-dom/client'
 import FullLayout from '@layouts/FullLayout/FullLayout'
 import { Send, VideoCameraFront } from '@mui/icons-material'
 import { MoreHoriz } from '@mui/icons-material'
@@ -9,8 +9,8 @@ import {
   TextField,
   Typography,
   Avatar,
-  Grid,
 } from '@mui/material'
+import Grid from '@mui/material/GridLegacy'
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import { NextApiRequest } from 'next'
@@ -63,6 +63,13 @@ type Message = {
 let socket: any
 
 export default function GroupChat() {
+  const emojiRootsRef = useRef(new Map<string, Root>())
+  useEffect(
+    () => () => {
+      emojiRootsRef.current.forEach((root) => root.unmount())
+    },
+    []
+  )
   const router = useRouter()
   const groupId = router.query.id
   const { data: session } = useSession()
@@ -73,8 +80,8 @@ export default function GroupChat() {
   const [inputMsg, setInputMsg] = useState('')
   const [members, setMembers] = useState([])
   const [usersStore, setUsersStore] = useAtom(usersAtom)
-  const [changeState, setChangeState] = useState<Boolean>(false)
-  const [IsCallRoom, setIsCallRoom] = useState<Boolean>(false)
+  const [changeState, setChangeState] = useState<boolean>(false)
+  const [IsCallRoom, setIsCallRoom] = useState<boolean>(false)
 
   const fetchGroupInfo = async () => {
     const response = await fetch(`/api/message/groups?id=${groupId}`)
@@ -310,26 +317,37 @@ export default function GroupChat() {
   }
 
   const showReactedEmoji = (msgId: string, emojiId: string | number) => {
-    const reactedMsg = document.getElementById(
-      `reactedEmojis_${msgId}`
-    ) as HTMLElement
+    const rootId = `reactedRoot_${msgId}_${emojiId}`
+    const rootKey = `${msgId}_${emojiId}`
+    const root = emojiRootsRef.current.get(rootKey)
     const reactedEmoji = document.getElementById(`reacted_${msgId}_${emojiId}`)
+
     if (reactedEmoji) {
-      reactedMsg.removeChild(reactedEmoji)
-    } else {
-      const containerElement = document.createElement('div')
-      ReactDOM.render(
-        <EmojiChildComponent
-          msgId={msgId}
-          emojiId={`${emojiId}`}
-          users={[`${session?.user?.email}`]}
-        />,
-        containerElement
-      )
-      if (containerElement?.firstChild) {
-        reactedMsg?.appendChild(containerElement?.firstChild)
+      root?.unmount()
+      emojiRootsRef.current.delete(rootKey)
+      if (root) {
+        document.getElementById(rootId)?.remove()
+      } else {
+        reactedEmoji.remove()
       }
+      return
     }
+
+    const reactedMsg = document.getElementById(`reactedEmojis_${msgId}`)
+    if (!reactedMsg) return
+
+    const container = document.createElement('span')
+    container.id = rootId
+    reactedMsg.appendChild(container)
+    const emojiRoot = createRoot(container)
+    emojiRootsRef.current.set(rootKey, emojiRoot)
+    emojiRoot.render(
+      <EmojiChildComponent
+        msgId={msgId}
+        emojiId={`${emojiId}`}
+        users={[`${session?.user?.email}`]}
+      />
+    )
   }
 
   const reactEmoji = async (msgId: string, emojiId: number) => {
@@ -360,7 +378,7 @@ export default function GroupChat() {
       | number
       | boolean
       | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-      | React.ReactFragment
+      | React.ReactNode
       | React.ReactPortal
       | null
       | undefined,
@@ -369,7 +387,7 @@ export default function GroupChat() {
       | number
       | boolean
       | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-      | React.ReactFragment
+      | React.ReactNode
       | React.ReactPortal
       | null
       | undefined,

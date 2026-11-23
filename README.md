@@ -6,7 +6,8 @@ real-time messaging, including group chat and calls.
 
 ## Technology
 
-- Next.js 13 Pages Router with React and TypeScript
+- Next.js 16 with React 19 and TypeScript
+- Node.js 20.9 or newer (required by Next.js 16)
 - MongoDB for application data
 - NextAuth.js for authentication
 - A separate Express and Socket.IO service for real-time chat
@@ -17,7 +18,7 @@ is not part of ResonApp's runtime or dependency installation.
 
 ## Requirements
 
-- Node.js 18 or newer
+- Node.js 20.9 or newer
 - Access to a MongoDB database
 
 ## Local development
@@ -29,7 +30,8 @@ is not part of ResonApp's runtime or dependency installation.
    ```
 
 2. Set the environment variables required by the integrations you use. Keep
-   local values in an ignored environment file and never commit credentials.
+   local values in `.env.local` and never commit credentials. `.env.example`
+   lists the supported variables without containing private values.
 
    | Variable | Purpose |
    | --- | --- |
@@ -38,6 +40,9 @@ is not part of ResonApp's runtime or dependency installation.
    | `NEXT_PUBLIC_CHAT_URI` | URL of the Socket.IO chat service |
    | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `REDIRECT_URI` | Google sign-in |
    | `CONTACT_REDIRECT_URI`, `SCOPES` | Google Contacts integration |
+   | `NEXTAUTH_SECRET` | Secret used to sign NextAuth sessions |
+   | `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` | Mapbox maps and geocoding |
+   | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Google Places autocomplete |
 
 3. Start the web app and chat service:
 
@@ -65,6 +70,7 @@ The production web and chat services are started separately with
 ## Project layout
 
 - `src/pages/` — Pages Router screens and API routes
+- `src/app/` — App Router routes introduced alongside existing pages
 - `src/components/` — Shared UI components and layouts
 - `src/lib/` — Database and application helpers
 - `server/` — Express and Socket.IO chat service

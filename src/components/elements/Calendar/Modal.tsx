@@ -119,7 +119,7 @@ const CalendarModal = () => {
             helperText="Please select bgColor"
             defaultValue="rgb(124, 179, 66)">
             {bgColorLists.map((bgColorList) => (
-              <MenuItem value={bgColorList.value}>
+              <MenuItem key={bgColorList.value} value={bgColorList.value}>
                 <span
                   style={{
                     width: '20px',

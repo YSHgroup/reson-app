@@ -3,14 +3,14 @@ import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/GridLegacy'
 import Typography from '@mui/material/Typography'
 import parse from 'autosuggest-highlight/parse'
 import { debounce } from '@mui/material/utils'
 
 // This key was created specifically for the demo in mui.com.
 // You need to create a new one for your application.
-const GOOGLE_MAPS_API_KEY = 'AIzaSyDdd6iQwsMZoEKUGBe4DFW1TvGPBIFj84Q'
+const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
 function loadScript(src: string, position: HTMLElement | null, id: string) {
   if (!position) {
@@ -42,7 +42,7 @@ interface PlaceType {
 
 interface GoogleMapsProps {
   where: PlaceType
-    setWhere: (value: PlaceType) => void
+    setWhere: (value: PlaceType | null) => void
 }
 
 const GoogleMaps: React.FC<GoogleMapsProps & {label: string}> = ({label, where, setWhere }) => {
@@ -51,7 +51,7 @@ const GoogleMaps: React.FC<GoogleMapsProps & {label: string}> = ({label, where, 
   const [options, setOptions] = React.useState<readonly PlaceType[]>([])
   const loaded = React.useRef(false)
 
-  if (typeof window !== 'undefined' && !loaded.current) {
+  if (typeof window !== 'undefined' && GOOGLE_MAPS_API_KEY && !loaded.current) {
     if (!document.querySelector('#google-maps')) {
       loadScript(
         `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`,
@@ -138,7 +138,11 @@ const GoogleMaps: React.FC<GoogleMapsProps & {label: string}> = ({label, where, 
       includeInputInList
       filterSelectedOptions
       value={value}
-      noOptionsText="No locations"
+      noOptionsText={
+        GOOGLE_MAPS_API_KEY
+          ? 'No locations'
+          : 'Location search requires NEXT_PUBLIC_GOOGLE_MAPS_API_KEY'
+      }
       onChange={(event: any, newValue: PlaceType | null) => {
         setOptions(newValue ? [newValue, ...options] : options)
         setValue(newValue)

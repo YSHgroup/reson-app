@@ -3,7 +3,11 @@ import RS from '@constants/ResponseStatus'
 import { connectToDatabase } from '@lib/db'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]"
-import { ObjectId } from 'mongodb'
+import { Document, ObjectId } from 'mongodb'
+
+type GroupMessage = Document & {
+  readers?: string[]
+}
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session: any = await getServerSession(req as any, res as any, authOptions as any)
@@ -19,22 +23,30 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
   
   const client = await connectToDatabase()
-  const email: any = session?.user?.email;
+  const email = session?.user?.email
+  if (typeof email !== 'string') {
+    return res.status(RS.CERROR_UNAUTHORIZED).json({
+      message: 'Unauthorized',
+    })
+  }
 
-  const groupMsgsCollection = client.db().collection('groupMsgs')
+  const groupMsgsCollection = client.db().collection<GroupMessage>('groupMsgs')
 
   const readchats = req.body.readchats;
   const readChatsIds = readchats.map((chat: any) => new ObjectId(chat._id))
   try {
-    await groupMsgsCollection.updateMany({
-      _id: {
-        $in: readChatsIds
-      }
-    }, {
-      $addToSet: {
-        readers: email
-      }
-    });
+    await groupMsgsCollection.updateMany(
+      { _id: { $in: readChatsIds } },
+      [
+        {
+          $set: {
+            readers: {
+              $setUnion: [{ $ifNull: ['$readers', []] }, [email]],
+            },
+          },
+        },
+      ]
+    )
     client.close()
     return res.status(RS.SUCCESS_OK).json({
       message: 'Success',

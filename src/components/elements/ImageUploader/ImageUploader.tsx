@@ -73,28 +73,28 @@ export default function ImageUploader() {
           document.getElementById('notimage').classList.add("hidden");
           // Thumbnail Preview
           document.getElementById('file-image').classList.remove("hidden");
-          document.getElementById('file-image').src = URL.createObjectURL(file);
+          (document.getElementById('file-image') as HTMLImageElement).src = URL.createObjectURL(file);
         }
         else {
           document.getElementById('file-image').classList.add("hidden");
           document.getElementById('notimage').classList.remove("hidden");
           document.getElementById('start').classList.remove("hidden");
           document.getElementById('response').classList.add("hidden");
-          document.getElementById("file-upload-form").reset();
+          (document.getElementById("file-upload-form") as HTMLFormElement).reset();
         }
       }
 
       function setProgressMaxValue(e) {
         var pBar = document.getElementById('file-progress');
         if (e.lengthComputable) {
-          pBar.max = e.total;
+          (pBar as HTMLProgressElement).max = e.total;
         }
       }
 
       function updateFileProgress(e) {
         var pBar = document.getElementById('file-progress');
         if (e.lengthComputable) {
-          pBar.value = e.loaded;
+          (pBar as HTMLProgressElement).value = e.loaded;
         }
       }
 
@@ -168,7 +168,7 @@ export default function ImageUploader() {
         data: Array.from(new Uint8Array(data)),
       }),
     }).then(response => response.json()).then(data => {
-      document.getElementById('file-image').src = `api/view?name=chats/${data.data}`;
+      (document.getElementById('file-image') as HTMLImageElement).src = `api/view?name=chats/${data.data}`;
       avatarChange(data.data);
     }).catch(err => {
       console.error('Failed to upload file');
@@ -219,9 +219,9 @@ export default function ImageUploader() {
     document.getElementById('notimage').classList.add("hidden");
     document.getElementById('file-image').classList.remove("hidden");
     if (path != null && path != "") {
-      document.getElementById('file-image').src = `/api/view?name=chats/${path}`;
+      (document.getElementById('file-image') as HTMLImageElement).src = `/api/view?name=chats/${path}`;
     } else {
-      document.getElementById('file-image').src = `/images/${res.data.sex}.png`;
+      (document.getElementById('file-image') as HTMLImageElement).src = `/images/${res.data.sex}.png`;
     }
   }
 
