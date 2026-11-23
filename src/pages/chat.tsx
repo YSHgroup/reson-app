@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useRef,
   useContext,
+  useCallback,
   KeyboardEventHandler,
 } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
@@ -289,23 +290,36 @@ export default function Chat({ textPattern }) {
     }
   }, [messageType, recordingTime])
 
-  const getMsgs = async () => {
-    const res = await fetch('/api/message/getMsgs', {
-      method: 'POST',
-      body: JSON.stringify({ OppositeEmail: email }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    const resData = await res.json()
-    setMessages(resData.msgs)
-  }
+  const getMsgs = useCallback(async () => {
+    if (typeof email !== 'string' || !email) {
+      setMessages([])
+      return
+    }
+
+    try {
+      const response = await fetch('/api/message/getMsgs', {
+        method: 'POST',
+        body: JSON.stringify({ OppositeEmail: email }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      const responseData = await response.json()
+      if (!response.ok) {
+        throw new Error(responseData.message ?? 'Could not load messages.')
+      }
+      setMessages(Array.isArray(responseData.msgs) ? responseData.msgs : [])
+    } catch (error) {
+      console.error('Could not load direct messages:', error)
+      setMessages([])
+    }
+  }, [email])
 
   useEffect(() => {
-    if (!isCalling) {
-      getMsgs()
+    if (router.isReady && !isCalling) {
+      void getMsgs()
     }
-  }, [isCalling])
+  }, [getMsgs, isCalling, router.isReady])
 
   const handleClose = () => {
     setOpen(false)
@@ -318,7 +332,6 @@ export default function Chat({ textPattern }) {
   }
 
   useEffect(() => {
-    getMsgs()
     socket = io(`${String(process.env.NEXT_PUBLIC_CHAT_URI)}`, { secure: true })
     socket.on('connect', () => {
       // Fetch existing messages from the server
@@ -363,6 +376,11 @@ export default function Chat({ textPattern }) {
   }, [])
 
   useEffect(() => {
+    if (!router.isReady || typeof email !== 'string' || !email) {
+      setPic('')
+      return
+    }
+
     const fetchData = async () => {
       const responseData = { email: email }
       try {
@@ -373,14 +391,17 @@ export default function Chat({ textPattern }) {
             'Content-Type': 'application/json',
           },
         })
-        const res = await response.json()
-        setPic(res.data[0].picpath)
+        const resultData = await response.json()
+        if (!response.ok) {
+          throw new Error(resultData.message ?? 'Could not load recipient.')
+        }
+        setPic(resultData.data?.[0]?.picpath ?? '')
       } catch (error) {
-        console.log(error)
+        console.error('Could not load chat recipient:', error)
       }
     }
-    fetchData()
-  }, [])
+    void fetchData()
+  }, [email, router.isReady])
 
   const showReactedEmoji = (msgId: string, emojiId: string | number) => {
     const rootId = `reactedRoot_${msgId}_${emojiId}`
