@@ -1,79 +1,48 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
+import type { NextApiRequest, NextApiResponse } from 'next'
+import RS from '@constants/ResponseStatus'
+import { prisma } from '@lib/prisma'
+import { toLegacyDirectMessage, toLegacyGroupMessage } from '@lib/chat-data'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
 
-
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
-    return
+    res.setHeader('Allow', 'GET')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
   }
-  
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
-
-  const client = await connectToDatabase()
-
+  const session = await getServerSession(req, res, authOptions)
   const email = session?.user?.email
-  
-  const messagesCollection = client.db().collection('messages');
-  const groupMsgsCollection = client.db().collection('groupMsgs');
-  const groupchatCollection = client.db().collection('groupchat');
-  
-  const unreadCount = await messagesCollection.countDocuments({
-    to: email,
-    read: false
-  });
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
 
-  const myGroups = await groupchatCollection.find({
-    members: {
-      $in: [email]
-    }
-  }, {
-    projection: {
-      _id: 1
-    }
-  }).toArray();
-
-  const myGroupsList = myGroups.map((item) => {
-    return Object.entries(item)[0][1]
+  const [unreadMessages, unreadGroupMessages] = await Promise.all([
+    prisma.directMessage.findMany({
+      where: { recipient: { email }, read: false },
+      include: { author: { select: { email: true } }, recipient: { select: { email: true } } },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.groupMessage.findMany({
+      where: {
+        NOT: { readers: { has: email } },
+        group: { members: { some: { user: { email } } } },
+      },
+      include: { sender: { select: { email: true, nickname: true } } },
+      orderBy: { createdAt: 'desc' },
+    }),
+  ])
+  const messages = unreadMessages.map(toLegacyDirectMessage)
+  const groupMessages = unreadGroupMessages.map(toLegacyGroupMessage)
+  const totalUnreadChats = [...messages, ...groupMessages].sort((a, b) => {
+    const aDate = new Date(`${a.date} ${a.time}`).getTime()
+    const bDate = new Date(`${b.date} ${b.time}`).getTime()
+    return bDate - aDate
   })
 
-  const unreadGroupChats = await groupMsgsCollection.find({
-    $and : [
-      {
-        groupId: {
-        $in: [...myGroupsList]
-      }
+  return res.json({
+    status: RS.SUCCESS_OK,
+    data: {
+      count: messages.length + groupMessages.length,
+      messages,
+      totalUnreadChats,
     },
-      {
-        readers: {
-        $nin: [email]
-      }
-    }
-    ]
-  }).toArray();
-
-  const unreadMessages = await messagesCollection.find({ 
-    to: email,
-    read: false
-  }).toArray();
-
-  let totalUnreadChats = unreadMessages.concat(unreadGroupChats);
-  totalUnreadChats.sort((a: any, b: any) => {
-    const Adate = (new Date(`${a.date} ${a.time}`)).getTime();
-    const Bdate = new Date(`${b.date} ${b.time}`).getTime();
-    return Bdate - Adate;
   })
-
-  const data = {
-    count: (unreadCount + unreadGroupChats.length),
-    messages: unreadMessages,
-    totalUnreadChats
-  }
-
-
-  client.close()
-  return res.json({ status: 200, data: data });
 }
-
-export default handler

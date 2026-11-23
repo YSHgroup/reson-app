@@ -1,53 +1,29 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
+import { prisma } from '@lib/prisma'
+import { toLegacyGroupMessage } from '@lib/chat-data'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
 
-
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
-  if (session == undefined)
-    return res.status(RS.CERROR_UNAUTHORIZED).json({
-      message: 'Unauthorized',
-    })
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
-    return res.status(RS.CERROR_FORBIDDEN).json({
-      message: 'Wrong HTTP Method',
-    })
+    res.setHeader('Allow', 'GET')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
   }
-  
-  const client = await connectToDatabase();
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
 
-  const email = session?.user?.email;
-  
-  const groupchatCollection = client.db().collection('groupchat');
-  const groupMsgsCollection = client.db().collection('groupMsgs');
-
-  const myGroups = await groupchatCollection.find({
-    members: {
-      $in: [email]
-    }
-  }, { projection: { _id: 1 } }).toArray();
-
-  const unreadGroupChats = await groupMsgsCollection.find({ 
-    _id: {
-      $in: [...myGroups]
+  const unreadGroupMessages = await prisma.groupMessage.findMany({
+    where: {
+      NOT: { readers: { has: email } },
+      group: { members: { some: { user: { email } } } },
     },
-    readers: {
-      $in: [email]
-    }
-  }).toArray();
-
-  const data = {
-    unreadGroupChats: unreadGroupChats,
-  }
-
-
-  client.close()
-  return res.json({ status: 200, data: data });
+    include: { sender: { select: { email: true, nickname: true } } },
+    orderBy: { createdAt: 'desc' },
+  })
+  return res.json({
+    status: RS.SUCCESS_OK,
+    data: { unreadGroupChats: unreadGroupMessages.map(toLegacyGroupMessage) },
+  })
 }
-
-export default handler

@@ -109,6 +109,8 @@ model User {
   skillAttempts    SkillAttempt[]
   connectPurchases ConnectPurchase[]
   oauthAccounts    OAuthAccount[]
+  artifacts        UserArtifact[]
+  contacts         Contact[]
 }
 
 model Setting {
@@ -189,6 +191,17 @@ model SearchHistory {
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
+}
+
+model UserArtifact {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String
+  entry     Json
+  createdAt DateTime @default(now())
+
+  @@index([userId, kind, createdAt])
 }
 
 model CalendarEvent {
@@ -326,6 +339,23 @@ model OAuthAccount {
   @@index([userId])
 }
 
+model Contact {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  googleResourceName String?
+  email             String?
+  displayName       String?
+  photoUrl          String?
+  birthday          String?
+  phoneNumber       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([userId, googleResourceName])
+  @@index([userId, email])
+}
+
 model VerificationToken {
   id        String   @id @default(cuid())
   subject   String
@@ -334,27 +364,4 @@ model VerificationToken {
   createdAt DateTime @default(now())
 
   @@index([subject])
-}
-
-model LegacyImport {
-  id               String   @id @default(cuid())
-  sourceCollection String
-  sourceId         String
-  targetModel      String
-  targetId         String
-  migratedAt       DateTime @default(now())
-
-  @@unique([sourceCollection, sourceId])
-  @@index([targetModel, targetId])
-}
-
-model LegacyDocument {
-  id               String   @id @default(cuid())
-  sourceCollection String
-  sourceId         String
-  data             Json
-  migratedAt       DateTime @default(now())
-
-  @@unique([sourceCollection, sourceId])
-  @@index([sourceCollection, migratedAt])
 }

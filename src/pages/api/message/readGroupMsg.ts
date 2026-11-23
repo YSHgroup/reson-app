@@ -1,63 +1,33 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
-import { Document, ObjectId } from 'mongodb'
+import { prisma } from '@lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
 
-type GroupMessage = Document & {
-  readers?: string[]
-}
-
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
-  if (session == undefined)
-    return res.status(RS.CERROR_UNAUTHORIZED).json({
-      message: 'Unauthorized',
-    })
-
-  if (req.method !== 'POST') {
-    return res.status(RS.CERROR_FORBIDDEN).json({
-      message: 'Wrong HTTP Method',
-    })
-  }
-  
-  const client = await connectToDatabase()
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions)
   const email = session?.user?.email
-  if (typeof email !== 'string') {
-    return res.status(RS.CERROR_UNAUTHORIZED).json({
-      message: 'Unauthorized',
-    })
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
   }
 
-  const groupMsgsCollection = client.db().collection<GroupMessage>('groupMsgs')
-
-  const readchats = req.body.readchats;
-  const readChatsIds = readchats.map((chat: any) => new ObjectId(chat._id))
-  try {
-    await groupMsgsCollection.updateMany(
-      { _id: { $in: readChatsIds } },
-      [
-        {
-          $set: {
-            readers: {
-              $setUnion: [{ $ifNull: ['$readers', []] }, [email]],
-            },
-          },
-        },
-      ]
-    )
-    client.close()
-    return res.status(RS.SUCCESS_OK).json({
-      message: 'Success',
-    })
-  } catch(error) {
-    client.close()
-    return res.status(RS.SERROR_INTERNAL).json({
-      message: error,
+  const readchats = req.body?.readchats
+  if (!Array.isArray(readchats)) {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'Invalid messages.' })
+  }
+  const ids = readchats
+    .map((chat: { _id?: unknown }) => chat?._id)
+    .filter((id: unknown): id is string => typeof id === 'string')
+  if (ids.length) {
+    await prisma.groupMessage.updateMany({
+      where: {
+        id: { in: ids },
+        group: { members: { some: { user: { email } } } },
+      },
+      data: { readers: { push: email } },
     })
   }
-
+  return res.status(RS.SUCCESS_OK).json({ message: 'Success' })
 }
-
-export default handler

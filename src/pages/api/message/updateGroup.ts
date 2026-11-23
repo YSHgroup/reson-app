@@ -1,55 +1,49 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
+import { prisma } from '@lib/prisma'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
-import { ObjectId } from 'mongodb'
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
-  if (session == undefined)
-    return res.status(RS.CERROR_UNAUTHORIZED).json({
-      message: 'Unauthorized',
-    })
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
   if (req.method !== 'POST') {
-    return res.status(RS.CERROR_FORBIDDEN).json({
-      message: 'Wrong HTTP Method',
-    })
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
   }
-  var today = new Date()
-  const { groupInfo, people, groupName } = req.body
-  const members = [
-    session?.user?.email,
-    ...people.map((onePeople: { email: any }) => onePeople.email),
-  ]
-  const client = await connectToDatabase()
-
-  const groupchatCollection = client.db().collection('groupchat')
-
-  try {
-    await groupchatCollection.updateOne(
-      {
-        _id: new ObjectId(groupInfo._id),
+  const { groupInfo, people, groupName } = req.body ?? {}
+  const groupId = groupInfo?._id
+  if (typeof groupId !== 'string' || typeof groupName !== 'string' || !Array.isArray(people)) {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'Invalid group details.' })
+  }
+  const memberEmails = Array.from(
+    new Set([email, ...people.map((person: { email?: unknown }) => person.email)])
+  )
+  if (!memberEmails.every((member): member is string => typeof member === 'string' && member.length > 0)) {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'Invalid group members.' })
+  }
+  const group = await prisma.chatGroup.findFirst({
+    where: { id: groupId, members: { some: { user: { email } } } },
+    select: { id: true },
+  })
+  if (!group) return res.status(RS.CERROR_NOTFOUND).json({ message: 'Group not found.' })
+  const users = await prisma.user.findMany({
+    where: { email: { in: memberEmails } },
+    select: { id: true },
+  })
+  if (users.length !== memberEmails.length) {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'One or more group members do not exist.' })
+  }
+  await prisma.$transaction([
+    prisma.groupMember.deleteMany({ where: { groupId } }),
+    prisma.chatGroup.update({
+      where: { id: groupId },
+      data: {
+        title: groupName.trim(),
+        members: { create: users.map(({ id }) => ({ userId: id })) },
       },
-      {
-        $set: {
-          title: groupName,
-          members,
-          modified: today,
-        },
-      }
-    )
-    client.close()
-    return res.status(RS.SUCCESS_OK).json({
-      message: 'Success',
-    })
-  } catch (err) {
-    client.close()
-    return res.status(RS.SERROR_INTERNAL).json({
-      message: err,
-    })
-  }
+    }),
+  ])
+  return res.status(RS.SUCCESS_OK).json({ message: 'Success' })
 }
-
-export default handler

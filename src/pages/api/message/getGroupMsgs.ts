@@ -1,34 +1,30 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
-import { ObjectId } from 'mongodb';
+import { prisma } from '@lib/prisma'
+import { toLegacyGroupMessage } from '@lib/chat-data'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
 
-var pos = require('pos');
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
+  }
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const session: any = await getServerSession(req as any, res as any, authOptions as any)
-    if (session == undefined)
-        return res.status(RS.CERROR_UNAUTHORIZED).json({
-            message: 'Unauthorized',
-        })
+  const groupId = typeof req.query.id === 'string' ? req.query.id : ''
+  const membership = await prisma.groupMember.findFirst({
+    where: { groupId, user: { email } },
+    select: { id: true },
+  })
+  if (!membership) return res.status(RS.CERROR_NOTFOUND).json({ message: 'Group not found.' })
 
-    if (req.method !== 'GET') {
-        return res.status(RS.CERROR_FORBIDDEN).json({
-            message: 'Wrong HTTP Method',
-        })
-    }
-    const { id } : any = req.query;
-    const client = await connectToDatabase()
-    const groupMsgsCollection = client.db().collection('groupMsgs');
-
-    const groupMsgs = await groupMsgsCollection.find({groupId: new ObjectId(id)}).toArray();
-    client.close()
-    return res.status(RS.SUCCESS_OK).json({
-        groupMsgs: groupMsgs,
-    })
-
+  const messages = await prisma.groupMessage.findMany({
+    where: { groupId },
+    include: { sender: { select: { email: true, nickname: true } } },
+    orderBy: { createdAt: 'asc' },
+  })
+  return res.status(RS.SUCCESS_OK).json({ groupMsgs: messages.map(toLegacyGroupMessage) })
 }
-
-export default handler

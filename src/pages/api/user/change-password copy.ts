@@ -1,73 +1,38 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
 import RS from '@constants/ResponseStatus'
 import { hashPassword, verifyPassword } from '@lib/auth'
-import { connectToDatabase } from '@lib/db'
+import { prisma } from '@lib/prisma'
+import { z } from 'zod'
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+const passwordSchema = z.object({
+  oldPassword: z.string().min(1),
+  newPassword: z.string().min(8).max(128),
+})
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'PATCH') {
-    return
+    res.setHeader('Allow', 'PATCH')
+    return res.status(405).json({ message: 'Method not allowed.' })
   }
-  
-  const session = await getServerSession(req as any, res as any, authOptions as any) as any
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Not authenticated!' })
+  const parsed = passwordSchema.safeParse(req.body)
+  if (!parsed.success) return res.status(422).json({ message: 'Invalid password.' })
 
-  if (!session) {
-    res.status(RS.CERROR_UNAUTHORIZED).json({
-      message: 'Not authenticated!',
-    })
-    return
-  }
-
-  const userEmail = session.user.email
-  const oldPassword = req.body.oldPassword
-  const newPassword = req.body.newPassword
-
-  const client = await connectToDatabase()
-
-  const usersCollection = client.db().collection('users')
-
-  const user = await usersCollection.findOne({
-    email: userEmail,
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, password: true },
   })
-
-  if (!user) {
-    res.status(RS.CERROR_NOTFOUND).json({
-      message: 'User not found.',
-    })
-    client.close()
-    return
+  if (!user) return res.status(RS.CERROR_NOTFOUND).json({ message: 'User not found.' })
+  if (!(await verifyPassword(parsed.data.oldPassword, user.password))) {
+    return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Invalid password.' })
   }
-
-  const currentPassword = user.password
-
-  const passwordsAreEqual = await verifyPassword(oldPassword, currentPassword)
-
-  if (!passwordsAreEqual) {
-    res.status(RS.CERROR_UNAUTHORIZED).json({
-      message: 'Invalid password.',
-    })
-    client.close()
-    return
-  }
-
-  const hashedPassword = await hashPassword(newPassword)
-
-  /* const result = */ await usersCollection.updateOne(
-    {
-      email: userEmail,
-    },
-    {
-      $set: {
-        password: hashedPassword,
-      },
-    }
-  )
-
-  client.close()
-  res.status(RS.SUCCESS_OK).json({
-    message: 'Password updated!',
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { password: await hashPassword(parsed.data.newPassword) },
   })
+  return res.status(RS.SUCCESS_OK).json({ message: 'Password updated!' })
 }
-
-export default handler

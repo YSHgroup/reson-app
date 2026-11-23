@@ -1,47 +1,39 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
-import { ObjectId } from 'mongodb';
+import { prisma } from '@lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
 
-var pos = require('pos');
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
+  }
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const session: any = await getServerSession(req as any, res as any, authOptions as any)
-    if (session == undefined)
-        return res.status(RS.CERROR_UNAUTHORIZED).json({
-            message: 'Unauthorized',
-        })
+  const groupId = typeof req.query.id === 'string' ? req.query.id : ''
+  const group = await prisma.chatGroup.findFirst({
+    where: { id: groupId, members: { some: { user: { email } } } },
+    include: {
+      members: {
+        include: {
+          user: {
+            select: { id: true, email: true, nickname: true, picturePath: true },
+          },
+        },
+      },
+    },
+  })
+  if (!group) return res.status(RS.CERROR_NOTFOUND).json({ message: 'Group not found.' })
 
-    if (req.method !== 'GET') {
-        return res.status(RS.CERROR_FORBIDDEN).json({
-            message: 'Wrong HTTP Method',
-        })
-    }
-    const { id } = req.query;
-    const client = await connectToDatabase()
-    const groupchatCollection = client.db().collection('groupchat');
-    const usersCollection = client.db().collection('users');
-
-    const groupMsgs = await groupchatCollection.findOne({ _id: new ObjectId(String(id)) });
-    const members = await usersCollection.find({
-        email: {
-            $in: [...groupMsgs?.members]
-        }
-    }, {
-        projection: {
-            _id: 1,
-            email: 1,
-            nickname: 1,
-            picpath: 1
-        }
-    }).toArray();
-    client.close();
-    return res.status(RS.SUCCESS_OK).json({
-        members: members,
-    })
-
+  return res.status(RS.SUCCESS_OK).json({
+    members: group.members.map(({ user }) => ({
+      _id: user.id,
+      email: user.email,
+      nickname: user.nickname,
+      picpath: user.picturePath,
+    })),
+  })
 }
-
-export default handler

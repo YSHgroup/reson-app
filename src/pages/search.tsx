@@ -31,7 +31,6 @@ import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import ShowLists from 'components/elements/Search/ShowLists'
 import FullLayout from '@layouts/FullLayout'
 import { favorIdAtom } from 'atoms'
-import { connectToDatabase } from '@lib/db'
 import { analyseText } from 'functions/anaylseText'
 import { styled, useTheme } from '@mui/material/styles'
 import { WordsDropdown, TextItem } from '@elements/PredictionWordBox'
@@ -527,15 +526,16 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
     }
   }
   try {
-    const client = await connectToDatabase()
-    const collection = client.db().collection('search_texts')
-
-    const textData = await collection.findOne(
-      { email: session.user.email },
-      { projection: { _id: 0, email: 0, 'text.user_email': 0 } }
-    )
-
-    const textPattern = analyseText(textData['text'])
+    const { prisma } = await import('@lib/prisma')
+    const { recentUserArtifacts } = await import('@lib/user-artifacts')
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    })
+    const text = user
+      ? await recentUserArtifacts(user.id, 'search-analysis')
+      : []
+    const textPattern = analyseText(text)
     return {
       props: {
         session,

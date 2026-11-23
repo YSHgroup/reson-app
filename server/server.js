@@ -1,12 +1,13 @@
+require('dotenv').config({ path: ['.env.local', '.env'] })
+
 const express = require('express')
 const { Server } = require('socket.io')
 const https = require('https')
 const fs = require('fs')
 const cors = require('cors')
-const { connectToDatabase } = require('../lib/connectToDatabase')
 const { clientele, message, cons } = require('pos/lexicon')
-const { ObjectId } = require('mongodb')
 const http = require('http')
+const { saveDirectMessage, markDirectMessageRead } = require('./postgres')
 
 const app = express()
 app.use(cors())
@@ -42,12 +43,6 @@ if (devmode) {
   })
 }
 
-let client
-;(async () => {
-  client = await connectToDatabase()
-})()
-
-const messagesCollection = () => client.db().collection('messages')
 io.on('connection', (socket) => {
   socket.emit('getid', socket.id)
 
@@ -89,19 +84,25 @@ io.on('connection', (socket) => {
   })
 
   socket.on('readMessage', async (message) => {
-    const messageId = new ObjectId(message._id)
-    const updateMessage = await (
-      await messagesCollection()
-    ).updateOne({ _id: messageId }, { $set: { read: true } })
+    try {
+      await markDirectMessageRead(message._id, socket.email)
+    } catch (error) {
+      console.error('Could not mark direct message as read:', error)
+      socket.emit('messageError', { message: 'Could not update message status.' })
+    }
   })
 
   socket.on('sendMessage', async (message) => {
-    await (await messagesCollection()).insertOne(message)
-    socket.emit('newMessage', message)
-    // console.log(sockets[message.to])
-    io.to(sockets[message.to]).emit('newMessage', message)
-    io.to(sockets_notify[message.to]).emit('newUnreadMsg')
-    io.to(dashboard_notify[message.to]).emit('newChat')
+    try {
+      const savedMessage = await saveDirectMessage(message, socket.email)
+      socket.emit('newMessage', savedMessage)
+      io.to(sockets[savedMessage.to]).emit('newMessage', savedMessage)
+      io.to(sockets_notify[savedMessage.to]).emit('newUnreadMsg')
+      io.to(dashboard_notify[savedMessage.to]).emit('newChat')
+    } catch (error) {
+      console.error('Could not save direct message:', error)
+      socket.emit('messageError', { message: 'Could not send message.' })
+    }
   })
 
   socket.on('reactEmoji', ({ msgId, emojiId, to }) => {
@@ -320,7 +321,7 @@ gchat.on('connection', (socket) => {
   })
 
   socket.on('reactEmojiGroup', (data) => {
-    const { msgId, groupInfo } = data
+    const { msgId, emojiId, groupInfo } = data
     gchat.to(`room-${groupInfo._id}`).emit('newReactEmoji', { msgId, emojiId })
   })
 })

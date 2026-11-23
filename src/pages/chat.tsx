@@ -55,7 +55,6 @@ import MediaViewer from '@elements/Chat/MediaViewerComponent'
 import ChatImage from '@elements/Chat/ChangeImageComponent'
 import { VideoCallContext } from 'context/VideoCallContext'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
-import { connectToDatabase } from '@lib/db'
 import { analyseText } from 'functions/anaylseText'
 import { WordsDropdown, TextItem } from '@elements/PredictionWordBox'
 
@@ -1283,16 +1282,16 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
     }
   }
   try {
-    const client = await connectToDatabase()
-    const collection = client.db().collection('messagestagger')
-
-    const textData = await collection.findOne(
-      { email: session.user.email },
-      { projection: { _id: 0, email: 0 } }
-    )
-
-    console.log('search text: ', textData)
-    const textPattern = analyseText(textData['texts'])
+    const { prisma } = await import('@lib/prisma')
+    const { recentUserArtifacts } = await import('@lib/user-artifacts')
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    })
+    const texts = user
+      ? await recentUserArtifacts(user.id, 'message-analysis')
+      : []
+    const textPattern = analyseText(texts)
     return {
       props: {
         session,

@@ -39,7 +39,7 @@ export async function getPrismaAccount(
     where: { email },
     select: { id: true, connects: true },
   })
-  if (!user) return { status: 'unmigrated' as const }
+  if (!user) return { status: 'unauthenticated' as const }
 
   return { status: 'ready' as const, user }
 }
@@ -111,8 +111,4 @@ function parseDate(value: string | Date | null | undefined) {
   if (value == null) return null
   const date = value instanceof Date ? value : new Date(value)
   return Number.isNaN(date.getTime()) ? null : date
-}
-
-export function unmigratedAccountMessage() {
-  return 'Your account has not been imported into the new project service yet.'
 }

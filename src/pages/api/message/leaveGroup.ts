@@ -1,53 +1,26 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
+import { prisma } from '@lib/prisma'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
-import { ObjectId } from 'mongodb'
 
-var pos = require('pos')
-
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
   if (req.method !== 'POST') {
-    return res.status(RS.CERROR_FORBIDDEN).json({
-      message: 'Wrong HTTP Method',
-    })
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
   }
-
-  var today = new Date()
-
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
-
-  const { groupInfo } = req.body
-  const client = await connectToDatabase()
-
-  const groupchatCollection = client.db().collection('groupchat')
-
-  const restOfMembers = groupInfo.members.filter((member: string | null | undefined) => member !== session?.user?.email);
-
-  try {
-    await groupchatCollection.updateOne(
-      {
-        _id: new ObjectId(groupInfo._id),
-      },
-      {
-        $set: {
-          title: groupInfo.title,
-          members: restOfMembers,
-          modified: today,
-        },
-      }
-    )
-    client.close()
-    return res.status(RS.SUCCESS_OK).json({
-      message: 'Success',
-    })
-  } catch (err) {
-    client.close()
-    return res.status(RS.SERROR_INTERNAL).json({
-      message: err,
-    })
+  const groupId = req.body?.groupInfo?._id
+  if (typeof groupId !== 'string') {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'Invalid group.' })
   }
+  const membership = await prisma.groupMember.findFirst({
+    where: { groupId, user: { email } },
+    select: { id: true },
+  })
+  if (!membership) return res.status(RS.CERROR_NOTFOUND).json({ message: 'Group not found.' })
+  await prisma.groupMember.delete({ where: { id: membership.id } })
+  return res.status(RS.SUCCESS_OK).json({ message: 'Success' })
 }
-
-export default handler

@@ -1,49 +1,26 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
-import { ObjectId } from 'mongodb';
-import fs from 'fs';
+import { prisma } from '@lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
 
-var pos = require('pos');
-
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
   if (req.method !== 'POST') {
-    return res.status(RS.CERROR_FORBIDDEN).json({
-      message: 'Wrong HTTP Method',
-    })
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
   }
-
-  const { groupInfo } = req.body;
-
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
-  if (session?.user?.email !== groupInfo.owner) {
-    return res.status(RS.CERROR_FORBIDDEN).json({
-      message: 'You do not have the permission.'
-    })
+  const groupId = req.body?.groupInfo?._id
+  if (typeof groupId !== 'string') {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'Invalid group.' })
   }
-  
-
-  const client = await connectToDatabase()
-
-  const groupchatCollection = client.db().collection('groupchat')
-  try {
-    groupInfo.groupAvatar && fs.unlinkSync(`./uploads/chats/${groupInfo.groupAvatar}`);
-    await groupchatCollection.deleteOne({
-        _id: new ObjectId(groupInfo._id)
-    })
-    client.close()
-    return res.status(RS.SUCCESS_OK).json({
-      message: 'Success',
-    })
-  } catch(err) {
-    client.close()
-    return res.status(RS.SERROR_INTERNAL).json({
-      message: err,
-    })
-  }
-
+  const group = await prisma.chatGroup.findFirst({
+    where: { id: groupId, owner: { email } },
+    select: { id: true },
+  })
+  if (!group) return res.status(RS.CERROR_FORBIDDEN).json({ message: 'You do not have the permission.' })
+  await prisma.chatGroup.delete({ where: { id: groupId } })
+  return res.status(RS.SUCCESS_OK).json({ message: 'Success' })
 }
-
-export default handler

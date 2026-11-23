@@ -23,7 +23,6 @@ import NotificationCalendar from '../components/elements/NotificationCalendar'
 import io from 'socket.io-client'
 import { GenNumForDate } from 'utils/GenNumForDate'
 import { dateColor } from '@constants/Status'
-import { connectToDatabase } from '@lib/db'
 import { usePersonalAnalysis } from 'hooks/usePersonalAnalysis'
 
 const { data: MenuDatas } = MenuData
@@ -656,15 +655,19 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
     }
   }
   try {
-    const email = session.user.email
-    const client = await connectToDatabase()
-    const userCollection = client.db().collection('users')
-    const userInfo = await userCollection.findOne(
-      { email: email },
-      { projection: { _id: 0, day_birth: 1, month_birth: 1, year_birth: 1 } }
-    )
-
-    if (!userInfo) throw new Error('--User info not found--')
+    const { prisma } = await import('@lib/prisma')
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { birthday: true },
+    })
+    const birthday = user?.birthday
+    const userInfo = birthday
+      ? {
+          day_birth: birthday.getDate(),
+          month_birth: birthday.getMonth() + 1,
+          year_birth: birthday.getFullYear(),
+        }
+      : []
     return {
       props: {
         session,

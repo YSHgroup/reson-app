@@ -1,27 +1,37 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { authOptions } from "../auth/[...nextauth]"
-import { getServerSession } from "next-auth/next"
+import { prisma } from '@lib/prisma'
+import { authOptions } from '../auth/[...nextauth]'
+import { getServerSession } from 'next-auth/next'
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
-  if (req.method === 'POST') {
-  
-    const client = await connectToDatabase()
-  
-    const contactsCollections = client.db().collection('contacts')
-  
-    const contacts = await contactsCollections.find({
-      author: session?.user?.email,
-    }).toArray();
-    client.close();
-    return res.status(RS.SUCCESS_OK).json({
-      message: "Success",
-      data: contacts
-    })
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Method not allowed.' })
   }
-  return
-}
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
 
-export default handler
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true },
+  })
+  if (!user) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
+  const contacts = await prisma.contact.findMany({
+    where: { userId: user.id },
+    orderBy: { displayName: 'asc' },
+  })
+  return res.status(RS.SUCCESS_OK).json({
+    message: 'Success',
+    data: contacts.map((contact) => ({
+      _id: contact.id,
+      author: email,
+      name: contact.displayName,
+      emailAddress: contact.email,
+      photo: contact.photoUrl,
+      birthday: contact.birthday,
+      phoneNumber: contact.phoneNumber,
+    })),
+  })
+}

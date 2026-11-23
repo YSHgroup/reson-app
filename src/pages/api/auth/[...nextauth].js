@@ -2,7 +2,7 @@ import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 
 import { verifyPassword } from '@lib/auth'
-import { connectToDatabase } from '@lib/db'
+import { prisma } from '@lib/prisma'
 
 /** @type {import('next-auth').NextAuthOptions} */
 export const authOptions = {
@@ -22,75 +22,28 @@ export const authOptions = {
         }
 
         const email = credentials.email.trim().toLowerCase()
-        if (process.env.DATABASE_URL) {
-          const { prisma } = await import('@lib/prisma')
-          const user = await prisma.user.findUnique({
-            where: { email },
-            select: {
-              id: true,
-              email: true,
-              password: true,
-              passwordResetRequired: true,
-              enabled: true,
-              nickname: true,
-              picturePath: true,
-              role: true,
-            },
-          })
-
-          if (!user || user.passwordResetRequired || !user.enabled) {
-            return null
-          }
-
-          const isValid = await verifyPassword(
-            credentials.password,
-            user.password
-          )
-          if (!isValid) return null
-
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.nickname,
-            image: user.picturePath,
-            role: user.role,
-          }
-        }
-
-        const client = await connectToDatabase()
-
-        const usersCollection = client.db().collection('users')
-
-        const user = await usersCollection.findOne({
-          email,
+        const user = await prisma.user.findUnique({
+          where: { email },
+          select: {
+            id: true,
+            email: true,
+            password: true,
+            passwordResetRequired: true,
+            enabled: true,
+            nickname: true,
+            picturePath: true,
+            role: true,
+          },
         })
 
-        if (!user) {
-          client.close()
-          throw new Error('No user found!')
-        }
-
-        if (user.passwordResetRequired || !user.password) {
-          client.close()
-          throw new Error('Password reset required!')
-        }
-
-        const isValid = await verifyPassword(
-          credentials.password,
-          user.password
-        )
-
-        if (!isValid) {
-          client.close()
-          throw new Error('Could not log you in!')
-        }
-
-        client.close()
+        if (!user || user.passwordResetRequired || !user.enabled) return null
+        const isValid = await verifyPassword(credentials.password, user.password)
+        if (!isValid) return null
         return {
-          id: user._id.toString(),
+          id: user.id,
           email: user.email,
           name: user.nickname,
-          image: user.picpath,
+          image: user.picturePath,
           role: user.role
         }
       },

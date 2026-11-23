@@ -1,52 +1,41 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
+import { prisma } from '@lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
 
-
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
   if (req.method !== 'POST') {
-    return res.status(RS.CERROR_FORBIDDEN).json({
-      message: 'Wrong HTTP Method',
-    })
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
   }
 
-  var today = new Date()
-
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
-
-  const { people, groupName } = req.body
-  const client = await connectToDatabase()
-  const members = [session?.user?.email, ...people.map((onePeople: { email: any }) => onePeople.email)];
-
-  const usersCollection = client.db().collection('users')
-
-  const user = await usersCollection.findOne({
-    email: session?.user?.email,
+  const { people, groupName } = req.body ?? {}
+  if (typeof groupName !== 'string' || !groupName.trim() || !Array.isArray(people)) {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'Invalid group details.' })
+  }
+  const memberEmails = Array.from(
+    new Set([email, ...people.map((person: { email?: unknown }) => person.email)])
+  )
+  if (!memberEmails.every((member): member is string => typeof member === 'string' && member.length > 0)) {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'Invalid group members.' })
+  }
+  const users = await prisma.user.findMany({
+    where: { email: { in: memberEmails } },
+    select: { id: true },
   })
-
-  const groupchatCollection = client.db().collection('groupchat')
-
-  try {
-    await groupchatCollection.insertOne({
-      title: groupName,
-      owner: session?.user?.email,
-      members,
-      created: today,
-      modified: today
-    })
-    client.close()
-    return res.status(RS.SUCCESS_OK).json({
-      message: 'Success',
-    })
-  } catch(err) {
-    client.close()
-    return res.status(RS.SERROR_INTERNAL).json({
-      message: err,
-    })
+  if (users.length !== memberEmails.length) {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'One or more group members do not exist.' })
   }
-
+  await prisma.chatGroup.create({
+    data: {
+      title: groupName.trim(),
+      owner: { connect: { email } },
+      members: { create: users.map(({ id }) => ({ userId: id })) },
+    },
+  })
+  return res.status(RS.SUCCESS_OK).json({ message: 'Success' })
 }
-
-export default handler

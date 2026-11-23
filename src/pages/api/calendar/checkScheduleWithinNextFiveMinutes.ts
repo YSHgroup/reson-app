@@ -1,83 +1,66 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
+import { prisma } from '@lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
+import { formatTime, timestampToFormattedDate } from '@lib/utils'
+import { z } from 'zod'
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const session: any = await getServerSession(req as any, res as any, authOptions as any)
-    var today = new Date()
-    var Y = today.getFullYear()
-    var M = today.getMonth() + 1
-    var D = today.getDate()
-    var h = today.getHours()
-    var m = today.getMinutes()
-    var s = today.getSeconds()
-    var current_date = Y + '/' + M + '/' + D
-    var current_time = h + ':' + m + ':' + s
-    if (session == undefined)
-        return res.status(RS.CERROR_UNAUTHORIZED).json({
-            message: 'Unauthorized',
-        })
+const reminderText =
+  "Hi \n Just wanted to remind you that you have plans coming up in the next 5 minutes. \n Don't forget to get ready and be there on time! \n Have a great time!"
 
-    if (req.method !== 'POST') {
-        return res.status(RS.CERROR_FORBIDDEN).json({
-            message: 'Wrong HTTP Method',
-        })
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST')
+    return res.status(RS.CERROR_FORBIDDEN).json({ message: 'Wrong HTTP Method' })
+  }
+  const parsed = z.object({
+    currentDate: z.coerce.date(),
+    plusFiveMinutes: z.coerce.date(),
+  }).safeParse(req.body)
+  if (!parsed.success || parsed.data.plusFiveMinutes < parsed.data.currentDate) {
+    return res.status(422).json({ message: 'Invalid reminder window.' })
+  }
+
+  const schedules = await prisma.calendarEvent.findMany({
+    where: {
+      OR: [{ author: { email } }, { invitee: { email } }],
+      startDate: { gte: parsed.data.currentDate, lte: parsed.data.plusFiveMinutes },
+      inviteeId: { not: null },
+    },
+    include: {
+      author: { select: { id: true, email: true } },
+      invitee: { select: { id: true } },
+    },
+  })
+  const now = Date.now()
+  for (const schedule of schedules) {
+    if (!schedule.invitee) continue
+    const existing = await prisma.directMessage.findFirst({
+      where: {
+        authorId: schedule.author.id,
+        recipientId: schedule.invitee.id,
+        content: reminderText,
+      },
+      select: { id: true },
+    })
+    if (!existing) {
+      await prisma.directMessage.create({
+        data: {
+          authorId: schedule.author.id,
+          recipientId: schedule.invitee.id,
+          content: reminderText,
+          type: 'text',
+          metadata: {
+            date: timestampToFormattedDate(parsed.data.currentDate),
+            time: formatTime(now),
+          },
+        },
+      })
     }
-    const data = req.body;
-    const client = await connectToDatabase()
-    const calendarCollection = client.db().collection('calendar');
-    const messagesCollection = client.db().collection('messages');
-    const author = session?.user?.email;
-    try {
-        const schedules = await calendarCollection.find({
-            $or: [
-                { author: author },
-                { to: author }
-            ],
-        }).toArray();
-        const currentDate = new Date(data.currentDate);
-        const plusFiveMinutes = new Date(data.plusFiveMinutes);
-        for (let i = 0; i < schedules.length; i++) {
-            let startdate = new Date(schedules[i].startdate);
-            if (startdate >= currentDate && startdate <= plusFiveMinutes) {
-                const countTo = await messagesCollection.countDocuments({
-                    $and: [
-                        { author: schedules[i].author },
-                        { content: "Hi \n Just wanted to remind you that you have plans coming up in the next 5 minutes. \n Don't forget to get ready and be there on time! \n Have a great time!" },
-                        { to: schedules[i].to}
-                    ]
-                });
-                if(countTo === 0) {
-                    let messageTo: any = {};
-                    messageTo['author'] = schedules[i].author;
-                    messageTo['content'] = `Hi \n Just wanted to remind you that you have plans coming up in the next 5 minutes. \n Don't forget to get ready and be there on time! \n Have a great time!`;
-                    messageTo['to'] = schedules[i].to;
-                    messageTo['date'] = data.currentDate;
-                    messageTo['time'] = current_time;
-                    messageTo['read'] = false;
-                    messageTo['type'] = 'text';
-                    await messagesCollection.insertOne(messageTo);
-                } 
-
-            }
-        }
-
-        client.close();
-        return res.status(200).json({
-            message: "Success",
-        })
-    } catch (error) {
-        client.close()
-        return res.status(RS.SERROR_INTERNAL).json({
-            message: error,
-        })
-    }
+  }
+  return res.status(200).json({ message: 'Success' })
 }
-
-export default handler
-function ArrayPush() {
-    throw new Error('Function not implemented.')
-}
-

@@ -1,8 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { google } from 'googleapis';
 import { getSession } from 'next-auth/react';
-import { connectToDatabase } from '@lib/db'
-import { auth } from 'google-auth-library';
+import { prisma } from '@lib/prisma'
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
@@ -14,7 +13,7 @@ const oAuth2Client = new google.auth.OAuth2(
   REDIRECT_URI
 );
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { code } = req.query;
   try {
     const { tokens } = await oAuth2Client.getToken(code as string);
@@ -26,39 +25,35 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       personFields: 'names,emailAddresses,birthdays,genders,phoneNumbers,photos',
       pageSize: 100,
     });
-    const session = await getSession({
-      req,
+    const session = await getSession({ req })
+    const email = session?.user?.email
+    if (!email) return res.status(401).json({ message: 'Unauthorized.' })
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
     })
+    if (!user) return res.status(401).json({ message: 'Unauthorized.' })
 
-    const client = await connectToDatabase()
-
-    const contactsCollection = client.db().collection('contacts');
-    const author = session?.user?.email;
-
-    for (const item of data.connections ?? []) {
-      const count = await contactsCollection.countDocuments({
-        $and: [
-          { author: author },
-          { emailAddress: (item.emailAddresses !== undefined && item.emailAddresses[0]?.value) }
-        ]
-      });
-      if (count === 0) {
-        const contacts = await contactsCollection.insertOne({
-          author: author,
-          name: item.names !== undefined ? item.names[0]?.displayName : null,
-          emailAddress: item.emailAddresses !== undefined ? item.emailAddresses[0]?.value : null,
-          photo: item.photos !== undefined ? item.photos[0]?.url : null,
-          birthday: item.birthdays !== undefined ? item.birthdays[0]?.text : null,
-          phoneNumber: item.phoneNumbers !== undefined ? item.phoneNumbers[0]?.canonicalForm : null,
-        });
-      }
+    const contacts = (data.connections ?? [])
+      .filter((item) => typeof item.resourceName === 'string')
+      .map((item) => ({
+        userId: user.id,
+        googleResourceName: item.resourceName!,
+        displayName: item.names?.[0]?.displayName ?? null,
+        email: item.emailAddresses?.[0]?.value ?? null,
+        photoUrl: item.photos?.[0]?.url ?? null,
+        birthday: item.birthdays?.[0]?.text ?? null,
+        phoneNumber: item.phoneNumbers?.[0]?.canonicalForm ?? null,
+      }))
+    if (contacts.length) {
+      await prisma.contact.createMany({ data: contacts, skipDuplicates: true })
     }
-
-    client.close();
     const uri = process.env.CONTACT_REDIRECT_URI || '';
     res.redirect(uri);
   } catch (error) {
     console.error('Error retrieving contacts:', error);
     res.status(500).end();
   }
-};
+}
+
+export default handler

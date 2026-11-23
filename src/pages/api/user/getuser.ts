@@ -1,24 +1,19 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
-import { connectToDatabase } from '@lib/db'
-var pos = require('pos');
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { prisma } from '@lib/prisma'
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
-    return
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Method not allowed.' })
   }
-  const { email } = req.body
-
-  const client = await connectToDatabase()
-
-  const usersCollection = client.db().collection('users')
-
-  const users = await usersCollection.find({ 'email': email }, { projection: { 'picpath': 1, '_id': 0 } }).toArray()
-
-  client.close()
-
-  return res.json({ status: 200, data: users });
+  const email = req.body?.email
+  if (typeof email !== 'string') return res.status(422).json({ message: 'A valid email is required.' })
+  const user = await prisma.user.findUnique({
+    where: { email: email.toLowerCase() },
+    select: { picturePath: true },
+  })
+  return res.json({
+    status: 200,
+    data: user ? [{ picpath: user.picturePath }] : [],
+  })
 }
-
-export default handler

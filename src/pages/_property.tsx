@@ -16,7 +16,6 @@ import languagejson from '../language.json'
 import analysisDoc from '../constants/AnalysisDocument.json'
 import { useAtom } from 'jotai'
 import { usePersonalAnalysis } from 'hooks/usePersonalAnalysis'
-import { connectToDatabase } from '@lib/db'
 import { GenNumForDate } from 'utils/GenNumForDate'
 import { dateColor } from '@constants/Status'
 
@@ -243,15 +242,19 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   try {
-    const email = session.user.email
-    const client = await connectToDatabase()
-    const userCollection = client.db().collection('users')
-    const userInfo = await userCollection.findOne(
-      { email: email },
-      { projection: { _id: 0, day_birth: 1, month_birth: 1, year_birth: 1 } }
-    )
-
-    if (!userInfo) throw new Error('--User info not found--')
+    const { prisma } = await import('@lib/prisma')
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { birthday: true },
+    })
+    const birthday = user?.birthday
+    const userInfo = birthday
+      ? {
+          day_birth: birthday.getDate(),
+          month_birth: birthday.getMonth() + 1,
+          year_birth: birthday.getFullYear(),
+        }
+      : []
     return {
       props: {
         session,

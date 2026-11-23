@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto'
 import { MINIMAL_PASSWORD_LENGTH } from '@constants/UserSignup'
 import RS from '@constants/ResponseStatus'
 import { hashPassword } from '@lib/auth'
-import { connectToDatabase } from '@lib/db'
+import { prisma } from '@lib/prisma'
 import { isEmailConfigured } from '@lib/sendEmail'
 import sendEmail from '@lib/sendEmail'
 import { UserRole } from '../../../generated/prisma/client'
@@ -31,158 +31,6 @@ function publicBaseUrl() {
   return new URL(baseUrl).origin
 }
 
-async function createPostgresAccount(
-  input: z.infer<typeof signupSchema>,
-  res: NextApiResponse
-) {
-  const { prisma } = await import('@lib/prisma')
-  const email = input.email.toLowerCase()
-  const verificationRequired = isEmailConfigured()
-  const verificationCode = verificationRequired
-    ? randomBytes(24).toString('hex')
-    : null
-  const password = await hashPassword(input.password)
-
-  let user
-  try {
-    user = await prisma.user.create({
-      data: {
-        email,
-        password,
-        nickname: input.nickname,
-        role: input.role ?? UserRole.user,
-        enabled: !verificationRequired,
-        verificationCode,
-        verificationSentAt: verificationRequired ? new Date() : null,
-        birthday: parsedBirthday(input.birthday),
-        sex: input.sex || null,
-        settings: {
-          create: {
-            language: input.lang ?? 0,
-          },
-        },
-      },
-      select: { id: true },
-    })
-  } catch (error) {
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'code' in error &&
-      error.code === 'P2002'
-    ) {
-      return res.status(RS.CERROR_UNPROCESSABLE).json({
-        message: 'User exists already!',
-      })
-    }
-    throw error
-  }
-
-  if (verificationCode) {
-    try {
-      await sendEmail(
-        email,
-        'Verify your ResonApp account',
-        `${publicBaseUrl()}/api/auth/verify/${user.id}/${verificationCode}`
-      )
-    } catch (error) {
-      console.error('Signup verification email failed:', error)
-      try {
-        await prisma.user.delete({ where: { id: user.id } })
-      } catch (cleanupError) {
-        console.error('Could not roll back unverified signup:', cleanupError)
-      }
-      return res.status(503).json({
-        message: 'Could not send verification email. Check SMTP settings and try again.',
-      })
-    }
-  }
-
-  return res.status(RS.SUCCESS_CREATED).json({
-    message: verificationRequired
-      ? 'Account created. Check your email to verify it.'
-      : 'Account created. You can now sign in.',
-  })
-}
-
-async function createMongoAccount(
-  input: z.infer<typeof signupSchema>,
-  res: NextApiResponse
-) {
-  const email = input.email.toLowerCase()
-  const client = await connectToDatabase()
-
-  try {
-    const db = client.db()
-    const users = db.collection('users')
-    if (await users.findOne({ email })) {
-      return res.status(RS.CERROR_UNPROCESSABLE).json({
-        message: 'User exists already!',
-      })
-    }
-
-    const verificationRequired = isEmailConfigured()
-    const verificationCode = verificationRequired
-      ? randomBytes(24).toString('hex')
-      : null
-    const now = new Date()
-    const birthday = parsedBirthday(input.birthday)
-    const password = await hashPassword(input.password)
-    const user = await users.insertOne({
-      email,
-      password,
-      day_birth: birthday?.getDate(),
-      month_birth: birthday ? birthday.getMonth() + 1 : undefined,
-      year_birth: birthday?.getFullYear(),
-      nickname: input.nickname,
-      sex: input.sex || 'male',
-      day: now.getDate(),
-      month: now.getMonth() + 1,
-      year: now.getFullYear(),
-      hour: now.getHours(),
-      min: now.getMinutes(),
-      sec: now.getSeconds(),
-      enable: !verificationRequired,
-      verify_code: verificationCode,
-      code_send_time: verificationRequired ? now.getTime() : null,
-      status: 0,
-      role: input.role ?? 'user',
-    })
-
-    await db.collection('settings').insertOne({
-      user_id: user.insertedId,
-      language: input.lang ?? 0,
-      modus: 0,
-      status: 0,
-      show_firstname: 0,
-      show_lastname: 0,
-      show_email: 0,
-      show_telephone: 0,
-      show_analyse: 0,
-      show_position: 0,
-    })
-
-    if (verificationCode) {
-      await sendEmail(
-        email,
-        'Verify your ResonApp account',
-        `${publicBaseUrl()}/api/auth/verify/${user.insertedId}/${verificationCode}`
-      )
-    }
-
-    return res.status(RS.SUCCESS_CREATED).json({
-      message: verificationRequired
-        ? 'Account created. Check your email to verify it.'
-        : 'Account created. You can now sign in.',
-    })
-  } catch (error) {
-    console.error('MongoDB account registration failed:', error)
-    return res.status(500).json({ message: 'Could not create your account.' })
-  } finally {
-    await client.close()
-  }
-}
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -191,7 +39,6 @@ export default async function handler(
     res.setHeader('Allow', 'POST')
     return res.status(405).json({ message: 'Method not allowed.' })
   }
-
   const parsed = signupSchema.safeParse(req.body)
   if (!parsed.success) {
     return res.status(RS.CERROR_UNPROCESSABLE).json({
@@ -199,13 +46,64 @@ export default async function handler(
     })
   }
 
+  const input = parsed.data
+  const email = input.email.toLowerCase()
+  const verificationRequired = isEmailConfigured()
+  const verificationCode = verificationRequired
+    ? randomBytes(24).toString('hex')
+    : null
   try {
-    if (process.env.DATABASE_URL) {
-      return await createPostgresAccount(parsed.data, res)
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: await hashPassword(input.password),
+        nickname: input.nickname,
+        role: input.role ?? UserRole.user,
+        enabled: !verificationRequired,
+        verificationCode,
+        verificationSentAt: verificationRequired ? new Date() : null,
+        birthday: parsedBirthday(input.birthday),
+        sex: input.sex || null,
+        settings: { create: { language: input.lang ?? 0 } },
+      },
+      select: { id: true },
+    })
+
+    if (verificationCode) {
+      try {
+        await sendEmail(
+          email,
+          'Verify your ResonApp account',
+          `${publicBaseUrl()}/api/auth/verify/${user.id}/${verificationCode}`
+        )
+      } catch (error) {
+        console.error('Signup verification email failed:', error)
+        try {
+          await prisma.user.delete({ where: { id: user.id } })
+        } catch (cleanupError) {
+          console.error('Could not roll back unverified signup:', cleanupError)
+        }
+        return res.status(503).json({
+          message: 'Could not send verification email. Check SMTP settings and try again.',
+        })
+      }
     }
-    return await createMongoAccount(parsed.data, res)
+
+    return res.status(RS.SUCCESS_CREATED).json({
+      message: verificationRequired
+        ? 'Account created. Check your email to verify it.'
+        : 'Account created. You can now sign in.',
+    })
   } catch (error) {
-    console.error('Account registration failed:', error)
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === 'P2002'
+    ) {
+      return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'User exists already!' })
+    }
+    console.error('PostgreSQL account registration failed:', error)
     return res.status(500).json({ message: 'Could not create your account.' })
   }
 }

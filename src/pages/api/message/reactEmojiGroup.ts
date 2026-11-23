@@ -1,72 +1,31 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
-import { ObjectId } from 'mongodb'
+import { prisma } from '@lib/prisma'
+import { toggleReaction } from '@lib/chat-data'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
-  if (session == undefined)
-    return res.status(RS.CERROR_UNAUTHORIZED).json({
-      message: 'Unauthorized',
-    })
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
   if (req.method !== 'POST') {
-    return res.status(RS.CERROR_FORBIDDEN).json({
-      message: 'Wrong HTTP Method',
-    })
-  }
-  
-  const email = session?.user?.email as string;
-  
-  const client = await connectToDatabase();
-
-  const messagesCollection = client.db().collection('groupMsgs');
-
-  let { msgId, emojiId } = req.body;
-
-  try {
-    const reactedMsg = await messagesCollection.find({
-      _id: new ObjectId(msgId)
-    }).project({
-      reactEmoji: 1
-    }).toArray();
-    if (reactedMsg[0].reactEmoji?.[`${emojiId}`]?.length && reactedMsg[0].reactEmoji[`${emojiId}`].includes(email) ) {
-      const result = await messagesCollection.updateOne({
-        _id: new ObjectId(msgId)
-      }, {
-        $pull: {
-          [`reactEmoji.${emojiId}`]: session?.user?.email
-        }
-      });
-      client.close();
-      return res.status(RS.SUCCESS_OK).json({
-        message: 'success',
-        result: result
-      });
-    } else {
-      const result = await messagesCollection.updateOne({
-        _id: new ObjectId(msgId)
-      }, {
-        $addToSet: {
-          [`reactEmoji.${emojiId}`]: session?.user?.email
-        }
-      });
-      client.close();
-      return res.status(RS.SUCCESS_OK).json({
-        message: 'success',
-        result: result
-      });
-    }
-  } catch(error) {
-    console.log(error)
-    client.close()
-    return res.status(RS.SERROR_INTERNAL).json({
-      message: error,
-    })
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
   }
 
+  const { msgId, emojiId } = req.body ?? {}
+  if (typeof msgId !== 'string' || typeof emojiId !== 'string' || !emojiId) {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'Invalid reaction.' })
+  }
+  const message = await prisma.groupMessage.findFirst({
+    where: { id: msgId, group: { members: { some: { user: { email } } } } },
+    select: { id: true, reactions: true },
+  })
+  if (!message) return res.status(RS.CERROR_NOTFOUND).json({ message: 'Message not found.' })
+  const result = await prisma.groupMessage.update({
+    where: { id: message.id },
+    data: { reactions: toggleReaction(message.reactions, emojiId, email) },
+  })
+  return res.status(RS.SUCCESS_OK).json({ message: 'success', result })
 }
-
-export default handler

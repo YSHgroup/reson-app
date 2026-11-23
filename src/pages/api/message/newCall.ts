@@ -1,52 +1,38 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
-import { ObjectId } from 'mongodb'
-import { formatTime, timestampToFormattedDate } from "@lib/utils";
+import { prisma } from '@lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
+import { formatTime, timestampToFormattedDate } from '@lib/utils'
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
-  if (session == undefined)
-    return res.status(RS.CERROR_UNAUTHORIZED).json({
-      message: 'Unauthorized',
-    })
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
   if (req.method !== 'POST') {
-    return res.status(RS.CERROR_FORBIDDEN).json({
-      message: 'Wrong HTTP Method',
-    })
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
   }
-  
-  const client = await connectToDatabase()
-
-  const messagesCollection = client.db().collection('messages');
-
-  let data = req.body;
-
-  try {
-    const newCallInfo = await messagesCollection.insertOne({
-      author: session?.user?.email,
+  const recipientEmail = req.body?.to
+  if (typeof recipientEmail !== 'string' || !recipientEmail) {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'Invalid recipient.' })
+  }
+  const now = Date.now()
+  const call = await prisma.directMessage.create({
+    data: {
+      author: { connect: { email } },
+      recipient: { connect: { email: recipientEmail } },
       type: 'voiceCall',
       content: '0',
-      to: data.to,
-      date: timestampToFormattedDate(Date.now()),
-      time: formatTime(Date.now()),
-      read: false
-    });
-    client.close()
-    return res.status(RS.SUCCESS_OK).json({
-      message: 'Success',
-      newCallInfo: newCallInfo
-    })
-  } catch(error) {
-    client.close()
-    return res.status(RS.SERROR_INTERNAL).json({
-      message: error,
-    })
-  }
-
+      metadata: {
+        date: timestampToFormattedDate(now),
+        time: formatTime(now),
+      },
+    },
+    select: { id: true },
+  })
+  return res.status(RS.SUCCESS_OK).json({
+    message: 'Success',
+    newCallInfo: { insertedId: call.id },
+  })
 }
-
-export default handler

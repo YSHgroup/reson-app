@@ -1,40 +1,36 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]"
 import { textAnalysisPattern } from 'functions/textAnalysisToSore'
+import { prisma } from '@lib/prisma'
+import { appendUserArtifact } from '@lib/user-artifacts'
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
-    return
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Method not allowed.' })
   }
 
   const session: any = await getServerSession(req as any, res as any, authOptions as any)
-
-  const client = await connectToDatabase()
-
-  const messageCollection = client.db().collection('messagestagger')
-
-  // console.log('message: ', req.body)
-  let message = req.body.message
-  let messageAnalysis = textAnalysisPattern(message, session?.user?.email)
-  // console.table(messageAnalysis)
-
-  await messageCollection.updateOne(
-    { email: session.user.email },
-    {
-      $push: {
-        texts: { $each: [messageAnalysis], $slice: -50 },
-      },
-    },
-    { upsert: true }
-  )
-
-  client.close()
-  return res.status(RS.SUCCESS_OK).json({
-    message: 'Success',
-  })
+  const email = session?.user?.email
+  if (!email) return res.status(401).json({ message: 'Unauthorized.' })
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    })
+    if (!user) return res.status(404).json({ message: 'User not found.' })
+    await appendUserArtifact(
+      user.id,
+      'message-analysis',
+      textAnalysisPattern(req.body.message, email)
+    )
+    return res.status(RS.SUCCESS_OK).json({ message: 'Success' })
+  } catch (error) {
+    console.error('Message analysis save failed:', error)
+    return res.status(500).json({ message: 'Could not save message analysis.' })
+  }
 }
 
 export default handler

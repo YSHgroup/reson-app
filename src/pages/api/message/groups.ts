@@ -1,86 +1,64 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
-import { ObjectId } from 'mongodb';
+import { prisma } from '@lib/prisma'
+import { toLegacyGroupMessage } from '@lib/chat-data'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
 
-var pos = require('pos');
-
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
-  if (session == undefined)
-    return res.status(RS.CERROR_UNAUTHORIZED).json({
-      message: 'Unauthorized',
-    })
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
   if (req.method !== 'GET') {
-    return res.status(RS.CERROR_FORBIDDEN).json({
-      message: 'Wrong HTTP Method',
-    })
+    res.setHeader('Allow', 'GET')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
   }
-  const { id } = req.query;
-  const client = await connectToDatabase()
-  const groupchatCollection = client.db().collection('groupchat');
-  const groupMsgsCollection = client.db().collection('groupMsgs');
 
-  if (id) {
-    const group = await groupchatCollection.findOne({_id: new ObjectId(String(id))})
-    client.close()
-    return res.status(RS.SUCCESS_OK).json({
-      group: group,
+  if (typeof req.query.id === 'string') {
+    const group = await prisma.chatGroup.findFirst({
+      where: { id: req.query.id, members: { some: { user: { email } } } },
+      include: {
+        owner: { select: { email: true } },
+        members: { include: { user: { select: { email: true } } } },
+      },
     })
-  } else {
-    const groups = await groupchatCollection.aggregate([
-      {
-        $match: {
-          members: {
-            $in: [session?.user?.email]
-          }
-        }
-      },
-      {
-        $lookup: {
-          from: 'groupMsgs',
-          let: { 'relatedId': '$_id' },
-          pipeline: [
-            {
-              $match: {
-                readers: {
-                  $nin: [session?.user?.email]
-                }
-              }
-            },
-            {
-              $match: {
-                $expr: {
-                  $eq: ['$groupId', '$$relatedId']
-                }
-              }
-            }
-          ],
-          as: 'unreadchats'
-        }
-      },
-      {
-        $project: {
-          _id: 1,
-          title: 1,
-          groupAvatar: 1,
-          owner: 1,
-          members: 1,
-          modified: 1,
-          unreadchats: 1,
-        }
-      }
-    ]).toArray();
-  
-    client.close()
+    if (!group) return res.status(RS.CERROR_NOTFOUND).json({ group: null })
     return res.status(RS.SUCCESS_OK).json({
-      groups: groups,
+      group: {
+        _id: group.id,
+        title: group.title,
+        owner: group.owner.email,
+        members: group.members.map((member) => member.user.email),
+        groupAvatar: group.avatarUrl,
+        created: group.createdAt,
+        modified: group.updatedAt,
+      },
     })
   }
 
+  const groups = await prisma.chatGroup.findMany({
+    where: { members: { some: { user: { email } } } },
+    include: {
+      owner: { select: { email: true } },
+      members: { include: { user: { select: { email: true } } } },
+      messages: {
+        where: { NOT: { readers: { has: email } } },
+        include: { sender: { select: { email: true, nickname: true } } },
+        orderBy: { createdAt: 'desc' },
+      },
+    },
+    orderBy: { updatedAt: 'desc' },
+  })
+  return res.status(RS.SUCCESS_OK).json({
+    groups: groups.map((group) => ({
+      _id: group.id,
+      title: group.title,
+      owner: group.owner.email,
+      members: group.members.map((member) => member.user.email),
+      groupAvatar: group.avatarUrl,
+      created: group.createdAt,
+      modified: group.updatedAt,
+      unreadchats: group.messages.map(toLegacyGroupMessage),
+    })),
+  })
 }
-
-export default handler

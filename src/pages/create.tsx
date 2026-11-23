@@ -34,7 +34,6 @@ import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import SnackbarContext, { Snack } from 'context/SnackbarContext'
 import FullLayout from '@layouts/FullLayout'
-import { connectToDatabase } from '@lib/db'
 import { analyseText } from 'functions/anaylseText'
 import { useTheme } from '@emotion/react'
 
@@ -756,22 +755,20 @@ export async function getServerSideProps({ req }: { req: NextApiRequest }) {
   }
 
   try {
-    const client = await connectToDatabase()
-    const collection = client.db().collection('project_texts')
-
-    const textData = await collection.findOne(
-      { email: session.user.email },
-      {
-        projection: {
-          email: 0,
-          _id: 0,
-          'title_texts.user_email': 0,
-          'des_texts.user_email': 0,
-        },
-      }
-    )
-    const titlePattern = analyseText(textData['title_texts'])
-    const desPattern = analyseText(textData['des_texts'])
+    const { prisma } = await import('@lib/prisma')
+    const { recentUserArtifacts } = await import('@lib/user-artifacts')
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    })
+    const [titleTexts, descriptionTexts] = user
+      ? await Promise.all([
+          recentUserArtifacts(user.id, 'project-title-analysis'),
+          recentUserArtifacts(user.id, 'project-description-analysis'),
+        ])
+      : [[], []]
+    const titlePattern = analyseText(titleTexts)
+    const desPattern = analyseText(descriptionTexts)
     return {
       props: {
         session,

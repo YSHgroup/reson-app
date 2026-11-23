@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
 import RS from '@constants/ResponseStatus'
 import { authOptions } from '../auth/[...nextauth]'
-import { connectToDatabase } from '@lib/db'
+import { prisma } from '@lib/prisma'
 var randomGeoHash = require('random-geohash')
 import { z } from 'zod'
 
@@ -63,71 +63,37 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(422).json({ message: 'Invalid birth date.' })
   }
 
-  if (process.env.DATABASE_URL) {
-    try {
-      const { prisma } = await import('@lib/prisma')
-      const result = await prisma.user.updateMany({
-        where: { email: session.user.email },
-        data: {
-          firstName,
-          lastName,
-          company,
-          telephone,
-          address,
-          profession,
-          education,
-          hobby,
-          carExist,
-          birthday,
-          geoLocation: randomGeoHash(),
-        },
-      })
-      if (result.count === 0) {
-        return res.status(404).json({ message: 'User not found.' })
-      }
-      return res.status(RS.SUCCESS_OK).json({
-        message: `Information added to ${firstName ?? ''} ${lastName ?? ''}'s profile.`,
-      })
-    } catch (error) {
-      console.error('Could not update PostgreSQL user profile:', error)
-      return res.status(500).json({ message: 'Could not update your profile.' })
-    }
-  }
-
-  const client = await connectToDatabase()
-
-  const usersCollection = client.db().collection('users')
-
-  let geoLocation = randomGeoHash()
-  const result = await usersCollection.updateOne(
-    {
-      email: session?.user?.email,
-    },
-    {
-      $set: {
-        email: session.user.email,
-        firstName: firstName,
-        lastName: lastName,
-        company: company,
-        telephone: telephone,
-        address: address,
-        profession: profession,
-        education: education,
-        hobby: hobby,
-        geoLocation: geoLocation,
-        carExist: carExist,
-        day_birth: day_birth,
-        month_birth: month_birth,
-        year_birth: year_birth,
+  try {
+    await prisma.user.update({
+      where: { email: session.user.email },
+      data: {
+        firstName,
+        lastName,
+        company,
+        telephone,
+        address,
+        profession,
+        education,
+        hobby,
+        carExist,
+        birthday,
+        geoLocation: randomGeoHash(),
       },
-    },
-    { upsert: false }
-  )
-
-  client.close()
+    })
+  } catch (error) {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === 'P2025'
+    ) {
+      return res.status(404).json({ message: 'User not found.' })
+    }
+    console.error('Could not update PostgreSQL user profile:', error)
+    return res.status(500).json({ message: 'Could not update your profile.' })
+  }
   return res.status(RS.SUCCESS_OK).json({
-    message:
-      'Information added to ' + firstName + ' ' + lastName + "'s profile.",
+    message: `Information added to ${firstName ?? ''} ${lastName ?? ''}'s profile.`,
   })
 }
 

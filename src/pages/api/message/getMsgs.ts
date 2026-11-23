@@ -1,36 +1,39 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
+import { prisma } from '@lib/prisma'
+import { toLegacyDirectMessage } from '@lib/chat-data'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const session: any = await getServerSession(req as any, res as any, authOptions as any)
-    if (session == undefined)
-        return res.status(RS.CERROR_UNAUTHORIZED).json({
-            message: 'Unauthorized',
-        })
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
+  }
 
-    if (req.method !== 'POST') {
-        return res.status(RS.CERROR_FORBIDDEN).json({
-            message: 'Wrong HTTP Method',
-        })
-    }
-    const myEmail = session.user?.email;
-    const { OppositeEmail } : any = req.body;
-    const client = await connectToDatabase()
-    const messagesCollection = client.db().collection('messages');
+  const oppositeEmail = req.body?.OppositeEmail
+  if (typeof oppositeEmail !== 'string' || !oppositeEmail) {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'Invalid recipient.' })
+  }
 
-    const msgs = await messagesCollection.find({
-        $or:[
-          {author:myEmail, to:OppositeEmail},
-          {author:OppositeEmail, to:myEmail},
-        ],}).toArray();
-    client.close()
-    return res.status(RS.SUCCESS_OK).json({
-        msgs: msgs,
-    })
+  const messages = await prisma.directMessage.findMany({
+    where: {
+      OR: [
+        { author: { email }, recipient: { email: oppositeEmail } },
+        { author: { email: oppositeEmail }, recipient: { email } },
+      ],
+    },
+    include: { author: { select: { email: true } }, recipient: { select: { email: true } } },
+    orderBy: { createdAt: 'asc' },
+  })
 
+  return res.status(RS.SUCCESS_OK).json({
+    msgs: messages.map(toLegacyDirectMessage),
+  })
 }
-
-export default handler

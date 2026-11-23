@@ -1,31 +1,34 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { getSession } from 'next-auth/react'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
 import { getDigitalRoot } from '@lib/utils'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]"
+import { prisma } from '@lib/prisma'
+import { appendUserArtifact } from '@lib/user-artifacts'
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
-    return
+    res.setHeader('Allow', 'GET')
+    return res.status(405).json({ message: 'Method not allowed.' })
   }
 
   const session: any = await getServerSession(req as any, res as any, authOptions as any)
-
-
-  const client = await connectToDatabase()
-
-  const usersCollection = client.db().collection('users')
-
-  const user = await usersCollection.findOne({
-    email: session?.user?.email,
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, sex: true, birthday: true },
   })
+  if (!user?.birthday) {
+    return res.status(RS.CERROR_UNPROCESSABLE).json({
+      message: 'Add your birth date to your profile before generating this analysis.',
+    })
+  }
 
-  const sex = user?.sex
-  const day_birth = user?.day_birth
-  const month_birth = user?.month_birth
-  const year_birth = user?.year_birth
+  const sex = user.sex
+  const day_birth = user.birthday.getDate()
+  const month_birth = user.birthday.getMonth() + 1
+  const year_birth = user.birthday.getFullYear()
   
   
   var today = new Date()
@@ -125,10 +128,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     s_first +
     s_first
 
-  const numbersColletion = client.db().collection('numbers')
-  
-  await numbersColletion.insertOne({
-    user_id: user?._id,
+  const numbers = {
+    user_id: user.id,
     dc1,
     dc2,
     mc1,
@@ -175,9 +176,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     DRMb,
     personal_id,
     chat_id
-  })
-
-  client.close()
+  }
+  await appendUserArtifact(user.id, 'number-analysis', numbers)
   return res.status(RS.SUCCESS_OK).json({
     message:
       'success'

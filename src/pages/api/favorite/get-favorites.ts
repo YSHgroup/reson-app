@@ -1,131 +1,32 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '../auth/[...nextauth]'
-import { MongoClient, ObjectId } from 'mongodb'
 import { prisma } from '@lib/prisma'
-import { getPrismaAccount, unmigratedAccountMessage } from '@lib/project-api'
+import { getPrismaAccount } from '@lib/project-api'
 import { toLegacyProject } from '@lib/project-compat'
 
-const findUserFavoriteIds = async (
-  client: any,
-  collectionName: string,
-  emailAdress: string
-) => {
-  const favoritesCollection = client.db().collection(collectionName)
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET')
+    return res.status(RS.CERROR_FORBIDDEN).json({ message: 'Method not supported' })
+  }
   try {
-    const favorites = await favoritesCollection.findOne({
-      user_email: emailAdress,
+    const account = await getPrismaAccount(req, res)
+    if (account.status === 'unauthenticated') {
+      return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
+    }
+    const favorites = await prisma.favorite.findMany({
+      where: { userId: account.user.id },
+      orderBy: { createdAt: 'desc' },
+      include: { project: { include: { author: true } } },
     })
-    return favorites
+    return res.status(RS.SUCCESS_OK).json({
+      favorites: favorites.map(({ project }) => toLegacyProject(project)),
+    })
   } catch (error) {
-    console.error('Error finding documents', error)
-    throw error
+    console.error('Favorite list request failed:', error)
+    return res.status(RS.SERROR_INTERNAL).json({ message: 'Could not load favorites.' })
   }
 }
-
-const findUserFavorite = async (
-  client: MongoClient,
-  collectionName: string,
-  ids: string[]
-) => {
-  const projectCollection = client.db().collection(collectionName)
-  try {
-    const favorites = await projectCollection
-      .find({
-        _id: {
-          $in: ids.map(id => new ObjectId(id))
-        },
-      })
-      .toArray()
-    return favorites
-  } catch (error) {
-    throw error
-  } finally {
-    client.close()
-  }
-}
-
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  if (process.env.DATABASE_URL) {
-    if (req.method !== 'GET') {
-      return res.status(RS.CERROR_FORBIDDEN).json({ message: 'Method not supported' })
-    }
-
-    try {
-      const account = await getPrismaAccount(req, res)
-      if (account.status === 'unauthenticated') {
-        return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
-      }
-      if (account.status === 'unmigrated') {
-        return res.status(409).json({ message: unmigratedAccountMessage() })
-      }
-
-      const favorites = await prisma.favorite.findMany({
-        where: { userId: account.user.id },
-        orderBy: { createdAt: 'desc' },
-        select: { projectId: true },
-      })
-      const projectIds = favorites.map((favorite) => favorite.projectId)
-      const projects = await prisma.project.findMany({
-        where: { id: { in: projectIds } },
-        include: { author: true },
-      })
-      const projectsById = new Map(
-        projects.map((project) => [project.id, toLegacyProject(project)])
-      )
-      return res.status(RS.SUCCESS_OK).json({
-        favorites: projectIds
-          .map((projectId) => projectsById.get(projectId))
-          .filter((project) => project !== undefined),
-      })
-    } catch (error) {
-      console.error('Favorite list request failed:', error)
-      return res.status(RS.SERROR_INTERNAL).json({ message: 'Could not load favorites.' })
-    }
-  }
-
-  const session: any = await getServerSession(
-    req as any,
-    res as any,
-    authOptions as any
-  )
-  res.setHeader('Content-Type', 'application/json')
-  if (!session)
-    return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
-  if (req.method !== 'GET')
-    return res
-      .status(RS.CERROR_FORBIDDEN)
-      .json({ message: 'Method not supported' })
-  try {
-    let error = new Error()
-
-    const client = await connectToDatabase()
-
-    // Get the user's favorite ids from mongodb by email address
-    const ids = (
-      await findUserFavoriteIds(client, 'favorites', session.user.email)
-    ).favor_id
-    if (ids.length === 0) {
-      error.message = 'No Favorites'
-      return res.status(RS.CERROR_NOTFOUND).json({ error })
-    }
-
-    // Get the user's favorite list from mongodb by favorite ids
-    const favorites  = await findUserFavorite(client, 'needs', ids)
-    if (ids.length === 0) {
-      error.message = 'DataBase error!'
-      return res.status(RS.SERROR_INTERNAL).json({ error })
-    }
-
-    res.status(RS.SUCCESS_OK).json({ favorites })
-  } catch (err) {
-    console.log('get-favorites response error: ', err)
-    return res
-      .status(RS.SERROR_INTERNAL)
-      .json({ message: "Favorite datas no exist or Internal server error" })
-  }
-}
-
-export default handler

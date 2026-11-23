@@ -1,92 +1,63 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { getSession } from 'next-auth/react'
-import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-var pos = require('pos');
-import fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
-import path from 'path';
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from './auth/[...nextauth]'
+import { prisma } from '@lib/prisma'
+import { z } from 'zod'
+import fs from 'fs/promises'
+import { v4 as uuidv4 } from 'uuid'
+import path from 'path'
 
 export const config = {
   api: {
-    bodyParser: {
-      sizeLimit: '3000mb'
-    },
+    bodyParser: { sizeLimit: '3000mb' },
   },
-};
+}
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
+const uploadSchema = z.object({
+  name: z.string().min(1).max(255),
+  type: z.string().max(40),
+  data: z.array(z.number().int().min(0).max(255)),
+})
 
-    const session = await getSession({
-      req,
-    })
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST')
+    return res.status(405).send('Method not allowed')
+  }
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(401).json({ message: 'Unauthorized.' })
+  const parsed = uploadSchema.safeParse(req.body)
+  if (!parsed.success) return res.status(422).json({ message: 'Invalid upload.' })
 
-    const { name, type, data } = req.body;
-
-    const picpath = `${uuidv4()}${path.extname(name)}`;
-    if (!fs.existsSync('./uploads/chats')) {
-      fs.mkdirSync('./uploads/chats', { recursive: true });
+  const { name, type, data } = parsed.data
+  const filename = `${uuidv4()}${path.extname(path.basename(name))}`
+  const directory = path.resolve('./uploads/chats')
+  const filePath = path.join(directory, filename)
+  await fs.mkdir(directory, { recursive: true })
+  try {
+    await fs.writeFile(filePath, Buffer.from(data))
+    if (type === 'profile') {
+      await prisma.user.update({
+        where: { email },
+        data: { picturePath: filename },
+      })
     }
-    const filepath = `./uploads/chats/${picpath}`;
-
-
-    const buffer = Buffer.from(data)
-
-    fs.writeFile(filepath, buffer, (err) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send('Error uploading file');
-      } else {
-        const fileExt = path.extname(picpath); // extracts the file extension from the generated filename
-        let fileType;
-        switch (fileExt) { // checks the extension against known image and video formats
-          case '.jpg':
-          case '.jpeg':
-          case '.png':
-          case '.gif':
-            fileType = 'image';
-            break;
-          case '.mp4':
-          case '.mov':
-          case '.avi':
-            fileType = 'video';
-            break;
-          default:
-            fileType = 'other';
-            break;
-        }
-
-        prepare(picpath, session, type, fileType)
-        res.status(200).send({ data: picpath, type: fileType });
+  } catch (error) {
+    await fs.unlink(filePath).catch((cleanupError) => {
+      if ((cleanupError as NodeJS.ErrnoException).code !== 'ENOENT') {
+        console.error('Could not remove failed upload:', cleanupError)
       }
-    });
-  } else {
-    res.status(405).send('Method not allowed');
+    })
+    console.error('Could not save uploaded file:', error)
+    return res.status(500).json({ message: 'Could not upload file.' })
   }
-}
 
-export default handler
-
-function prepare(picpath, session, type, fileType) {
-  if (type === 'profile') {
-    savetodb(picpath, session);
-  }
-}
-async function savetodb(picpath, session) {
-
-  const client = await connectToDatabase()
-
-  const usersCollection = client.db().collection('users')
-
-  await usersCollection.updateOne(
-    {
-      email: session?.user?.email,
-    },
-    {
-      $set: {
-        picpath
-      },
-    }
-  )
+  const extension = path.extname(filename).toLowerCase()
+  const fileType = ['.jpg', '.jpeg', '.png', '.gif'].includes(extension)
+    ? 'image'
+    : ['.mp4', '.mov', '.avi'].includes(extension)
+      ? 'video'
+      : 'other'
+  return res.status(200).json({ data: filename, type: fileType })
 }

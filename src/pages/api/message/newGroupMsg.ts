@@ -1,60 +1,61 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import RS from '@constants/ResponseStatus'
-import { connectToDatabase } from '@lib/db'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
-import { ObjectId } from 'mongodb'
-import { formatTime, timestampToFormattedDate } from "@lib/utils";
+import { prisma } from '@lib/prisma'
+import { toLegacyGroupMessage } from '@lib/chat-data'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]'
+import { formatTime, timestampToFormattedDate } from '@lib/utils'
+import { z } from 'zod'
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session: any = await getServerSession(req as any, res as any, authOptions as any)
-  if (session == undefined)
-    return res.status(RS.CERROR_UNAUTHORIZED).json({
-      message: 'Unauthorized',
-    })
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession(req, res, authOptions)
+  const email = session?.user?.email
+  if (!email) return res.status(RS.CERROR_UNAUTHORIZED).json({ message: 'Unauthorized' })
   if (req.method !== 'POST') {
-    return res.status(RS.CERROR_FORBIDDEN).json({
-      message: 'Wrong HTTP Method',
-    })
-  }
-  
-  const client = await connectToDatabase()
-
-  const groupMsgsCollection = client.db().collection('groupMsgs')
-  const groupchatCollection = client.db().collection('groupchat')
-
-  let message = req.body.message
-  try {
-    const newChatInfo = await groupMsgsCollection.insertOne({
-      posterName: message.posterName,
-      posterEmail: message.posterEmail,
-      type: message.type,
-      content: message.content,
-      groupId: new ObjectId(message.groupId),
-      date: timestampToFormattedDate(Date.now()),
-      time: formatTime(Date.now()),
-      readers: [session?.user?.email]
-    });
-    await groupchatCollection.updateOne({
-      _id: new ObjectId(message.groupId)
-    }, {
-      $set: {
-        modified: new Date()
-      }
-    });
-    client.close()
-    return res.status(RS.SUCCESS_OK).json({
-      message: 'Success',
-      newChatInfo: newChatInfo
-    })
-  } catch(error) {
-    client.close()
-    return res.status(RS.SERROR_INTERNAL).json({
-      message: error,
-    })
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Wrong HTTP Method' })
   }
 
+  const parsed = z.object({
+    message: z.object({
+      groupId: z.string().min(1),
+      content: z.string(),
+      type: z.string().optional(),
+    }),
+  }).safeParse(req.body)
+  if (!parsed.success) return res.status(RS.CERROR_UNPROCESSABLE).json({ message: 'Invalid message.' })
+  const message = parsed.data.message
+  const membership = await prisma.groupMember.findFirst({
+    where: { groupId: message.groupId, user: { email } },
+    select: { id: true },
+  })
+  if (!membership) return res.status(RS.CERROR_FORBIDDEN).json({ message: 'Not a group member.' })
+
+  const now = Date.now()
+  const [saved] = await prisma.$transaction([
+    prisma.groupMessage.create({
+      data: {
+        group: { connect: { id: message.groupId } },
+        sender: { connect: { email } },
+        content: message.content,
+        type: message.type ?? 'text',
+        readers: [email],
+        metadata: {
+          date: timestampToFormattedDate(now),
+          time: formatTime(now),
+        },
+      },
+      include: { sender: { select: { email: true, nickname: true } } },
+    }),
+    prisma.chatGroup.update({
+      where: { id: message.groupId },
+      data: { updatedAt: new Date(now) },
+    }),
+  ])
+  const legacyMessage = toLegacyGroupMessage(saved)
+  return res.status(RS.SUCCESS_OK).json({
+    message: 'Success',
+    newChatInfo: { insertedId: saved.id },
+    chat: legacyMessage,
+  })
 }
-
-export default handler
