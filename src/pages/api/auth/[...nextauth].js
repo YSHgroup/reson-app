@@ -26,6 +26,11 @@ export const authOptions = {
           throw new Error('No user found!')
         }
 
+        if (user.passwordResetRequired || !user.password) {
+          client.close()
+          throw new Error('Password reset required!')
+        }
+
         const isValid = await verifyPassword(
           credentials.password,
           user.password

@@ -1,0 +1,349 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  user
+  admin
+  client
+  talent
+}
+
+enum ProjectStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+}
+
+enum ApplicationStatus {
+  pending
+  accepted
+  declined
+  cancelled
+}
+
+enum SkillAttemptStatus {
+  IN_PROGRESS
+  PASSED
+  FAILED
+  REVIEW_REQUIRED
+}
+
+enum ConnectPurchaseStatus {
+  pending
+  completed
+  failed
+  refunded
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  password              String
+  passwordResetRequired Boolean   @default(false)
+  nickname              String
+  role                  UserRole  @default(user)
+  enabled               Boolean   @default(false)
+  verificationCode      String?
+  verificationSentAt    DateTime?
+
+  firstName   String?
+  lastName    String?
+  birthday    DateTime?
+  sex         String?
+  telephone   String?
+  address     String?
+  country     String?
+  company     String?
+  profession  String?
+  education   String?
+  hobby       String?
+  carExist    String?
+  geoLocation String?
+  picturePath String?
+  bio         String?
+
+  linkedinUrl       String?
+  resumeUrl         String?
+  phoneVerified     Boolean   @default(false)
+  phoneOtpHash      String?
+  phoneOtpExpiresAt DateTime?
+  onboardingDone    Boolean   @default(false)
+  skillTestPassed   Boolean   @default(false)
+  talentBadge       Boolean   @default(false)
+  connects          Int       @default(0)
+
+  companyName      String?
+  companySize      String?
+  companyIndustry  String?
+  companyWebsite   String?
+  companyLocation  String?
+  paymentConnected Boolean @default(false)
+  stripeCustomerId String? @unique
+  stripeAccountId  String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  settings         Setting?
+  projects         Project[]         @relation("ProjectAuthor")
+  applications     Application[]
+  favorites        Favorite[]
+  searchHistory    SearchHistory[]
+  calendarEvents   CalendarEvent[]   @relation("CalendarAuthor")
+  invitedEvents    CalendarEvent[]   @relation("CalendarInvitee")
+  sentMessages     DirectMessage[]   @relation("DirectMessageAuthor")
+  receivedMessages DirectMessage[]   @relation("DirectMessageRecipient")
+  ownedGroups      ChatGroup[]       @relation("GroupOwner")
+  groupMemberships GroupMember[]
+  groupMessages    GroupMessage[]
+  skillAttempts    SkillAttempt[]
+  connectPurchases ConnectPurchase[]
+  oauthAccounts    OAuthAccount[]
+}
+
+model Setting {
+  id            String @id @default(cuid())
+  userId        String @unique
+  user          User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  language      Int    @default(0)
+  modus         Int    @default(0)
+  status        Int    @default(0)
+  showFirstname Int    @default(0)
+  showLastname  Int    @default(0)
+  showEmail     Int    @default(0)
+  showTelephone Int    @default(0)
+  showAnalysis  Int    @default(0)
+  showPosition  Int    @default(0)
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  authorId    String
+  author      User          @relation("ProjectAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  startLine   DateTime?
+  deadline    DateTime?
+  price       Float?
+  payType     String?
+  payUnit     String?
+  workMode    String?
+  location    String?
+  latitude    Float?
+  longitude   Float?
+  fileUrl     String?
+  status      ProjectStatus @default(OPEN)
+  category    String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  applications Application[]
+
+  @@index([status, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model Application {
+  id          String            @id @default(cuid())
+  projectId   String
+  project     Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  applicantId String
+  applicant   User              @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  coverLetter String?
+  price       Float?
+  status      ApplicationStatus @default(pending)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([projectId, applicantId])
+  @@index([applicantId, createdAt])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, projectId])
+}
+
+model SearchHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  query     Json
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model CalendarEvent {
+  id          String   @id @default(cuid())
+  authorId    String
+  author      User     @relation("CalendarAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  inviteeId   String?
+  invitee     User?    @relation("CalendarInvitee", fields: [inviteeId], references: [id], onDelete: SetNull)
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  background  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([authorId, startDate])
+  @@index([inviteeId, startDate])
+}
+
+model DirectMessage {
+  id          String   @id @default(cuid())
+  authorId    String
+  author      User     @relation("DirectMessageAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  recipientId String
+  recipient   User     @relation("DirectMessageRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  content     String
+  type        String   @default("text")
+  read        Boolean  @default(false)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([authorId, recipientId, createdAt])
+  @@index([recipientId, read, createdAt])
+}
+
+model ChatGroup {
+  id        String         @id @default(cuid())
+  title     String
+  ownerId   String
+  owner     User           @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  avatarUrl String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  members   GroupMember[]
+  messages  GroupMessage[]
+}
+
+model GroupMember {
+  id      String    @id @default(cuid())
+  groupId String
+  group   ChatGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+model GroupMessage {
+  id        String    @id @default(cuid())
+  groupId   String
+  group     ChatGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User      @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content   String
+  type      String    @default("text")
+  readers   String[]  @default([])
+  reactions Json?
+  metadata  Json?
+  createdAt DateTime  @default(now())
+
+  @@index([groupId, createdAt])
+}
+
+model SkillQuestion {
+  id           String         @id @default(cuid())
+  prompt       String
+  options      Json
+  correctIndex Int
+  category     String
+  kind         String         @default("mcq")
+  starterCode  String?
+  functionName String?
+  tests        Json?
+  attempts     SkillAttempt[]
+}
+
+model SkillAttempt {
+  id            String             @id @default(cuid())
+  userId        String
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status        SkillAttemptStatus @default(IN_PROGRESS)
+  score         Int?
+  cameraEnabled Boolean            @default(false)
+  answers       Json?
+  startedAt     DateTime           @default(now())
+  completedAt   DateTime?
+  questionId    String?
+  question      SkillQuestion?     @relation(fields: [questionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, startedAt])
+}
+
+model ConnectPurchase {
+  id              String                @id @default(cuid())
+  userId          String
+  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  connects        Int
+  amountCents     Int
+  stripeSessionId String?               @unique
+  status          ConnectPurchaseStatus @default(pending)
+  createdAt       DateTime              @default(now())
+  completedAt     DateTime?
+
+  @@index([userId, createdAt])
+}
+
+model OAuthAccount {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     String
+  providerId   String
+  accessToken  String?
+  refreshToken String?
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@unique([provider, providerId])
+  @@index([userId])
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  subject   String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([subject])
+}
+
+model LegacyImport {
+  id               String   @id @default(cuid())
+  sourceCollection String
+  sourceId         String
+  targetModel      String
+  targetId         String
+  migratedAt       DateTime @default(now())
+
+  @@unique([sourceCollection, sourceId])
+  @@index([targetModel, targetId])
+}
+
+model LegacyDocument {
+  id               String   @id @default(cuid())
+  sourceCollection String
+  sourceId         String
+  data             Json
+  migratedAt       DateTime @default(now())
+
+  @@unique([sourceCollection, sourceId])
+  @@index([sourceCollection, migratedAt])
+}

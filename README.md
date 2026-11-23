@@ -7,9 +7,10 @@ real-time messaging, including group chat and calls.
 ## Technology
 
 - Next.js 16 with React 19 and TypeScript
-- Node.js 20.9 or newer (required by Next.js 16)
+- Node.js 20.19 or newer (required by Prisma's Neon driver)
 - MongoDB for application data
 - NextAuth.js for authentication
+- Prisma with PostgreSQL (Neon) for new relational features
 - A separate Express and Socket.IO service for real-time chat
 - Material UI for interface components
 
@@ -18,7 +19,7 @@ is not part of ResonApp's runtime or dependency installation.
 
 ## Requirements
 
-- Node.js 20.9 or newer
+- Node.js 20.19 or newer
 - Access to a MongoDB database
 
 ## Local development
@@ -36,6 +37,8 @@ is not part of ResonApp's runtime or dependency installation.
    | Variable | Purpose |
    | --- | --- |
    | `MONGO_URI` | MongoDB connection string |
+   | `DATABASE_URL` | Neon PostgreSQL connection string for Prisma |
+   | `LEGACY_MONGO_URI`, `LEGACY_MONGO_DATABASE` | Optional legacy MongoDB source for data migration |
    | `NEXT_PUBLIC_BASE_URL` | Public base URL used when constructing app links |
    | `NEXT_PUBLIC_CHAT_URI` | URL of the Socket.IO chat service |
    | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `REDIRECT_URI` | Google sign-in |
@@ -43,6 +46,8 @@ is not part of ResonApp's runtime or dependency installation.
    | `NEXTAUTH_SECRET` | Secret used to sign NextAuth sessions |
    | `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` | Mapbox maps and geocoding |
    | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Google Places autocomplete |
+   | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Optional Stripe payments |
+   | `CONNECT_PACK_PRICE_CENTS`, `CONNECT_PACK_SIZE` | Optional Stripe connect-pack settings |
 
 3. Start the web app and chat service:
 
@@ -63,6 +68,10 @@ is not part of ResonApp's runtime or dependency installation.
 | `npm run next:start` | Start the production Next.js server |
 | `npm run chat:start` | Start the production chat service |
 | `npm run lint` | Run the Next.js ESLint checks |
+| `npm run db:generate` | Generate the Prisma client |
+| `npm run db:migrate` | Create and apply a development PostgreSQL migration |
+| `npm run db:deploy` | Apply committed PostgreSQL migrations |
+| `npm run db:import:mongodb` | Copy legacy MongoDB documents to PostgreSQL without modifying MongoDB |
 
 The production web and chat services are started separately with
 `npm run next:start` and `npm run chat:start`.
@@ -79,5 +88,14 @@ The production web and chat services are started separately with
 ## Reference project
 
 The Wova marketplace archive under `reference/` is a distinct application with
-its own App Router, Prisma schema, and SQLite data model. Its code and database
-are not wired into ResonApp.
+its own App Router, Prisma schema, and SQLite data model. ResonApp retains its
+routes and MongoDB integrations while adopting compatible patterns and adding
+a Neon-backed relational foundation. New features use Prisma; legacy MongoDB
+data remains intact. Set `DATABASE_URL`, run `npm run db:generate`, review and
+apply migrations, then run `npm run db:import:mongodb` when ready to import
+legacy data. Apply the committed schema with `npm run db:deploy` before running
+the importer. It is resumable and never deletes or changes the source MongoDB
+records; every source collection is also retained as JSON in `LegacyDocument`,
+and users are mapped to relational `User` records. Back up both databases and
+review the imported records before switching production features to
+PostgreSQL.
