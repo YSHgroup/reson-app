@@ -237,6 +237,9 @@ export default function Home({ userInfo }) {
                 'Профіль фахівця',
               ][lang]}
             </MenuItem>
+            <MenuItem component={Link} href="/skills" dense>
+              {['Skill assessments', 'Fähigkeitstests', 'Оценка навыков', 'Оцінка навичок'][lang]}
+            </MenuItem>
             <MenuItem dense onClick={() => handleSignOut()}>
               {languagejson[lang].signOut}
             </MenuItem>

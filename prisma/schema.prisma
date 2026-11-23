@@ -272,22 +272,27 @@ model SkillQuestion {
   functionName String?
   tests        Json?
   attempts     SkillAttempt[]
+
+  @@index([category])
 }
 
 model SkillAttempt {
   id            String             @id @default(cuid())
   userId        String
   user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category      String
+  questionIds   String[]           @default([])
   status        SkillAttemptStatus @default(IN_PROGRESS)
   score         Int?
   cameraEnabled Boolean            @default(false)
   answers       Json?
   startedAt     DateTime           @default(now())
+  expiresAt     DateTime
   completedAt   DateTime?
   questionId    String?
   question      SkillQuestion?     @relation(fields: [questionId], references: [id], onDelete: SetNull)
 
-  @@index([userId, startedAt])
+  @@index([userId, category, startedAt])
 }
 
 model ConnectPurchase {

@@ -72,6 +72,7 @@ is not part of ResonApp's runtime or dependency installation.
 | `npm run db:generate` | Generate the Prisma client |
 | `npm run db:migrate` | Create and apply a development PostgreSQL migration |
 | `npm run db:deploy` | Apply committed PostgreSQL migrations |
+| `npm run db:seed` | Add the built-in skill assessment question bank |
 | `npm run db:import:mongodb` | Copy legacy MongoDB documents to PostgreSQL without modifying MongoDB |
 
 The production web and chat services are started separately with
@@ -107,3 +108,8 @@ credentials are configured; codes are hashed, expire after five minutes, and
 are limited to five attempts. Existing signup continues to write to MongoDB
 and, when `DATABASE_URL` is configured, synchronizes a new profile to
 PostgreSQL. Imported accounts are not overwritten.
+
+Professional accounts can take timed skill assessments at `/skills`. Questions
+are selected randomly from the seeded question bank, answers are graded only
+on the server, and a passing score awards the talent badge. Each category is
+limited to three attempts per user per day.
